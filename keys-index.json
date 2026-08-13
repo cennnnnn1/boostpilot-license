@@ -1,0 +1,49 @@
+{
+  "updatedAt": "2026-08-13T12:29:21.439Z",
+  "entries": {
+    "7f80d02d2d328b3f590de4946989b010b0793c97399ad94f02a5fc063f435028": {
+      "plan": "Mensual",
+      "days": 30,
+      "hours": 0,
+      "game": null,
+      "trial": false,
+      "active": true,
+      "paid": true,
+      "vip": false,
+      "maxDevices": 1
+    },
+    "4bd61923c1f245ddc11c2fafdff8f086ec0deecf487813d2dcf8a3dd746dae74": {
+      "plan": "Mensual",
+      "days": 30,
+      "hours": 0,
+      "game": null,
+      "trial": false,
+      "active": true,
+      "paid": true,
+      "vip": false,
+      "maxDevices": 1
+    },
+    "b759946e93a81e035e776ef0a8605d47e0625a7707c1244e9ed963b43f08d02f": {
+      "plan": "Mensual",
+      "days": 30,
+      "hours": 0,
+      "game": null,
+      "trial": false,
+      "active": true,
+      "paid": true,
+      "vip": false,
+      "maxDevices": 1
+    },
+    "cbebffe638303ac3f69d531bf465c1bf3f6d2302d0981f50ceb8c7750a2c23d8": {
+      "plan": "De por vida",
+      "days": 36500,
+      "hours": 0,
+      "game": null,
+      "trial": false,
+      "active": true,
+      "paid": true,
+      "vip": false,
+      "maxDevices": 1
+    }
+  }
+}
