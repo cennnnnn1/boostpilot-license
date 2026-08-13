@@ -9,13 +9,13 @@
 <style>
   :root {
     color-scheme: dark;
-    --bg: #06080f; --bg2: #0b101c; --panel: #0f1420; --panel2: #182038; --line: #25314f;
-    --text: #eef2fc; --muted: #a5b4d4; --dim: #6e80a3;
-    --gold: #ffc94d; --gold2: #ffe3a3; --green: #3ae3a7; --blue: #66b3ff;
-    --amber: #ffc65c; --red: #ff6f6f; --purple: #b18cff;
-    --pink: #ff6a8a;
-    --grad: linear-gradient(135deg, #ffc94d 0%, #ff8a3d 45%, #ff6a8a 100%);
-    --glowGold: rgba(255,201,77,.16);
+    --bg: #07080f; --bg2: #0b0e1a; --panel: #111527; --panel2: #161b2e; --line: #20263c;
+    --text: #eef1fb; --muted: #8b93ad; --dim: #5d6580; --fg: #eef1fb;
+    --pink: #ff6a8a; --pink2: #e8437e; --pink3: #ff9dc0;
+    --gold: #ff6a8a; --gold2: #ff9dc0; --amber: #e8437e;
+    --green: #34d399; --blue: #66b3ff; --red: #f87171; --purple: #a855f7;
+    --grad: linear-gradient(135deg, #ff9dc0 0%, #ff6a8a 45%, #e8437e 100%);
+    --glowGold: rgba(255,106,138,.16);
     --radius: 16px;
     --shadow: 0 14px 40px rgba(2,6,18,.55);
     --font: 'Segoe UI Variable Display', 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
@@ -25,20 +25,27 @@
   body {
     font-family: var(--font);
     background:
-      radial-gradient(1100px 480px at 85% -10%, rgba(255,154,61,.10), transparent 60%),
-      radial-gradient(900px 420px at 2% -8%, rgba(102,179,255,.09), transparent 55%),
-      radial-gradient(1000px 620px at 50% 118%, rgba(255,106,138,.08), transparent 60%),
-      linear-gradient(180deg, #0a0e18 0%, #05070d 100%);
+      radial-gradient(900px 520px at 85% -10%, rgba(232,67,126,.14), transparent 60%),
+      radial-gradient(820px 520px at -10% 8%, rgba(168,85,247,.10), transparent 55%),
+      radial-gradient(900px 600px at 50% 120%, rgba(255,106,138,.08), transparent 60%),
+      linear-gradient(180deg, #0a0d1a 0%, #07080f 100%);
     background-attachment: fixed;
     color: var(--text); min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background-image: radial-gradient(rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size: 26px 26px;
+    -webkit-mask-image: radial-gradient(80% 60% at 50% 0%, #000, transparent 75%);
+            mask-image: radial-gradient(80% 60% at 50% 0%, #000, transparent 75%);
+  }
   ::-webkit-scrollbar { width: 9px; height: 9px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: rgba(146,163,195,.18); border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(255,201,77,.32); background-clip: content-box; }
-  ::selection { background: rgba(255,201,77,.28); }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,106,138,.32); background-clip: content-box; }
+  ::selection { background: rgba(255,106,138,.28); }
 
   header.topbar {
     position: sticky; top: 0; z-index: 50;
@@ -55,12 +62,12 @@
   .brand-logo {
     width: 42px; height: 42px; border-radius: 13px; flex: none;
     background: transparent; display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 6px 20px rgba(255,106,138,.28);
+    box-shadow: 0 6px 20px rgba(255,106,138,.45);
     position: relative; overflow: hidden;
   }
   .brand-logo svg { width: 42px; height: 42px; display: block; position: relative; z-index: 1; }
   .brand-name { font-size: 17px; font-weight: 800; letter-spacing: .2px; line-height: 1.1; }
-  .brand-name em { font-style: normal; background: linear-gradient(90deg, #ffc94d, #ff8a3d, #ff6a8a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .brand-name em { font-style: normal; background: linear-gradient(90deg, #ff9dc0, #e8437e, #ff6a8a); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .brand-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
   nav.tabs { display: flex; gap: 4px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; min-width: 0; flex: 1 1 auto; justify-content: center; }
@@ -73,17 +80,17 @@
   }
   nav.tabs button:hover { color: var(--text); background: rgba(255,255,255,.05); }
   nav.tabs button.active {
-    color: var(--gold2); background: linear-gradient(180deg, rgba(255,201,77,.16), rgba(255,154,61,.08));
-    border-color: rgba(255,201,77,.35); box-shadow: 0 0 0 1px rgba(255,201,77,.12) inset, 0 4px 18px rgba(255,154,61,.12);
+    color: var(--gold2); background: linear-gradient(180deg, rgba(255,106,138,.16), rgba(232,67,126,.08));
+    border-color: rgba(255,106,138,.35); box-shadow: 0 0 0 1px rgba(255,106,138,.12) inset, 0 4px 18px rgba(232,67,126,.12);
   }
   nav.tabs button svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   nav.tabs button .tab-sym { font-size: 12px; line-height: 1; color: var(--gold); opacity: .9; }
   .seg { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
   .seg button { flex: 1; min-width: 130px; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg2); color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer; transition: all .18s ease; text-align: center; }
-  .seg button:hover { color: var(--text); border-color: rgba(255,201,77,.45); }
-  .seg button.active { color: var(--gold2); border-color: rgba(255,201,77,.5); background: rgba(255,201,77,.12); box-shadow: 0 0 0 1px rgba(255,201,77,.15) inset; }
-  .badge { display: inline-block; min-width: 19px; background: var(--grad); color: #1b1220; border-radius: 999px; font-size: 11px; font-weight: 800; padding: 1px 6px; text-align: center; }
-  .tab-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; background: linear-gradient(135deg, #ffc94d, #ff6a8a); color: #1b1220; border-radius: 999px; font-size: 10.5px; font-weight: 800; line-height: 1; box-shadow: 0 2px 10px rgba(255,106,138,.45); }
+  .seg button:hover { color: var(--text); border-color: rgba(255,106,138,.45); }
+  .seg button.active { color: var(--gold2); border-color: rgba(255,106,138,.5); background: rgba(255,106,138,.12); box-shadow: 0 0 0 1px rgba(255,106,138,.15) inset; }
+  .badge { display: inline-block; min-width: 19px; background: var(--grad); color: #1a0710; border-radius: 999px; font-size: 11px; font-weight: 800; padding: 1px 6px; text-align: center; }
+  .tab-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; background: linear-gradient(135deg, #ff9dc0, #ff6a8a); color: #1a0710; border-radius: 999px; font-size: 10.5px; font-weight: 800; line-height: 1; box-shadow: 0 2px 10px rgba(255,106,138,.45); }
   .wh-steps { margin: 0 0 14px; padding-left: 20px; font-size: 12.5px; color: var(--muted); line-height: 1.7; }
   .wh-steps li { margin-bottom: 2px; }
   .wh-steps b { color: var(--fg); }
@@ -113,7 +120,7 @@
   .status-pill::before { content: ''; width: 8px; height: 8px; border-radius: 50%; }
   .status-pill.active { color: var(--green); border-color: rgba(52,211,153,.4); background: rgba(52,211,153,.1); }
   .status-pill.active::before { background: var(--green); box-shadow: 0 0 8px var(--green); }
-  .status-pill.paused { color: var(--amber); border-color: rgba(251,191,36,.4); background: rgba(251,191,36,.1); }
+  .status-pill.paused { color: var(--amber); border-color: rgba(232,67,126,.4); background: rgba(232,67,126,.1); }
   .status-pill.paused::before { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
   .btn-pause { background: rgba(96,165,250,.12); border-color: rgba(96,165,250,.4); color: var(--blue); }
   .btn-pause:hover:not(:disabled) { background: rgba(96,165,250,.22); }
@@ -125,7 +132,7 @@
     padding: 7px 12px; font-size: 12.5px;
   }
   .btn-logout:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 8px 22px rgba(229,57,53,.45); }
-  .status-pill.sub.ok { color: var(--gold2); border-color: rgba(255,201,77,.4); background: rgba(255,201,77,.1); }
+  .status-pill.sub.ok { color: var(--gold2); border-color: rgba(255,106,138,.4); background: rgba(255,106,138,.1); }
   .status-pill.sub.ok::before { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
   .status-pill.sub.bad { color: var(--red); border-color: rgba(248,113,113,.4); background: rgba(248,113,113,.1); }
   .status-pill.sub.bad::before { background: var(--red); box-shadow: 0 0 8px var(--red); }
@@ -134,7 +141,7 @@
     position: fixed; inset: 0; z-index: 200;
     display: flex; align-items: center; justify-content: center;
     background:
-      radial-gradient(900px 400px at 85% -10%, rgba(255,201,77,.14), transparent 60%),
+      radial-gradient(900px 400px at 85% -10%, rgba(255,106,138,.14), transparent 60%),
       radial-gradient(800px 400px at -10% 0%, rgba(102,179,255,.12), transparent 55%),
       radial-gradient(700px 500px at 50% 115%, rgba(255,106,138,.08), transparent 60%),
       #000;
@@ -143,7 +150,7 @@
     background: linear-gradient(180deg, rgba(24,33,56,.96), rgba(17,24,43,.88));
     border: 1px solid rgba(255,255,255,.11); border-radius: 24px; padding: 40px 44px;
     width: 400px; max-width: calc(100vw - 40px); text-align: center;
-    box-shadow: var(--shadow), 0 0 0 1px rgba(255,201,77,.06) inset;
+    box-shadow: var(--shadow), 0 0 0 1px rgba(255,106,138,.06) inset;
     animation: loginIn .35s ease;
   }
   @keyframes loginIn { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
@@ -178,11 +185,11 @@
   .pill.expired { background: rgba(248,113,113,.14); color: var(--red); }
   .pill.revoked { background: rgba(143,160,189,.14); color: var(--muted); }
   .pill.unused { background: rgba(96,165,250,.14); color: var(--blue); }
-  .pill.paypend { background: rgba(251,191,36,.14); color: var(--amber); }
+  .pill.paypend { background: rgba(232,67,126,.14); color: var(--amber); }
   .pill.paid { background: rgba(52,211,153,.14); color: var(--green); }
-  .pill.vip { background: rgba(240,185,11,.2); color: var(--gold2); font-weight: 800; }
+  .pill.vip { background: rgba(255,106,138,.2); color: var(--gold2); font-weight: 800; }
   .eldo-user { display: flex; align-items: center; gap: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg2); margin: 0 0 14px; }
-  .eldo-avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #f5c244, #e0a423); color: #1a1405; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 22px; flex: none; background-size: cover; background-position: center; background-repeat: no-repeat; overflow: hidden; }
+  .eldo-avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #ff9dc0, #e8437e); color: #1a0710; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 22px; flex: none; background-size: cover; background-position: center; background-repeat: no-repeat; overflow: hidden; }
   .eldo-name { font-size: 17px; font-weight: 800; color: var(--fg); }
   .eldo-sub { font-size: 12.5px; color: var(--muted); margin-top: 2px; word-break: break-all; }
   .ktable { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -207,7 +214,7 @@
     color-scheme: dark; appearance: auto;
   }
   select option { background-color: #121a2c; color: #eef2fc; }
-  select:focus { border-color: rgba(255,201,77,.5); }
+  select:focus { border-color: rgba(255,106,138,.5); }
 
   main { padding: 26px 28px 60px; max-width: 1280px; margin: 0 auto; }
   .tab { display: none; animation: fade .25s ease; }
@@ -248,12 +255,12 @@
   .chart-box h4 { margin: 0 0 12px; font-size: 13px; color: var(--gold2); }
   .bars { display: flex; align-items: flex-end; gap: 6px; height: 120px; }
   .bars .bar { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%; }
-  .bars .bar i { width: 70%; background: linear-gradient(180deg, var(--gold), #e0a423); border-radius: 4px 4px 0 0; min-height: 2px; }
+  .bars .bar i { width: 70%; background: linear-gradient(180deg, var(--gold), #e8437e); border-radius: 4px 4px 0 0; min-height: 2px; }
   .bars .bar small { font-size: 10px; color: var(--muted); }
   .hrow { display: flex; align-items: center; gap: 6px; margin: 2px 0; font-size: 12px; }
   .hrow .hn { width: 120px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .hrow .hb { flex: 1; height: 14px; background: rgba(255,255,255,.05); border-radius: 4px; overflow: hidden; }
-  .hrow .hb i { display: block; height: 100%; background: linear-gradient(90deg, #f0b90b, #ff8a3d); border-radius: 4px; }
+  .hrow .hb i { display: block; height: 100%; background: linear-gradient(90deg, #ff6a8a, #e8437e); border-radius: 4px; }
   .hrow .hv { width: 34px; text-align: right; color: var(--text); font-weight: 700; }
   .hist-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
   .hist-filters select, .hist-filters input { background: var(--panel2); border: 1px solid var(--line); color: var(--text); border-radius: 10px; padding: 8px 12px; font-size: 13px; font-family: inherit; }
@@ -270,12 +277,12 @@
   .hist-table .btn { padding: 5px 10px; font-size: 12px; }
   .resp-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; margin-right: 4px; white-space: nowrap; }
   .resp-ok { color: #58e0a0; background: rgba(88,224,160,.12); border: 1px solid rgba(88,224,160,.35); }
-  .resp-warn { color: #ffb85c; background: rgba(255,184,92,.12); border: 1px solid rgba(255,184,92,.35); }
+  .resp-warn { color: #e8437e; background: rgba(232,67,126,.12); border: 1px solid rgba(232,67,126,.35); }
   .hscroll { overflow-x: auto; }
 
   .hint-box {
-    background: linear-gradient(180deg, rgba(255,201,77,.07), rgba(255,154,61,.03));
-    border: 1px solid rgba(255,201,77,.2); border-left: 3px solid var(--gold);
+    background: linear-gradient(180deg, rgba(255,106,138,.07), rgba(232,67,126,.03));
+    border: 1px solid rgba(255,106,138,.2); border-left: 3px solid var(--gold);
     border-radius: 14px; padding: 14px 18px; margin-bottom: 16px; color: var(--muted); font-size: 13.5px; line-height: 1.55;
   }
   .hint-box b { color: var(--text); }
@@ -286,7 +293,7 @@
     transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
     box-shadow: 0 6px 20px rgba(2,6,18,.28);
   }
-  .card:hover { transform: translateY(-2px); border-color: rgba(255,201,77,.28); box-shadow: 0 12px 30px rgba(2,6,18,.42); }
+  .card:hover { transform: translateY(-2px); border-color: rgba(255,106,138,.28); box-shadow: 0 12px 30px rgba(2,6,18,.42); }
   .card.editable { border-left: 4px solid var(--blue); }
   .card.st-placed { border-left: 4px solid var(--gold); }
   .card.st-opened { border-left: 4px solid var(--green); }
@@ -314,9 +321,9 @@
     padding: 3px 10px; letter-spacing: .2px;
   }
   .pill.pending { background: rgba(96,165,250,.14); color: var(--blue); }
-  .pill.placed { background: rgba(240,185,11,.14); color: var(--gold2); }
+  .pill.placed { background: rgba(255,106,138,.14); color: var(--gold2); }
   .pill.opened { background: rgba(52,211,153,.14); color: var(--green); }
-  .pill.skipped { background: rgba(251,191,36,.14); color: var(--amber); }
+  .pill.skipped { background: rgba(232,67,126,.14); color: var(--amber); }
   .pill.rejected, .pill.failed { background: rgba(248,113,113,.14); color: var(--red); }
   .pill.unresolved { background: rgba(167,139,250,.14); color: var(--purple); }
   .pill.seen { background: rgba(143,160,189,.14); color: var(--muted); }
@@ -343,7 +350,7 @@
     background: var(--bg2); border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
     transition: border-color .15s ease;
   }
-  .money:focus-within { border-color: rgba(240,185,11,.5); }
+  .money:focus-within { border-color: rgba(255,106,138,.5); }
   .money > span { padding: 0 2px 0 12px; color: var(--gold2); font-weight: 800; font-size: 15px; }
   .money input.lprice {
     border: none; background: transparent; outline: none;
@@ -357,7 +364,7 @@
     background: rgba(255,255,255,.045); border: 1px solid var(--line); color: var(--text);
     padding: 9px 12px; border-radius: 10px; font-size: 13.5px; outline: none; transition: border-color .15s ease, background .15s ease;
   }
-  input:focus, textarea:focus { border-color: rgba(255,201,77,.55); background: rgba(255,255,255,.06); }
+  input:focus, textarea:focus { border-color: rgba(255,106,138,.55); background: rgba(255,255,255,.06); }
   input.lprice { width: 92px; font-weight: 800; font-size: 15px; }
 
   .btn {
@@ -368,9 +375,9 @@
   .btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
   .btn:disabled { opacity: .55; cursor: default; }
   .btn-primary {
-    background: var(--grad); color: #1b1220; box-shadow: 0 2px 10px rgba(255,154,61,.28); background-clip: padding-box;
+    background: var(--grad); color: #1a0710; box-shadow: 0 2px 10px rgba(232,67,126,.28); background-clip: padding-box;
   }
-  .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(255,154,61,.38); filter: saturate(1.08); }
+  .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(232,67,126,.38); filter: saturate(1.08); }
   .btn-ghost { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.1); color: var(--text); }
   .btn-ghost:hover:not(:disabled) { background: rgba(255,255,255,.09); }
   .btn-danger { background: rgba(248,113,113,.12); border-color: rgba(248,113,113,.3); color: var(--red); }
@@ -405,11 +412,11 @@
     content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%;
     background: #fff; transition: transform .18s ease; box-shadow: 0 2px 6px rgba(0,0,0,.4);
   }
-  .check input:checked { background: linear-gradient(135deg, #ffc94d, #ff8a3d); }
+  .check input:checked { background: linear-gradient(135deg, #ff9dc0, #e8437e); }
   .check input:checked::after { transform: translateX(18px); }
   .cat-toggle-row { justify-content: space-between; }
   .cat-toggle-row .check { font-size: 14px; flex: 1; }
-  .ca-reco { font-style: normal; font-size: 12px; color: var(--gold2); background: rgba(240,185,11,.1); border: 1px solid rgba(240,185,11,.3); border-radius: 8px; padding: 2px 8px; margin-left: 4px; white-space: nowrap; }
+  .ca-reco { font-style: normal; font-size: 12px; color: var(--gold2); background: rgba(255,106,138,.1); border: 1px solid rgba(255,106,138,.3); border-radius: 8px; padding: 2px 8px; margin-left: 4px; white-space: nowrap; }
 
   #log {
     background: #05070e; border: 1px solid rgba(255,255,255,.07); border-radius: var(--radius); padding: 16px 18px;
@@ -446,7 +453,7 @@
   .console-input input { flex: 1; font-family: Consolas, monospace; }
   .console-log.proc { height: 360px; }
   .console-log .cl.step { color: #79c0ff; }
-  .console-log .cl.step.off { color: #e2b93d; }
+  .console-log .cl.step.off { color: #e8437e; }
   .console-log .cstage { display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; padding: 1px 7px; border-radius: 999px; margin-right: 7px; vertical-align: 1px; }
   .console-log .cl.st-vista { color: #79c0ff; }
   .console-log .cl.st-vista .cstage { background: rgba(121,192,255,.16); color: #79c0ff; }
@@ -454,10 +461,10 @@
   .console-log .cl.st-abriendo .cstage { background: rgba(210,168,255,.16); color: #d2a8ff; }
   .console-log .cl.st-creando { color: #7ee787; }
   .console-log .cl.st-creando .cstage { background: rgba(126,231,135,.16); color: #7ee787; }
-  .console-log .cl.st-sugerido { color: #e2b93d; }
-  .console-log .cl.st-sugerido .cstage { background: rgba(226,185,61,.16); color: #e2b93d; }
-  .console-log .cl.st-enviando { color: #ffa657; }
-  .console-log .cl.st-enviando .cstage { background: rgba(255,166,87,.16); color: #ffa657; }
+  .console-log .cl.st-sugerido { color: #e8437e; }
+  .console-log .cl.st-sugerido .cstage { background: rgba(232,67,126,.16); color: #e8437e; }
+  .console-log .cl.st-enviando { color: #ff9dc0; }
+  .console-log .cl.st-enviando .cstage { background: rgba(255,157,192,.16); color: #ff9dc0; }
   .console-log .cl.st-mensaje { color: #56d4dd; }
   .console-log .cl.st-mensaje .cstage { background: rgba(86,212,221,.16); color: #56d4dd; }
   .proc-title { margin: 18px 0 0; font-size: 13px; color: var(--gold2); }
@@ -470,7 +477,7 @@
   .btn-sm { padding: 7px 13px; font-size: 12.5px; }
   .cons-options { display: flex; align-items: center; gap: 18px; margin-top: 12px; flex-wrap: wrap; }
   .cons-options .cons-check { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--muted); cursor: pointer; user-select: none; }
-  .cons-options .cons-check input[type="checkbox"] { width: 15px; height: 15px; margin: 0; accent-color: #f5c244; cursor: pointer; }
+  .cons-options .cons-check input[type="checkbox"] { width: 15px; height: 15px; margin: 0; accent-color: #ff6a8a; cursor: pointer; }
   .cons-stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
   .cons-stats .pill { font-size: 11.5px; }
   .cons-status { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 12px 0 2px; font-size: 12px; }
@@ -493,7 +500,7 @@
   .health .h-dot b { color: var(--text); font-weight: 800; }
   .health .h-dot.on { border-color: rgba(52,211,153,.45); background: rgba(52,211,153,.1); color: var(--green); }
   .health .h-dot.semi { border-color: rgba(96,165,250,.45); background: rgba(96,165,250,.1); color: var(--blue); }
-  .health .h-dot.warn { border-color: rgba(251,191,36,.45); background: rgba(251,191,36,.1); color: var(--amber); }
+  .health .h-dot.warn { border-color: rgba(232,67,126,.45); background: rgba(232,67,126,.1); color: var(--amber); }
   .health .h-dot.bad { border-color: rgba(248,113,113,.45); background: rgba(248,113,113,.1); color: var(--red); }
   .health .h-dot.ts { font-family: Consolas, monospace; color: var(--dim); }
 
@@ -758,7 +765,6 @@
       <h3 data-i18n="st_mode"></h3>
       <div class="hint" data-i18n="st_mode_hint"></div>
       <div class="seg" id="modeSeg">
-        <button type="button" data-mode="off" data-i18n="st_mode_off"></button>
         <button type="button" data-mode="confirm" data-i18n="st_mode_confirm"></button>
         <button type="button" data-mode="auto" data-i18n="st_mode_auto"></button>
       </div>
@@ -958,7 +964,7 @@ const I18N = {
     learn_empty: 'Nada que aprender. Todo coincide con una regla.',
     l_rejected: 'Rechazado', l_choose: '- elegir juego -', l_price_ph: 'precio $', l_kw_ph: 'palabras clave (opcional, separadas por coma)', l_teach: 'Ense\u00f1ar', l_discard: 'Descartar', l_game: 'Juego', l_category: 'Categor\u00eda', l_unknown: 'desconocido',
     st_filters: 'Filtros inteligentes', st_enable: 'Habilitar filtros', st_skipduo: 'Saltar pedidos Duo', st_skipsquad: 'Saltar pedidos Squad / stack / trio', st_skipconsole: 'Saltar consolas (PlayStation, Xbox, Switch)', st_skipcats: 'Categor\u00edas a saltar', st_skipcats_ph: 'ej: Account Selling, Custom Request', st_skipkw: 'Palabras clave a saltar', st_skipkw_ph: 'ej: stream, offline', st_onlygames: 'Solo estos juegos', st_onlygames_ph: 'ej: valorant, brawl_stars. Vac\u00edo = todos',
-    st_mode: 'Modo de ofertas', st_mode_l: 'Enviar ofertas', st_mode_off: 'Desactivado (solo detecta)', st_mode_confirm: 'Semi-autom\u00e1tico (confirma en el panel)', st_mode_auto: 'Autom\u00e1tico (env\u00eda solo)',     st_mode_hint: 'Semi-autom\u00e1tico: las solicitudes quedan en Confirmar y escribes el precio. Autom\u00e1tico env\u00eda la oferta apenas un request coincide con una regla. Por seguridad, el modo Autom\u00e1tico se desactiva solo al reiniciar el programa.', hd_mode: 'Modo',
+    st_mode: 'Modo de ofertas', st_mode_l: 'Enviar ofertas', st_mode_off: 'Desactivado (solo detecta)', st_mode_confirm: 'Semi-autom\u00e1tico (confirma en el panel)', st_mode_auto: 'Autom\u00e1tico (env\u00eda solo)',     st_mode_hint: 'Semi-autom\u00e1tico: las solicitudes quedan en Confirmar y escribes el precio. Autom\u00e1tico env\u00eda la oferta apenas un request coincide con una regla. Por seguridad, al reiniciar el programa el modo Autom\u00e1tico vuelve a Semi-autom\u00e1tico.', hd_mode: 'Modo',
     st_chat: 'Auto-chat + imagen de prueba', st_chat_enable: 'Enviar mensajes autom\u00e1ticos al comprador', st_chat_welcome: 'Mensaje de bienvenida (despu\u00e9s de crear la oferta)', st_chat_welcome_msg: 'Texto del mensaje de bienvenida', st_chat_custom: 'Mensaje para pedidos personalizados (Custom Request)', st_chat_custom_msg: 'Texto del mensaje para pedidos personalizados', st_chat_accepted: 'Mensaje cuando aceptan el pedido (pedir datos de acceso)', st_chat_accepted_msg: 'Texto del mensaje de aceptaci\u00f3n', st_chat_follow: 'Recordatorio a clientes que no respondieron', st_chat_follow_msg: 'Texto del recordatorio', st_chat_image: 'Enviar imagen de prueba', st_chat_image_path: 'Imagen de prueba (ruta)', st_chat_delay_sec: 'Esperar (segundos) antes de enviar', st_keys: 'Teclas', st_keys_hint: 'Atajo para ocultar y mostrar el panel r\u00e1pidamente.', st_keys_hide: 'Ocultar panel',
     st_save: 'Guardar ajustes', st_saved: 'Guardado a las', st_error: 'Error:', st_errconn: 'Error de conexi\u00f3n:', st_unknown: 'desconocido',
     st_active: 'Activo', st_paused: 'Pausado', btn_pause: 'Pausar', btn_resume: 'Continuar', btn_stop: 'Cerrar', btn_stopping: 'Cerrando...', stop_confirm: '\u00bfSeguro que quer\u00e9s cerrar el programa? Dejar\u00e1 de monitorear ofertas.',
@@ -1017,7 +1023,7 @@ const I18N = {
     learn_empty: 'Nothing to learn. Everything matches a rule.',
     l_rejected: 'Rejected', l_choose: '- choose game -', l_price_ph: 'price $', l_kw_ph: 'keywords (optional, comma separated)', l_teach: 'Teach', l_discard: 'Discard', l_game: 'Game', l_category: 'Category', l_unknown: 'unknown',
     st_filters: 'Smart filters', st_enable: 'Enable filters', st_skipduo: 'Skip Duo requests', st_skipsquad: 'Skip Squad / stack / trio requests', st_skipconsole: 'Skip consoles (PlayStation, Xbox, Switch)', st_skipcats: 'Categories to skip', st_skipcats_ph: 'e.g. Account Selling, Custom Request', st_skipkw: 'Keywords to skip', st_skipkw_ph: 'e.g. stream, offline', st_onlygames: 'Only these games', st_onlygames_ph: 'e.g. valorant, brawl_stars. Empty = all',
-    st_mode: 'Offer mode', st_mode_l: 'Send offers', st_mode_off: 'Off (detect only)', st_mode_confirm: 'Semi-automatic (you confirm)', st_mode_auto: 'Automatic (send by itself)',     st_mode_hint: 'Semi-automatic: requests land in Confirm and you type the price. Automatic sends the offer as soon as a request matches a rule. For safety, Automatic mode resets to Off every time the program restarts.', hd_mode: 'Mode',
+    st_mode: 'Offer mode', st_mode_l: 'Send offers', st_mode_off: 'Off (detect only)', st_mode_confirm: 'Semi-automatic (you confirm)', st_mode_auto: 'Automatic (send by itself)',     st_mode_hint: 'Semi-automatic: requests land in Confirm and you type the price. Automatic sends the offer as soon as a request matches a rule. For safety, Automatic mode drops back to Semi-automatic every time the program restarts.', hd_mode: 'Mode',
     st_chat: 'Auto-chat + proof image', st_chat_enable: 'Send automatic messages to the buyer', st_chat_welcome: 'Welcome message (after placing the offer)', st_chat_welcome_msg: 'Welcome message text', st_chat_custom: 'Message for custom requests (Custom Request)', st_chat_custom_msg: 'Custom request message text', st_chat_accepted: 'Message when the order is accepted (ask for login details)', st_chat_accepted_msg: 'Accepted message text', st_chat_follow: 'Follow-up for buyers who did not reply', st_chat_follow_msg: 'Follow-up message text', st_chat_image: 'Send proof image', st_chat_image_path: 'Proof image (path)', st_chat_delay_sec: 'Wait (seconds) before sending', st_keys: 'Hotkeys', st_keys_hint: 'Shortcut to quickly hide and show the panel.', st_keys_hide: 'Hide panel',
     st_save: 'Save settings', st_saved: 'Saved at', st_error: 'Error:', st_errconn: 'Connection error:', st_unknown: 'unknown',
     st_active: 'Active', st_paused: 'Paused', btn_pause: 'Pause', btn_resume: 'Resume', btn_stop: 'Close', btn_stopping: 'Closing...', stop_confirm: 'Are you sure you want to close the program? It will stop monitoring offers.',
@@ -1666,7 +1672,7 @@ function fillSettings(cfg) {
   var n = cfg.notify || {};
   var w = n.discord || {};
   var fm = (cfg.bot && cfg.bot.fastMode) || {};
-  setModeUI((fm.autoPlace === true || fm.autoPlace === 'auto') ? 'auto' : (fm.autoPlace === false || fm.autoPlace === 'off') ? 'off' : 'confirm');
+  setModeUI((fm.autoPlace === true || fm.autoPlace === 'auto') ? 'auto' : 'confirm');
   var ce = fm.categoriesEnabled || {};
   var catDef = { 'trophy boost': true, 'brawlers rank': true, 'prestige icon': true, 'rank boost': true, 'custom request': false };
   var catOrder = ['trophy boost', 'brawlers rank', 'prestige icon', 'rank boost', 'custom request'];
@@ -2135,7 +2141,7 @@ function refreshAutoState() {
     .then(function (cfg) {
       var el = document.getElementById('autoState');
       var fm = (cfg.bot && cfg.bot.fastMode) || {};
-      var mode = (fm.autoPlace === true || fm.autoPlace === 'auto') ? 'auto' : (fm.autoPlace === false || fm.autoPlace === 'off') ? 'off' : 'confirm';
+      var mode = (fm.autoPlace === true || fm.autoPlace === 'auto') ? 'auto' : 'confirm';
       if (el) { el.style.display = 'block'; el.innerHTML = mode === 'auto' ? t('auto_on_auto') : t('auto_on_confirm'); }
       updateAutoBanner(mode);
     })
@@ -2181,7 +2187,7 @@ Array.prototype.forEach.call(modeSegBtns, function (btn) {
   btn.addEventListener('click', function () {
     var next = btn.dataset.mode;
     if (!next) return;
-    var ap = next === 'auto' ? true : (next === 'off' ? false : 'confirm');
+    var ap = next === 'auto' ? true : 'confirm';
     setModeUI(next);
     Array.prototype.forEach.call(modeSegBtns, function (b) { b.disabled = true; });
     fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fastMode: { autoPlace: ap } }) })

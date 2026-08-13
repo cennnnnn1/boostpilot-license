@@ -14,9 +14,13 @@ let config = JSON.parse(await fs.readFile(configPath, 'utf8'));
 
 const _fastStart = config.bot && config.bot.fastMode;
 if (_fastStart && (_fastStart.autoPlace === true || _fastStart.autoPlace === 'auto')) {
-  _fastStart.autoPlace = false;
+  _fastStart.autoPlace = 'confirm';
   await fs.writeFile(configPath, JSON.stringify(config, null, 2));
-  console.log('[fast][SEGURIDAD] El modo AUTOMATICO se desactivo al iniciar. Solo se activa manualmente desde el panel.');
+  console.log('[fast][SEGURIDAD] El modo AUTOMATICO bajo a SEMI-AUTOMATICO al reiniciar. Solo existen los modos semi y auto; el auto se activa solo desde el panel.');
+} else if (_fastStart && (_fastStart.autoPlace === false || _fastStart.autoPlace === 'off')) {
+  _fastStart.autoPlace = 'confirm';
+  await fs.writeFile(configPath, JSON.stringify(config, null, 2));
+  console.log('[fast] El modo desactivado se migro a SEMI-AUTOMATICO (el modo off ya no existe).');
 }
 const stateDir = process.env.ELBOT_STATE_DIR || join(root, 'state');
 mkdirSync(stateDir, { recursive: true });
