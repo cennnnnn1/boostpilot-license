@@ -1,0 +1,28 @@
+<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <radialGradient id="bg1" cx=".5" cy=".3" r=".8">
+    <stop offset="0" stop-color="#191f2b"/>
+    <stop offset=".55" stop-color="#10141d"/>
+    <stop offset="1" stop-color="#090c12"/>
+  </radialGradient>
+  <linearGradient id="ar1" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffffff"/>
+    <stop offset=".55" stop-color="#e9edf5"/>
+    <stop offset="1" stop-color="#cdd6e4"/>
+  </linearGradient>
+  <filter id="drop1" x="-30%" y="-30%" width="160%" height="170%">
+    <feDropShadow dx="0" dy="2.4" stdDeviation="2.2" flood-color="#000" flood-opacity=".55"/>
+  </filter>
+  <clipPath id="ctop"><rect x="10" y="8" width="28" height="9"/></clipPath>
+  <clipPath id="cbot"><rect x="10" y="33" width="28" height="9"/></clipPath>
+</defs>
+<rect x="1" y="1" width="46" height="46" rx="12" fill="url(#bg1)"/>
+<rect x="1" y="1" width="46" height="46" rx="12" fill="none" stroke="#ffffff" stroke-opacity=".07"/>
+<rect x="1" y="1" width="46" height="46" rx="12" fill="none" stroke="#000" stroke-opacity=".55"/>
+<g filter="url(#drop1)">
+  <path d="M24 8l14 16h-8v16H18V24h-8l14-16z" fill="url(#ar1)"/>
+  <path d="M24 8l14 16h-8v16H18V24h-8l14-16z" fill="#ffffff" clip-path="url(#ctop)" opacity=".85"/>
+  <path d="M24 8l14 16h-8v16H18V24h-8l14-16z" fill="#aeb9cc" clip-path="url(#cbot)" opacity=".6"/>
+  <path d="M24 8l14 16h-8v16H18V24h-8l14-16z" fill="none" stroke="#ffffff" stroke-width=".8" opacity=".5"/>
+</g>
+</svg>

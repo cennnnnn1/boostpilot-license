@@ -1,0 +1,18 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="g4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc94d"/><stop offset=".5" stop-color="#ff9a3d"/><stop offset="1" stop-color="#ff6a8a"/></linearGradient>
+  <radialGradient id="g4s" cx=".38" cy=".3" r=".75"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset=".35" stop-color="#ffd9a0" stop-opacity=".35"/><stop offset="1" stop-color="#ff6a8a" stop-opacity="0"/></radialGradient>
+  <filter id="f4" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation=".5"/></filter>
+</defs>
+<path d="M12 1.6l8.4 3.2v5.8c0 5.2-3.4 9.3-8.4 11.8-5-2.5-8.4-6.6-8.4-11.8V4.8L12 1.6z" fill="url(#g4)"/>
+<path d="M12 1.6l8.4 3.2v5.8c0 5.2-3.4 9.3-8.4 11.8-5-2.5-8.4-6.6-8.4-11.8V4.8L12 1.6z" fill="url(#g4s)"/>
+<circle cx="12" cy="12.4" r="3.1" fill="#0b0f1a"/>
+<circle cx="12" cy="12.4" r="3.1" fill="url(#g4s)"/>
+<circle cx="12" cy="12.4" r="1.05" fill="#fff"/>
+<path d="M12 9.3V6.4M14.6 12h2.9M12 15.5v2.9M9.4 12H6.5" stroke="#0b0f1a" stroke-width=".9"/>
+<ellipse cx="12" cy="12.4" rx="7.6" ry="2.9" fill="none" stroke="#3ae3a7" stroke-width=".45" opacity=".75" transform="rotate(-18 12 12.4)"/>
+<circle cx="19.6" cy="10.4" r=".8" fill="#3ae3a7" filter="url(#f4)"/>
+<circle cx="5" cy="14.6" r=".7" fill="#66b3ff" filter="url(#f4)"/>
+<circle cx="14.6" cy="6" r=".7" fill="#66b3ff" filter="url(#f4)"/>
+<circle cx="9" cy="19" r=".7" fill="#66b3ff" filter="url(#f4)"/>
+</svg>

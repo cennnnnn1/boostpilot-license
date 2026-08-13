@@ -1,0 +1,149 @@
+﻿{
+    "keys":  [
+                 {
+                     "id":  "2680a8bb-5b1b-4653-a538-e212eea002f3",
+                     "key":  "E155-7FCD-974D-FF67",
+                     "owner":  "Bruno",
+                     "plan":  "Prueba",
+                     "days":  30,
+                     "note":  "",
+                     "createdAt":  "2026-08-06T03:43:32.079Z",
+                     "activatedAt":  "2026-08-06T03:43:48.844Z",
+                     "expiresAt":  "2026-09-05T03:43:48.844Z",
+                     "active":  false
+                 },
+                 {
+                     "id":  "66008bd3-1513-43f8-8b00-6ed9b393fd39",
+                     "key":  "B012-D09C-F01C-9FFF",
+                     "owner":  "Test",
+                     "plan":  "Descartable",
+                     "days":  7,
+                     "note":  "",
+                     "createdAt":  "2026-08-06T03:43:59.175Z",
+                     "activatedAt":  null,
+                     "expiresAt":  null,
+                     "active":  false
+                 },
+                 {
+                     "id":  "edc9f3df-c75a-4e0e-8bdd-478c476f046f",
+                     "key":  "5C56-7CD4-60BA-9424",
+                     "owner":  "Cliente Demo",
+                     "plan":  "Pro",
+                     "days":  45,
+                     "note":  "",
+                     "createdAt":  "2026-08-06T03:54:26.243Z",
+                     "activatedAt":  null,
+                     "expiresAt":  null,
+                     "active":  false
+                 },
+                 {
+                     "id":  "cdc3c1f9-992e-480e-bdcf-5077ba25d467",
+                     "key":  "96B0-86F3-1ED0-77F0",
+                     "owner":  "Cliente Demo",
+                     "plan":  "Pro",
+                     "days":  15,
+                     "note":  "",
+                     "createdAt":  "2026-08-06T03:54:26.243Z",
+                     "activatedAt":  null,
+                     "expiresAt":  null,
+                     "active":  false
+                 },
+                 {
+                     "id":  "748e9913-589e-4682-9c5b-cc41e508fe02",
+                     "key":  "611E-8E46-8B1F-CE7E",
+                     "owner":  "Cliente",
+                     "plan":  "30 dÃƒÂ­as",
+                     "days":  30,
+                     "note":  "",
+                     "createdAt":  "2026-08-06T03:56:02.681Z",
+                     "activatedAt":  null,
+                     "expiresAt":  null,
+                     "active":  false
+                 },
+                 {
+                     "id":  "97f8b73c-14d7-4025-94c7-a1204c825c18",
+                     "key":  "1752-5B24-6DCF-E116",
+                     "owner":  "CENN",
+                     "plan":  "Pro",
+                     "days":  30,
+                     "note":  "nice bro",
+                     "createdAt":  "2026-08-06T03:56:41.850Z",
+                     "activatedAt":  "2026-08-06T03:56:47.268Z",
+                     "expiresAt":  "2026-09-08T19:00:00.000Z",
+                     "active":  true,
+                     "devices":  [
+                                     "bc37fd1dd48775caf00941cb"
+                                 ],
+                     "vip":  false
+                 },
+                 {
+                     "id":  "1bdc6a64-a8ad-485f-b6d8-e82696981a20",
+                     "key":  "EEEB-6D53-716E-8BDD",
+                     "owner":  "Cliente",
+                     "plan":  "Mensual",
+                     "days":  30,
+                     "note":  "Compra landing (mensual)",
+                     "createdAt":  "2026-08-06T04:55:50.142Z",
+                     "activatedAt":  "2026-08-06T04:56:13.913Z",
+                     "expiresAt":  "2026-09-05T04:56:13.913Z",
+                     "active":  true,
+                     "paid":  true,
+                     "devices":  [
+                                     "eldo-test",
+                                     "eldo-test3"
+                                 ]
+                 },
+                 {
+                     "id":  "6266e3d1-91cd-42a3-af79-1768f6b0912f",
+                     "key":  "3539-6894-410B-F0B8",
+                     "owner":  "Cliente",
+                     "plan":  "Prueba",
+                     "days":  2,
+                     "note":  "Compra landing (prueba)",
+                     "createdAt":  "2026-08-06T04:57:20.696Z",
+                     "activatedAt":  null,
+                     "expiresAt":  null,
+                     "active":  false,
+                     "paid":  false
+                 },
+                 {
+                     "id":  "3186245f-39f9-444e-8a8b-dbfea70d6cfc",
+                     "key":  "6C55-ED59-6F68-BCBA",
+                     "owner":  "Cliente",
+                     "plan":  "Diario",
+                     "days":  1,
+                     "note":  "Compra landing (diario)",
+                     "createdAt":  "2026-08-06T04:57:35.325Z",
+                     "activatedAt":  null,
+                     "expiresAt":  null,
+                     "active":  false,
+                     "paid":  false
+                 },
+                 {
+                     "id":  "952d4d36-4507-44d7-b842-11629b4f0ad2",
+                     "key":  "EC42-C37C-8657-8921",
+                     "owner":  "Cliente",
+                     "plan":  "Semanal",
+                     "days":  7,
+                     "note":  "Compra landing (semanal)",
+                     "createdAt":  "2026-08-06T04:57:39.582Z",
+                     "activatedAt":  null,
+                     "expiresAt":  null,
+                     "active":  false,
+                     "paid":  false
+                 },
+                 {
+                     "id":  "792a9c31-b837-44b1-ab93-561d64fb7e74",
+                     "key":  "A15F-2044-EF5B-895F",
+                     "owner":  "Cliente",
+                     "plan":  "Mensual",
+                     "days":  30,
+                     "note":  "Compra landing (mensual)",
+                     "createdAt":  "2026-08-06T04:57:41.659Z",
+                     "activatedAt":  null,
+                     "expiresAt":  null,
+                     "active":  false,
+                     "paid":  false
+                 }
+             ]
+}

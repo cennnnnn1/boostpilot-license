@@ -1,0 +1,25 @@
+# Dependencias
+node_modules/
+
+# Builds / release
+release/
+launcher/resources/node/
+
+# Estado del bot (sesiones de Eldorado, keys de clientes, tokens de Discord, logs)
+state/
+
+# Perfiles de Chrome (datos personales del login)
+.profile/
+.profile2/
+chrome-profile/
+
+# Config local con secretos (webhook de Discord). Usar config/rules.example.json como plantilla.
+config/rules.json
+
+# Logs
+*.log
+
+# Sistema operativo
+Thumbs.db
+Desktop.ini
+.DS_Store

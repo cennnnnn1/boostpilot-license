@@ -1,0 +1,110 @@
+{
+  "paymentConstants": {
+    "currency": "USD",
+    "fees": {
+      "withdrawal": {
+        "flat": {
+          "amount": 5,
+          "currency": "USD"
+        },
+        "percentage": 4
+      },
+      "balanceTopUp": {
+        "flat": {
+          "amount": 0.3,
+          "currency": "USD"
+        },
+        "percentage": 8
+      },
+      "withdrawalSkrill": {
+        "flat": {
+          "amount": 1,
+          "currency": "USD"
+        },
+        "percentage": 5
+      },
+      "withdrawalPayoneer": {
+        "flat": {
+          "amount": 2,
+          "currency": "USD"
+        },
+        "percentage": 4
+      },
+      "withdrawalSwift": {
+        "flat": {
+          "amount": 10,
+          "currency": "USD"
+        },
+        "percentage": 4
+      },
+      "withdrawalBtc": {
+        "flat": {
+          "amount": 20,
+          "currency": "USD"
+        },
+        "percentage": 6
+      },
+      "withdrawalUsdc": {
+        "flat": {
+          "amount": 20,
+          "currency": "USD"
+        },
+        "percentage": 6
+      },
+      "warrantyFeePercentageFor6Months": 14,
+      "warrantyFeePercentageFor3Months": 10
+    },
+    "isGuestCheckoutEnabled": true,
+    "altPaymentMethodsSettings": {
+      "applePayEnabled": true,
+      "idealEnabled": false,
+      "klarnaEnabled": true,
+      "coinGateEnabled": true
+    },
+    "primerPaymentMethodsSettings": {
+      "primerApplePayEnabled": true,
+      "primerGooglePayEnabled": true,
+      "primerIdealEnabled": true,
+      "primerPixEnabled": true,
+      "primerTwintEnabled": true,
+      "primerBlikEnabled": true,
+      "primerMobilePayEnabled": true,
+      "primerTrustlyEnabled": false,
+      "primerAlipayEnabled": true,
+      "primerPayPalEnabled": true
+    },
+    "stripePaymentMethodsSettings": {
+      "stripeCreditCardEnabled": true,
+      "stripeApplePayEnabled": true,
+      "stripeGooglePayEnabled": true,
+      "stripeCashAppEnabled": true
+    },
+    "withdrawalSettings": {
+      "bitcoinEnabled": true,
+      "usdcEnabled": true,
+      "sepaEnabled": true,
+      "skrillEnabled": true,
+      "payoneerEnabled": true,
+      "swiftEnabled": false
+    }
+  },
+  "offerConstants": {
+    "minimalOfferValue": {
+      "amount": 0.5,
+      "currency": "USD"
+    },
+    "minQuantity": 1,
+    "maxQuantity": 10000000,
+    "minUnitPrice": 0.00001,
+    "maxUnitPrice": 10000
+  },
+  "thirdPartyConstants": {
+    "isHotjarEnabled": true
+  },
+  "eurWithdrawalRate": {
+    "currency": "EUR",
+    "exchangeRate": 0.86735
+  },
+  "newSellerVerificationEnabled": true,
+  "disputeProofFlowEnabled": false
+}

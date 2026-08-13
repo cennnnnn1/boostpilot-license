@@ -1,0 +1,214 @@
+{
+  "0": {
+    "name": "World of Warcraft",
+    "seoAlias": "wow-power-leveling"
+  },
+  "1": {
+    "name": "Rocket League",
+    "seoAlias": "rocket-league-boosting"
+  },
+  "2": {
+    "name": "Path of Exile",
+    "seoAlias": "poe-boosting"
+  },
+  "9": {
+    "name": "RuneScape 3",
+    "seoAlias": "runescape-power-leveling"
+  },
+  "10": {
+    "name": "OSRS",
+    "seoAlias": "osrs-power-leveling"
+  },
+  "11": {
+    "name": "Warframe",
+    "seoAlias": "warframe-boosting"
+  },
+  "14": {
+    "name": "World of Warcraft Mists of Pandaria",
+    "seoAlias": "wow-mists-of-pandaria-classic-boosting"
+  },
+  "16": {
+    "name": "Fortnite",
+    "seoAlias": "fortnite-boosting"
+  },
+  "17": {
+    "name": "League of Legends",
+    "seoAlias": "league-of-legends-boosting"
+  },
+  "18": {
+    "name": "Clash of Clans",
+    "seoAlias": "clash-of-clans-boosting"
+  },
+  "19": {
+    "name": "Escape from Tarkov",
+    "seoAlias": "escape-from-tarkov-power-leveling"
+  },
+  "20": {
+    "name": "Counter-Strike 2",
+    "seoAlias": "cs2-boosting"
+  },
+  "24": {
+    "name": "Black Desert Online",
+    "seoAlias": "bdo-power-leveling"
+  },
+  "27": {
+    "name": "Overwatch",
+    "seoAlias": "overwatch-boosting-services"
+  },
+  "32": {
+    "name": "Valorant",
+    "seoAlias": "valorant-boosting-services"
+  },
+  "33": {
+    "name": "Apex Legends",
+    "seoAlias": "apex-legends-boosting"
+  },
+  "35": {
+    "name": "Call of Duty",
+    "seoAlias": "call-of-duty-boosting"
+  },
+  "37": {
+    "name": "Rust",
+    "seoAlias": "rust-boosting"
+  },
+  "39": {
+    "name": "Genshin Impact",
+    "seoAlias": "genshin-impact-boosting"
+  },
+  "43": {
+    "name": "Dota 2",
+    "seoAlias": "dota-2-boosting"
+  },
+  "44": {
+    "name": "Destiny 2",
+    "seoAlias": "destiny-2-boosting"
+  },
+  "47": {
+    "name": "Dead By Daylight",
+    "seoAlias": "dead-by-daylight-boosting"
+  },
+  "48": {
+    "name": "Rainbow Six Siege X",
+    "seoAlias": "r6-boosting"
+  },
+  "52": {
+    "name": "Clash Royale",
+    "seoAlias": "clash-royale-boosting"
+  },
+  "53": {
+    "name": "League of Legends: Wild Rift",
+    "seoAlias": "lol-wild-rift-boosting"
+  },
+  "55": {
+    "name": "Mobile Legends",
+    "seoAlias": "mobile-legends-boosting"
+  },
+  "56": {
+    "name": "Brawl Stars",
+    "seoAlias": "brawl-stars-boosting"
+  },
+  "57": {
+    "name": "Pokemon Go",
+    "seoAlias": "pokemon-go-boosting"
+  },
+  "61": {
+    "name": "Minecraft",
+    "seoAlias": "minecraft-boosting"
+  },
+  "70": {
+    "name": "Roblox",
+    "seoAlias": "roblox-boosting"
+  },
+  "80": {
+    "name": "War Thunder",
+    "seoAlias": "war-thunder-boosting"
+  },
+  "92": {
+    "name": "WoW Classic",
+    "seoAlias": "wow-classic-boosting"
+  },
+  "132": {
+    "name": "Diablo 4",
+    "seoAlias": "diablo-4-boosting"
+  },
+  "142": {
+    "name": "EA Sports FC",
+    "seoAlias": "ea-fc-boosting"
+  },
+  "171": {
+    "name": "Throne and Liberty",
+    "seoAlias": "throne-and-liberty-boosting"
+  },
+  "198": {
+    "name": "Teamfight Tactics",
+    "seoAlias": "tft-boosting"
+  },
+  "202": {
+    "name": "Blox Fruits",
+    "seoAlias": "blox-fruits-boosting"
+  },
+  "210": {
+    "name": "The First Descendant",
+    "seoAlias": "the-first-descendant-boosting"
+  },
+  "212": {
+    "name": "Anime Vanguards",
+    "seoAlias": "anime-vanguards-boosting"
+  },
+  "214": {
+    "name": "Deadlock",
+    "seoAlias": "deadlock-boosting"
+  },
+  "219": {
+    "name": "Fisch",
+    "seoAlias": "fisch-boosting"
+  },
+  "220": {
+    "name": "Path of Exile 2",
+    "seoAlias": "poe-2-boosting"
+  },
+  "227": {
+    "name": "Marvel Rivals",
+    "seoAlias": "marvel-rivals-boosting"
+  },
+  "233": {
+    "name": "Delta Force",
+    "seoAlias": "delta-force-boosting"
+  },
+  "248": {
+    "name": "Battlefield",
+    "seoAlias": "battlefield-boosting"
+  },
+  "278": {
+    "name": "DonutSMP",
+    "seoAlias": "donut-smp-boosting-services"
+  },
+  "319": {
+    "name": "Arc Raiders",
+    "seoAlias": "arc-raiders-boosting"
+  },
+  "320": {
+    "name": "Arena Breakout: Infinite",
+    "seoAlias": "arena-breakout-infinite-boosting"
+  },
+  "321": {
+    "name": "Arena Breakout",
+    "seoAlias": "arena-breakout-boosting"
+  },
+  "323": {
+    "name": "Where Winds Meet",
+    "seoAlias": "where-winds-meet-boosting"
+  },
+  "411": {
+    "name": "The Division 2",
+    "seoAlias": "division-2-boosting"
+  },
+  "414": {
+    "name": "Forza Horizon 6",
+    "seoAlias": "forza-horizon-6-boosting"
+  },
+  "432": {
+    "name": "VV: Ultimatum",
+    "seoAlias": "vv-ultimatum-services"
+  }
+}

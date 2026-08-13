@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>BoostPilot</title>
+<style>
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+html { color-scheme: dark; }
+body {
+  margin: 0; font-family: 'Segoe UI', system-ui, sans-serif;
+  background:
+    radial-gradient(700px 400px at 50% -20%, rgba(255,154,61,.10), transparent 60%),
+    radial-gradient(600px 480px at 50% 130%, rgba(255,106,138,.10), transparent 60%),
+    #000;
+  color: #e6ebf7; display: flex; flex-direction: column; user-select: none; overflow: hidden;
+}
+.wrap { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 10px 26px; -webkit-app-region: drag; }
+.logo {
+  width: 56px; height: 56px; border-radius: 17px; margin: 0 auto 14px; flex: none;
+  background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 26px rgba(255,106,138,.3); animation: fadeIn .4s ease;
+}
+.logo svg { width: 56px; height: 56px; }
+.title { font-size: 20px; font-weight: 800; letter-spacing: .3px; text-align: center; margin-bottom: 8px; animation: fadeIn .4s ease; background: linear-gradient(90deg, #ff9dc0, #ff6a8a, #e8437e); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lead { font-size: 13.5px; color: #8a8f9c; line-height: 1.5; margin: 0 0 18px; text-align: center; }
+input[type=text] {
+  width: 100%; background: #000; border: 1px solid #2b2b2b; color: #e6ebf7; border-radius: 10px;
+  padding: 14px 14px; font-size: 18px; letter-spacing: 3px; text-align: center; font-family: 'Consolas', 'Cascadia Code', monospace;
+  outline: none; margin-bottom: 12px; -webkit-app-region: no-drag;
+}
+input:focus { border-color: #f5c244; box-shadow: none; }
+.btn {
+  width: 100%; border: 1px solid transparent; border-radius: 10px; padding: 13px 14px; font-size: 14px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; -webkit-app-region: no-drag;
+  transition: filter .15s ease, opacity .15s ease;
+}
+.btn.primary { background: linear-gradient(135deg, #f5c244, #e0a423); color: #1a1405; background-clip: padding-box; }
+.btn.primary:hover { filter: brightness(1.06); }
+.btn.primary:disabled { opacity: .55; cursor: default; }
+.btn.ghost { background: #13131a; border-color: #2b2b2b; color: #cfd6e6; }
+.btn.ghost:hover { filter: brightness(1.15); }
+.btn.renew { background: linear-gradient(135deg, #34d399, #10b981); color: #04251b; margin-top: 8px; background-clip: padding-box; }
+.btn.renew:hover { filter: brightness(1.06); }
+.status { min-height: 20px; text-align: center; font-size: 12.5px; margin-top: 10px; color: #8b98bd; }
+.status.err { color: #f87171; }
+.status.ok { color: #34d399; }
+.welcome { color: #34d399; font-size: 15px; font-weight: 700; margin-top: 12px; letter-spacing: .3px; text-align: center; animation: fadeIn .4s ease; }
+.footer { padding: 10px 16px; border-top: 1px solid #1c1c24; display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 11.5px; color: #8a8f9c; -webkit-app-region: no-drag; }
+.foot-left { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #555; flex: none; }
+.dot.on { background: #34d399; animation: pulse 1.6s infinite; }
+.dot.off { background: #f87171; }
+.foot-actions { display: flex; gap: 6px; }
+.foot-actions button {
+  background: #13131a; border: 1px solid #2b2b2b; color: #cfd6e6; border-radius: 8px;
+  padding: 5px 10px; font-size: 11.5px; font-weight: 600; cursor: pointer;
+}
+.foot-actions button:hover { filter: brightness(1.2); }
+.foot-actions button.quit { color: #f87171; }
+.foot-actions button.on { color: #34d399; border-color: #14532d; }
+.row-actions { display: flex; gap: 8px; -webkit-app-region: no-drag; }
+.row-actions .btn { padding: 10px; }
+.keep-row { margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12.5px; color: #8a8f9c; -webkit-app-region: no-drag; cursor: pointer; }
+.keep-row input { width: 15px; height: 15px; accent-color: #f5c244; cursor: pointer; margin: 0; }
+#renewBox { display: none; margin-top: 10px; text-align: center; -webkit-app-region: no-drag; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="logo"><svg viewBox="0 0 48 48"><defs><linearGradient id="pl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9dc0"/><stop offset=".5" stop-color="#ff6a8a"/><stop offset="1" stop-color="#e8437e"/></linearGradient><linearGradient id="pd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#160a12" stop-opacity="0"/><stop offset="1" stop-color="#0a0307" stop-opacity=".85"/></linearGradient><clipPath id="pt"><rect x="8" y="9" width="32" height="9"/></clipPath><clipPath id="pb"><rect x="8" y="32" width="32" height="9"/></clipPath></defs><rect x="1.5" y="1.5" width="45" height="45" rx="13" fill="#0d1018" stroke="#2a1a26" stroke-width="1"/><path d="M24 9l13.5 15.5h-8V39h-11V24.5h-8L24 9z" fill="url(#pl)"/><path d="M24 9l13.5 15.5h-8V39h-11V24.5h-8L24 9z" fill="#fff" opacity=".4" clip-path="url(#pt)"/><path d="M24 9l13.5 15.5h-8V39h-11V24.5h-8L24 9z" fill="url(#pd)" clip-path="url(#pb)"/><path d="M24 9l13.5 15.5h-8V39h-11V24.5h-8L24 9z" fill="none" stroke="#ffd3e2" stroke-width="1.1" opacity=".45"/></svg></div>
+    <div class="title">BoostPilot</div>
+    <p class="lead" id="leadText">Ingres&aacute; tu llave de acceso &uacute;nica para activar tu suscripci&oacute;n.</p>
+    <input id="keyInput" type="text" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false">
+    <div class="row-actions">
+      <button id="enterBtn" class="btn primary">Entrar</button>
+    </div>
+    <div id="status" class="status"></div>
+    <div id="welcomeMsg" class="welcome" style="display:none"></div>
+    <div id="renewBox">
+      <div id="renewHint" class="lead" style="margin:0 0 8px"></div>
+      <button id="renewBtn" class="btn renew">Renovar suscripci&oacute;n</button>
+    </div>
+    <label class="keep-row"><input type="checkbox" id="keepChk"> Mantener sesi&oacute;n iniciada</label>
+  </div>
+  <div class="footer">
+    <div class="foot-left"><span class="dot" id="botDot"></span><span id="botStatusText">Iniciando...</span></div>
+    <div class="foot-actions">
+      <button id="restartBtn" title="Reiniciar el bot">Reiniciar</button>
+      <button id="autoBtn" title="Iniciar con Windows">Autostart</button>
+      <button id="quitBtn" class="quit">Salir</button>
+    </div>
+  </div>
+<script>
+var input = document.getElementById('keyInput');
+var statusEl = document.getElementById('status');
+var loggedIn = false;
+var expiredNow = false;
+
+function showStatus(msg, cls) { statusEl.textContent = msg || ''; statusEl.className = 'status' + (cls ? ' ' + cls : ''); }
+function errText(code) {
+  if (code === 'revoked') return 'Esta llave fue revocada.';
+  if (code === 'expired') return 'Tu suscripci\u00f3n venci\u00f3.';
+  if (code === 'unpaid') return 'Tu pago est\u00e1 pendiente de confirmaci\u00f3n.';
+  if (code === 'device_limit') return 'Esta llave ya est\u00e1 en uso en el m\u00e1ximo de dispositivos permitidos.';
+  if (code === 'bot_down') return 'No se pudo iniciar el bot.';
+  return 'Llave inv\u00e1lida.';
+}
+function showWelcome(text) {
+  var el = document.getElementById('welcomeMsg');
+  el.textContent = text;
+  el.style.display = 'block';
+}
+function hideWelcome() {
+  var el = document.getElementById('welcomeMsg');
+  el.style.display = 'none';
+}
+function showRenew() {
+  document.getElementById('renewHint').textContent = expiredNow
+    ? 'Tu suscripci\u00f3n venci\u00f3. Renoval\u00e1 para volver a activar el bot.'
+    : 'Renoval\u00e1 o compr\u00e1 un plan para seguir usando el bot.';
+  document.getElementById('renewBox').style.display = 'block';
+}
+function hideRenew() {
+  document.getElementById('renewBox').style.display = 'none';
+}
+function goToPanel() {
+  window.launcher.openPanel().then(function (r) { if (!r.ok) showStatus('No se pudo abrir el panel.', 'err'); });
+}
+function formatKey(k) {
+  var v = String(k || '').toUpperCase().replace(/[^A-F0-9]/g, '');
+  var parts = v.match(/.{1,4}/g) || [];
+  return parts.join('-');
+}
+function refreshPrefill() {
+  window.launcher.getStatus().then(function (s) {
+    if (s && s.key) input.value = formatKey(s.key);
+    else input.value = '';
+  }).catch(function () {});
+}
+function resetLogin() {
+  hideWelcome();
+  hideRenew();
+  expiredNow = false;
+  refreshPrefill();
+  input.focus();
+}
+
+input.addEventListener('input', function () {
+  var v = this.value.toUpperCase().replace(/[^A-F0-9]/g, '');
+  var parts = v.match(/.{1,4}/g) || [];
+  this.value = parts.join('-');
+});
+input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(); });
+document.getElementById('enterBtn').addEventListener('click', doLogin);
+document.getElementById('renewBtn').addEventListener('click', function () {
+  window.launcher.openStore().then(function (r) {
+    if (!r.ok) showStatus('No se pudo abrir la tienda.', 'err');
+  });
+});
+document.getElementById('restartBtn').addEventListener('click', function () {
+  showStatus('Reiniciando el bot...');
+  window.launcher.restartBot().then(function () {
+    setTimeout(refreshStatus, 1500);
+  });
+});
+document.getElementById('quitBtn').addEventListener('click', function () { window.launcher.quit(); });
+document.getElementById('autoBtn').addEventListener('click', function () {
+  var btn = this;
+  window.launcher.getStatus().then(function (s) {
+    var next = !s.autostart;
+    return window.launcher.setAutostart(next).then(function () {
+      btn.className = next ? 'on' : '';
+      showStatus(next ? 'Se iniciar\u00e1 con Windows.' : 'Autostart desactivado.', 'ok');
+    });
+  });
+});
+document.getElementById('keepChk').addEventListener('change', function () {
+  window.launcher.setKeepSession(this.checked);
+});
+
+function doLogin() {
+  var key = input.value.trim();
+  if (!key) { showStatus('Ingres\u00e1 tu llave de acceso.', 'err'); return; }
+  var btn = document.getElementById('enterBtn');
+  btn.disabled = true; btn.textContent = 'Verificando...';
+  showStatus('Iniciando el bot...');
+  window.launcher.login(key, keepChk.checked).then(function (r) {
+    btn.disabled = false; btn.textContent = 'Entrar';
+    if (r.ok) {
+      loggedIn = true;
+      expiredNow = false;
+      hideRenew();
+      showStatus('');
+      showWelcome('\u00a1Bienvenido' + (r.subscription.owner ? ', ' + r.subscription.owner : '') + '!');
+      setTimeout(function () {
+        goToPanel();
+        resetLogin();
+      }, 5000);
+    }
+    else {
+      showStatus(errText(r.error), 'err');
+      if (r.error === 'expired') { expiredNow = true; showRenew(); }
+    }
+  });
+}
+
+function refreshStatus() {
+  window.launcher.getStatus().then(function (s) {
+    if (!s || !s.ok) return;
+    var dot = document.getElementById('botDot');
+    var txt = document.getElementById('botStatusText');
+    dot.className = 'dot ' + (s.online ? 'on' : 'off');
+    txt.textContent = s.online
+      ? 'Bot activo' + (s.botVersion ? ' v' + s.botVersion : '')
+      : 'Bot apagado';
+    var ab = document.getElementById('autoBtn');
+    ab.className = s.autostart ? 'on' : '';
+    var kk = document.getElementById('keepChk');
+    if (kk.checked !== !!s.keepSession) kk.checked = !!s.keepSession;
+  }).catch(function () {});
+}
+
+setInterval(refreshStatus, 8000);
+
+setInterval(function () {
+  if (!loggedIn) return;
+  window.launcher.refresh().then(function (r) {
+    if (r.ok) { showStatus(''); hideRenew(); }
+    else if (r.error === 'expired') {
+      expiredNow = true;
+      showStatus('Tu suscripci\u00f3n venci\u00f3. Contact\u00e1 a tu vendedor para renovar.', 'err');
+      showRenew();
+    }
+  });
+}, 60000);
+
+showStatus('Iniciando el bot...');
+refreshStatus();
+refreshPrefill();
+window.launcher.refresh().then(function (r) {
+  if (r.ok) { showStatus(''); }
+  else if (r.error === 'no_key') { showStatus(''); input.focus(); }
+  else { showStatus(errText(r.error)); if (r.error === 'expired') { expiredNow = true; showRenew(); } }
+});
+</script>
+</body>
+</html>

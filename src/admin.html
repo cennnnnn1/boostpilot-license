@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BoostPilot — Panel de Keys</title>
+<meta name="color-scheme" content="dark">
+<style>
+  :root{
+    --bg:#07080f; --bg2:#0b0e1a; --panel:#111527; --panel2:#161b2e;
+    --line:#20263c; --line2:#2b3350;
+    --text:#eef1fb; --muted:#8b93ad; --faint:#5d6580;
+    --pink:#ff6a8a; --pink2:#e8437e; --pink3:#ff9dc0;
+    --green:#34d399; --red:#f87171; --gold:#f0b90b;
+    --grad:linear-gradient(135deg,#ff9dc0 0%,#ff6a8a 45%,#e8437e 100%);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--text); min-height:100vh;
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.5;
+  }
+  .bgfx{position:fixed;inset:0;z-index:-1;background:
+    radial-gradient(900px 520px at 85% -10%,rgba(232,67,126,.14),transparent 60%),
+    radial-gradient(900px 600px at 50% 120%,rgba(255,106,138,.08),transparent 60%),
+    linear-gradient(180deg,#0a0d1a 0%,#07080f 100%);}
+  header{
+    display:flex;align-items:center;gap:12px;padding:18px 24px;
+    border-bottom:1px solid var(--line);background:rgba(7,8,15,.8);position:sticky;top:0;
+  }
+  .brand{font-weight:800;font-size:17px;display:flex;align-items:center;gap:10px}
+  .brand em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .brand .sub{font-weight:600;color:var(--muted);font-size:13px;margin-left:4px}
+  main{max-width:980px;margin:0 auto;padding:26px 20px 80px}
+  .grid{display:grid;grid-template-columns:1fr 1.4fr;gap:20px}
+  @media(max-width:860px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+  .card h2{font-size:15px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .card h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--pink);box-shadow:0 0 10px var(--pink)}
+  label{display:block;font-size:12.5px;color:var(--muted);font-weight:600;margin:12px 0 6px}
+  input,select{
+    width:100%;background:var(--bg2);border:1px solid var(--line2);color:var(--text);
+    border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;outline:none;
+  }
+  input:focus,select:focus{border-color:var(--pink)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:10px;
+    padding:10px 16px;font-size:13.5px;font-weight:700;cursor:pointer;border:1px solid transparent;
+    font-family:inherit;transition:transform .15s,filter .15s;
+  }
+  .btn:active{transform:scale(.98)}
+  .btn-grad{background:var(--grad);color:#1a0710;width:100%;margin-top:16px;box-shadow:0 6px 20px rgba(255,106,138,.25)}
+  .btn-grad:hover{filter:brightness(1.07)}
+  .btn-ghost{background:rgba(255,255,255,.04);border-color:var(--line2);color:var(--text)}
+  .btn-ghost:hover{border-color:var(--pink);color:var(--pink3)}
+  .btn-green{background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.35);color:var(--green);padding:5px 10px;font-size:12px}
+  .btn-green:hover{background:rgba(52,211,153,.22)}
+  .btn-red{background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.35);color:var(--red);padding:5px 10px;font-size:12px}
+  .btn-red:hover{background:rgba(248,113,113,.22)}
+  .keybox{
+    display:none;margin-top:14px;background:var(--bg2);border:1px solid var(--green);
+    border-radius:12px;padding:12px;font-family:Consolas,monospace;font-size:15px;letter-spacing:.5px;
+  }
+  .keybox.visible{display:block}
+  .keybox .copy{display:inline-flex;margin-top:8px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;
+     padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+  tr:hover td{background:rgba(255,255,255,.02)}
+  .mono{font-family:Consolas,monospace;font-size:12.5px}
+  .badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700}
+  .b-active{background:rgba(52,211,153,.14);color:var(--green)}
+  .b-unused{background:rgba(240,185,11,.14);color:var(--gold)}
+  .b-expired,.b-revoked{background:rgba(248,113,113,.14);color:var(--red)}
+  .b-unpaid{background:rgba(248,113,113,.10);color:#fca5a5}
+  .actions{display:flex;gap:6px;flex-wrap:wrap}
+  .msg{display:none;margin-top:10px;padding:10px 12px;border-radius:10px;font-size:13px}
+  .msg.ok{display:block;background:rgba(52,211,153,.10);border:1px solid rgba(52,211,153,.35);color:var(--green)}
+  .msg.err{display:block;background:rgba(248,113,113,.10);border:1px solid rgba(248,113,113,.35);color:var(--red)}
+  .hint{font-size:12px;color:var(--faint);margin-top:10px}
+  .trial-toggle{
+    display:flex;align-items:center;gap:10px;background:rgba(240,185,11,.06);
+    border:1px solid rgba(240,185,11,.30);border-radius:12px;padding:12px 14px;
+    font-size:13.5px;font-weight:700;cursor:pointer;color:var(--text);margin-bottom:4px;
+  }
+  .trial-toggle input{width:18px;height:18px;accent-color:var(--gold);margin:0}
+  .trial-note{font-size:12px;color:var(--gold);margin-top:6px;display:none}
+  .trial-note.visible{display:block}
+  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--line2);border-top-color:var(--pink);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .empty{color:var(--faint);text-align:center;padding:22px;font-size:13.5px}
+  .login-wrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 120px)}
+  .login-card{max-width:380px;width:100%}
+  .logout-btn{display:none;margin-left:auto}
+  .logout-btn.visible{display:inline-flex}
+</style>
+</head>
+<body>
+<div class="bgfx"></div>
+
+<header>
+  <div class="brand">
+    <svg width="26" height="26" viewBox="0 0 48 48"><defs><linearGradient id="pl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9dc0"/><stop offset=".5" stop-color="#ff6a8a"/><stop offset="1" stop-color="#e8437e"/></linearGradient></defs><rect x="1.5" y="1.5" width="45" height="45" rx="13" fill="#0d1018" stroke="#2a1a26"/><path d="M24 9l13.5 15.5h-8V39h-11V24.5h-8L24 9z" fill="url(#pl)"/></svg>
+    BoostPilot<em></em>
+    <span class="sub">· Panel de Keys</span>
+    <button class="btn btn-ghost logout-btn" id="logoutBtn">Salir</button>
+  </div>
+</header>
+
+<div class="login-wrap" id="loginScreen" style="display:none">
+  <div class="card login-card">
+    <h2><span class="dot"></span> Acceso restringido</h2>
+    <label>Llave maestra</label>
+    <input id="masterKey" type="password" autocomplete="current-password" placeholder="••••••••">
+    <button class="btn btn-grad" id="loginBtn">Entrar</button>
+    <div class="msg" id="loginMsg"></div>
+    <div class="hint">Solo el staff de BoostPilot puede generar o gestionar keys.</div>
+  </div>
+</div>
+
+<main id="panelMain" style="display:none">
+  <div class="grid">
+    <div class="card">
+      <h2><span class="dot"></span> Generar key</h2>
+      <label class="trial-toggle"><input type="checkbox" id="trial"> 🎁 Key de prueba (gratis · 4 horas · 1 juego)</label>
+      <div id="normalFields">
+        <label>Plan</label>
+        <select id="plan"></select>
+      </div>
+      <div id="trialFields" style="display:none">
+        <label>Juego (solo este juego)</label>
+        <select id="game"></select>
+        <div class="hint">Key gratis de <b>4 horas</b> para <b>1 juego</b> · 1 dispositivo</div>
+      </div>
+      <label>Cliente (nombre / Discord)</label>
+      <input id="owner" placeholder="ej. cendynho" autocomplete="off">
+      <div class="row2">
+        <div>
+          <label>Cantidad</label>
+          <input id="count" type="number" min="1" max="50" value="1">
+        </div>
+        <div>
+          <label>Precio (USD)</label>
+          <input id="price" type="number" min="0" step="0.01" value="30">
+        </div>
+      </div>
+      <button class="btn btn-grad" id="genBtn">Generar key</button>
+      <div class="keybox" id="keybox">
+        <div id="keylist"></div>
+        <button class="btn btn-ghost copy" id="copyBtn">📋 Copiar</button>
+      </div>
+      <div class="msg" id="msg"></div>
+      <div class="hint">Genera la key DESPUÉS de confirmar el pago en tronscan.org.</div>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <h2 style="margin:0"><span class="dot"></span> Keys</h2>
+        <button class="btn btn-ghost" id="refreshBtn">⟳ Actualizar</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Llave</th><th>Cliente</th><th>Plan</th><th>Juego</th><th>Estado</th><th>Restante</th><th>Vence</th><th></th></tr></thead>
+          <tbody id="rows"><tr><td colspan="8"><div class="empty">Cargando…</div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const $ = (s) => document.querySelector(s);
+let lastKeys = [];
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error || 'Error ' + r.status);
+  return d;
+}
+
+function showLogin() {
+  document.querySelector('main').style.display = 'none';
+  $('#panelMain').style.display = 'none';
+  $('#logoutBtn').classList.remove('visible');
+  $('#loginScreen').style.display = 'flex';
+}
+
+function showPanel() {
+  $('#loginScreen').style.display = 'none';
+  $('#panelMain').style.display = '';
+  $('#logoutBtn').classList.add('visible');
+  loadPlans();
+  loadKeys();
+}
+
+async function checkSession() {
+  try {
+    const d = await api('/api/admin/session');
+    if (d.authed) { showPanel(); return; }
+  } catch (e) {}
+  showLogin();
+}
+
+$('#loginBtn').onclick = async () => {
+  const btn = $('#loginBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Entrando…';
+  try {
+    await api('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ masterKey: $('#masterKey').value }),
+    });
+    $('#masterKey').value = '';
+    showPanel();
+  } catch (e) {
+    const m = $('#loginMsg');
+    m.className = 'msg err';
+    m.textContent = e.message === 'too_many_attempts' ? 'Demasiados intentos. Esperá 1 minuto.' : 'Llave maestra incorrecta.';
+    setTimeout(() => { m.className = 'msg'; }, 4000);
+  }
+  btn.disabled = false;
+  btn.textContent = 'Entrar';
+};
+
+$('#masterKey').onkeydown = (e) => { if (e.key === 'Enter') $('#loginBtn').click(); };
+
+$('#logoutBtn').onclick = async () => {
+  try { await api('/api/admin/logout', { method: 'POST' }); } catch (e) {}
+  location.reload();
+};
+
+async function loadPlans() {
+  try {
+    const d = await api('/api/plans');
+    const sel = $('#plan');
+    sel.innerHTML = '';
+    for (const p of d.plans) {
+      const o = document.createElement('option');
+      o.value = p.id;
+      o.textContent = p.label + ' — ' + p.days + ' días · $' + p.price;
+      sel.appendChild(o);
+    }
+    if (d.plans.length) onPlanChange();
+    sel.onchange = onPlanChange;
+    const gs = $('#game');
+    gs.innerHTML = '';
+    for (const g of (d.games || [])) {
+      const o = document.createElement('option');
+      o.value = g.id;
+      o.textContent = g.label;
+      gs.appendChild(o);
+    }
+  } catch (e) { showMsg(e.message, true); }
+}
+
+function onPlanChange() {
+  api('/api/plans').then((d) => {
+    const p = d.plans.find((x) => x.id === $('#plan').value);
+    if (p) $('#price').value = p.price;
+  }).catch(() => {});
+}
+
+function showMsg(text, isErr) {
+  const m = $('#msg');
+  m.className = 'msg ' + (isErr ? 'err' : 'ok');
+  m.textContent = text;
+  setTimeout(() => { m.className = 'msg'; }, 6000);
+}
+
+function statusBadge(k) {
+  if (!k.active) return '<span class="badge b-revoked">revocada</span>';
+  if (!k.paid) return '<span class="badge b-unpaid">sin pago</span>';
+  if (k.expired) return '<span class="badge b-expired">vencida</span>';
+  if (k.activatedAt) return '<span class="badge b-active">activa</span>';
+  return '<span class="badge b-unused">sin activar</span>';
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleString('es-PE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
+
+async function loadKeys() {
+  try {
+    const d = await api('/api/keys');
+    lastKeys = d.keys;
+    const tb = $('#rows');
+    if (!d.keys.length) { tb.innerHTML = '<tr><td colspan="8"><div class="empty">No hay keys todavía.</div></td></tr>'; return; }
+    tb.innerHTML = d.keys.map((k) => `
+      <tr>
+        <td class="mono">${k.key}</td>
+        <td>${escapeHtml(k.owner)}</td>
+        <td>${escapeHtml(k.plan)}${k.hours ? ' <span class="badge b-unused">' + k.hours + 'h</span>' : ''}</td>
+        <td>${k.game ? escapeHtml(k.game) : '—'}</td>
+        <td>${statusBadge(k)}</td>
+        <td>${k.active ? (k.activatedAt ? (k.hours ? k.hoursLeft + ' h' : k.daysLeft + ' días') : (k.hours ? k.hours + ' h' : k.days + ' días')) : '—'}</td>
+        <td>${fmtDate(k.expiresAt)}</td>
+        <td><div class="actions">
+          ${k.active && !k.trial ? '<button class="btn btn-green" onclick="extendKey(\'' + k.key + '\')">+7 días</button>' : ''}
+          ${k.active ? '<button class="btn btn-red" onclick="revokeKey(\'' + k.key + '\')">Revocar</button>' : '<button class="btn btn-red" onclick="deleteKey(\'' + k.key + '\')">Eliminar</button>'}
+        </div></td>
+      </tr>`).join('');
+  } catch (e) { $('#rows').innerHTML = '<tr><td colspan="8"><div class="empty">Error: ' + escapeHtml(e.message) + '</div></td></tr>'; }
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+$('#trial').onchange = () => {
+  const t = $('#trial').checked;
+  $('#normalFields').style.display = t ? 'none' : '';
+  $('#trialFields').style.display = t ? '' : 'none';
+  $('#price').disabled = t;
+  if (t) $('#price').value = 0;
+};
+
+$('#genBtn').onclick = async () => {
+  const btn = $('#genBtn');
+  const trial = $('#trial').checked;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Generando…';
+  try {
+    const d = await api('/api/keys/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        plan: $('#plan').value,
+        game: $('#game').value,
+        trial,
+        hours: 4,
+        owner: $('#owner').value.trim() || 'Cliente',
+        count: Math.max(1, parseInt($('#count').value, 10) || 1),
+        price: trial ? 0 : (parseFloat($('#price').value) || 0),
+      }),
+    });
+    $('#keylist').innerHTML = d.keys.map((k) => '<div>' + k.key + ' &nbsp;[' + (k.trial ? 'Prueba ' + (k.game || '') + ' · ' + k.hours + 'h' : k.plan) + ']</div>').join('');
+    $('#keybox').classList.add('visible');
+    showMsg(d.keys.length + ' key(s) generada(s). Envíala al cliente en el ticket.');
+    loadKeys();
+  } catch (e) { showMsg(e.message, true); }
+  btn.disabled = false;
+  btn.textContent = 'Generar key';
+};
+
+$('#copyBtn').onclick = () => {
+  const txt = $('#keylist').innerText.split('\n').map((l) => l.trim()).filter(Boolean).join('\n');
+  navigator.clipboard.writeText(txt).then(() => {
+    $('#copyBtn').textContent = '✅ Copiado';
+    setTimeout(() => { $('#copyBtn').textContent = '📋 Copiar'; }, 2000);
+  });
+};
+
+async function extendKey(key) {
+  try {
+    const d = await api('/api/keys/extend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, days: 7 }),
+    });
+    showMsg('Key ' + d.key + ' extendida +7 días.');
+    loadKeys();
+  } catch (e) { showMsg(e.message, true); }
+}
+
+async function revokeKey(key) {
+  if (!confirm('¿Revocar la key ' + key + '?\nEl cliente ya no podrá usar la app.')) return;
+  try {
+    const d = await api('/api/keys/revoke', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key }),
+    });
+    showMsg('Key ' + d.key + ' revocada.');
+    loadKeys();
+  } catch (e) { showMsg(e.message, true); }
+}
+
+async function deleteKey(key) {
+  if (!confirm('¿Eliminar definitivamente la key ' + key + '?\nEsta acción no se puede deshacer.')) return;
+  try {
+    const d = await api('/api/keys/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key }),
+    });
+    showMsg('Key ' + d.key + ' eliminada.');
+    loadKeys();
+  } catch (e) { showMsg(e.message, true); }
+}
+
+
+
+$('#refreshBtn').onclick = loadKeys;
+
+checkSession();
+</script>
+</body>
+</html>

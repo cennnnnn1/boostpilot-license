@@ -1,0 +1,472 @@
+﻿{
+  "bot": {
+    "panelPort": 3000,
+    "login": {
+      "enabled": true
+    },
+    "fastMode": {
+      "enabled": true,
+      "pollIntervalMs": 4000,
+      "pollJitterMs": 3000,
+      "autoPlace": "confirm",
+      "autoOnlyGames": [
+        "brawl_stars"
+      ],
+      "deliveryTime": "Day3",
+      "maxRequestsPerPoll": 20,
+      "categoriesEnabled": {
+        "trophy boost": true,
+        "brawlers rank": true,
+        "prestige icon": true,
+        "rank boost": true,
+        "custom request": false
+      },
+      "minPlaceIntervalMs": 4000,
+      "placeJitterMs": 2000,
+      "maxBackoffMs": 60000,
+      "cancelCheckIntervalMs": 60000,
+      "cancelCheckPages": 5,
+      "ordersCheckIntervalMs": 120000,
+      "gameMapFile": "state/game_map.json"
+    },
+    "pricing": {
+      "enabled": true,
+      "roundTo": 0.01,
+      "pacePerDay": 1300,
+      "games": {
+        "brawl_stars": {
+          "Trophy Boost": {
+            "mode": "segments",
+            "enabled": true,
+            "segments": [
+              {
+                "from": 0,
+                "to": 100000,
+                "per": 1000,
+                "price": 3
+              }
+            ],
+            "multipliers": {
+              "Duo": 1.3,
+              "Solo queue": 1.15,
+              "Offline mode": 1,
+              "Stream": 1.2
+            }
+          },
+          "Prestigios": {
+            "mode": "segments",
+            "enabled": true,
+            "segments": [
+              {
+                "from": 0,
+                "to": 1000,
+                "per": 1000,
+                "price": 5,
+                "hours": 5,
+                "minPrice": 3,
+                "minHours": 3
+              },
+              {
+                "from": 1000,
+                "to": 2000,
+                "per": 1000,
+                "price": 12,
+                "hours": 24,
+                "minPrice": 12,
+                "minHours": 24
+              }
+            ],
+            "useSegmentHours": true,
+            "multipliers": {
+              "Duo": 1.3,
+              "Solo queue": 1.15,
+              "Offline mode": 1,
+              "Stream": 1.2
+            }
+          },
+          "Rank Brawler": {
+            "mode": "segments",
+            "enabled": true,
+            "segments": [
+              {
+                "from": 0,
+                "to": 1000,
+                "per": 1000,
+                "price": 5,
+                "hours": 5,
+                "minPrice": 3,
+                "minHours": 3
+              },
+              {
+                "from": 1000,
+                "to": 2000,
+                "per": 1000,
+                "price": 12,
+                "hours": 24,
+                "minPrice": 12,
+                "minHours": 24
+              }
+            ],
+            "useSegmentHours": true,
+            "multipliers": {
+              "Duo": 1.3,
+              "Solo queue": 1.15,
+              "Offline mode": 1,
+              "Stream": 1.2
+            }
+          },
+          "Rank Boost": {
+            "mode": "tiers",
+            "enabled": true,
+            "tiers": [
+              {
+                "name": "Bronze",
+                "pricePerDivision": 1.5,
+                "hoursPerDivision": 1,
+                "divisions": 3
+              },
+              {
+                "name": "Silver",
+                "pricePerDivision": 2,
+                "hoursPerDivision": 1,
+                "divisions": 3
+              },
+              {
+                "name": "Gold",
+                "pricePerDivision": 3,
+                "hoursPerDivision": 1,
+                "divisions": 3
+              },
+              {
+                "name": "Diamond",
+                "pricePerDivision": 5,
+                "hoursPerDivision": 1.5,
+                "divisions": 3
+              },
+              {
+                "name": "Mythic",
+                "pricePerDivision": 8,
+                "hoursPerDivision": 2,
+                "divisions": 3
+              },
+              {
+                "name": "Legendary",
+                "pricePerDivision": 12,
+                "hoursPerDivision": 2,
+                "divisions": 3
+              },
+              {
+                "name": "Masters",
+                "pricePerDivision": 18,
+                "hoursPerDivision": 2,
+                "divisions": 3
+              },
+              {
+                "name": "Pro",
+                "skip": true
+              }
+            ],
+            "multipliers": {
+              "Duo": 1.3,
+              "Solo queue": 1.15,
+              "Offline mode": 1,
+              "Stream": 1.2
+            }
+          }
+        }
+      }
+    }
+  },
+  "notify": {
+    "soundEnabled": true,
+    "soundDurationMs": 1200,
+    "discord": {
+      "enabled": true,
+      "url": "https://discord.com/api/webhooks/REEMPLAZAR",
+      "username": "BoostPilot",
+      "events": {
+        "newOrder": true,
+        "offerPlaced": true,
+        "offerFailed": true,
+        "accepted": true,
+        "followUp": true,
+        "canceled": true,
+        "clarifySent": true,
+        "buyerReply": true,
+        "paused": true,
+        "resumed": true
+      }
+    }
+  },
+  "filters": {
+    "enabled": true,
+    "skipDuo": true,
+    "skipSquad": true,
+    "skipConsole": true,
+    "skipCategories": [
+      "Account Selling"
+    ],
+    "skipKeywords": [
+      "vendo",
+      "selling",
+      "sell my",
+      "buying",
+      "buy accs",
+      "buy it",
+      "is it safe to buy",
+      "wanna buy",
+      "pay for account",
+      "old eldorado accounts",
+      "sale",
+      "how much for",
+      "know prices",
+      "trophy-pushing service",
+      "boost all your brawlers",
+      "hiring boosters",
+      "cheapest bs boosts",
+      "looking work",
+      "full guide",
+      "bot lobbies",
+      "tiktok",
+      "referral",
+      "sign up",
+      "followers",
+      "coupon",
+      "stop wasting",
+      "free trial",
+      "million credits",
+      "beta code",
+      "matcherino",
+      "winner pin",
+      "make me lose",
+      "nulls brawl",
+      "smurf",
+      "coaching",
+      "per account",
+      "brawl pass",
+      "brawlpass",
+      "join my club",
+      "teammates",
+      "team up",
+      "looking for teammates"
+    ],
+    "onlyGames": []
+  },
+  "chat": {
+    "enabled": true,
+    "welcomeEnabled": true,
+    "welcomeMessage": "Hi! I just placed an offer for your request. Feel free to message me here.",
+    "welcomeImage": "",
+    "welcomeDelayMs": 5000,
+    "prestigeMessageEnabled": true,
+    "prestigeMessage": "Hi! I just placed an offer for your request. Feel free to message me here.",
+    "prestigeImage": "",
+    "prestigeDelayMs": 5000,
+    "customRequestEnabled": true,
+    "customRequestMessage": "Hi! I can help you with your order. Send me the details and I'll give you a great offer.",
+    "customRequestImage": "",
+    "customRequestDelayMs": 5000,
+    "clarifyRepriceMs": 180000,
+    "orderAcceptedEnabled": true,
+    "orderAcceptedMessage": "Thanks for your purchase. Send me your account details and I'll get started right away. ðŸš€",
+    "orderAcceptedImage": "",
+    "orderAcceptedDelayMs": 5000,
+    "followUpEnabled": true,
+    "followUpMessage": "Hi! Just reminding you about my offer. If you have any questions or want to get started, reply here and I'll begin right away. ðŸ‘",
+    "followUpImage": "",
+    "followUpDelayMs": 5000
+  },
+  "hotkeys": {
+    "hide": "Ctrl+Z"
+  },
+  "games": {
+    "fc26": {
+      "names": [
+        "ea sports fc",
+        "fc 26",
+        "fc26",
+        "fut",
+        "fifa",
+        "division rivals",
+        "champions"
+      ],
+      "aliases": [
+        "rivals",
+        "champs",
+        "qualification"
+      ]
+    },
+    "brawl_stars": {
+      "names": [
+        "brawl stars",
+        "brawler"
+      ],
+      "aliases": [
+        "trophy",
+        "trophies",
+        "prestige",
+        "rank boost"
+      ]
+    },
+    "clash_royale": {
+      "names": [
+        "clash royale",
+        "clash royal"
+      ],
+      "aliases": [
+        "path of legends",
+        "ultimate champion",
+        "trophy road",
+        "uc",
+        "trophy",
+        "league",
+        "pol"
+      ]
+    },
+    "valorant": {
+      "names": [
+        "valorant",
+        "valo"
+      ],
+      "aliases": [
+        "rank boost",
+        "radiant",
+        "immortal",
+        "ascendant"
+      ]
+    },
+    "league_of_legends": {
+      "names": [
+        "league of legends",
+        "lol",
+        "lol rank"
+      ],
+      "aliases": [
+        "rank boost",
+        "elo",
+        "duo"
+      ]
+    },
+    "rocket_league": {
+      "names": [
+        "rocket league",
+        "rocketleauge"
+      ],
+      "aliases": [
+        "rank boost",
+        "mmr"
+      ]
+    },
+    "fortnite": {
+      "names": [
+        "fortnite",
+        "fn"
+      ],
+      "aliases": [
+        "rank boost",
+        "unreal",
+        "champion",
+        "elite"
+      ]
+    },
+    "osrs": {
+      "names": [
+        "osrs",
+        "old school runescape",
+        "runescape osrs"
+      ],
+      "aliases": [
+        "power leveling",
+        "quest",
+        "questing",
+        "skill",
+        "slayer",
+        "combat",
+        "boss"
+      ]
+    },
+    "r6_siege": {
+      "names": [
+        "rainbow six",
+        "r6 siege",
+        "r6",
+        "rainbow six siege"
+      ],
+      "aliases": [
+        "rank boost",
+        "champion",
+        "diamond",
+        "plat"
+      ]
+    },
+    "marvel_rivals": {
+      "names": [
+        "marvel rivals",
+        "rivals"
+      ],
+      "aliases": [
+        "rank boost",
+        "celestial",
+        "grandmaster",
+        "eternity"
+      ]
+    },
+    "apex_legends": {
+      "names": [
+        "apex legends",
+        "apex"
+      ],
+      "aliases": [
+        "rank boost",
+        "predator",
+        "master",
+        "diamond"
+      ]
+    },
+    "call_of_duty": {
+      "names": [
+        "call of duty",
+        "cod"
+      ],
+      "aliases": [
+        "rank boost",
+        "prestige",
+        "weapon"
+      ]
+    }
+  },
+  "store": {
+    "enabled": true,
+    "port": 8080,
+    "plans": {
+      "tresdias": {
+        "label": "3 DÃ­as",
+        "days": 3,
+        "price": 6
+      },
+      "semanal": {
+        "label": "Semanal",
+        "days": 7,
+        "price": 12
+      },
+      "mensual": {
+        "label": "Mensual",
+        "days": 30,
+        "price": 30
+      }
+    },
+    "payment": {
+      "currency": "USD",
+      "methods": [
+        {
+          "type": "cripto",
+          "label": "USDT (TRC20)",
+          "value": "TLGf5bXvJ4HY5KpeVtj7uFcPiZVPdeKsSX",
+          "network": "TRC20",
+          "only": "TRC20"
+        }
+      ],
+      "note": "EnviÃ¡ SOLO por red TRC20 (otra red = fondos perdidos). DespuÃ©s del pago, pegÃ¡ tu TXID + captura en el ticket de Discord y el staff te entrega tu key en minutos. Los pagos son solo en criptomonedas y no hay reembolsos una vez emitida la llave."
+    }
+  }
+}

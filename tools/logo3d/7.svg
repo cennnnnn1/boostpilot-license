@@ -1,0 +1,17 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="g7a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc94d"/><stop offset="1" stop-color="#ff9a3d"/></linearGradient>
+  <linearGradient id="g7b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a5c"/><stop offset="1" stop-color="#ff6a8a"/></linearGradient>
+  <filter id="f7" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation=".45"/></filter>
+</defs>
+<path d="M7 2c3.2 3.5 3.2 6.7 0 10s-3.2 6.5 0 10" fill="none" stroke="url(#g7a)" stroke-width="2.6" stroke-linecap="round"/>
+<path d="M17 2c-3.2 3.5-3.2 6.7 0 10s3.2 6.5 0 10" fill="none" stroke="url(#g7b)" stroke-width="2.6" stroke-linecap="round"/>
+<path d="M7 3.4c1.1 1.2 1.6 2.4 1.6 3.6M7 20.6c1.1-1.2 1.6-2.4 1.6-3.6M17 3.4c-1.1 1.2-1.6 2.4-1.6 3.6M17 20.6c-1.1-1.2-1.6-2.4-1.6-3.6" stroke="#fff" stroke-width=".4" opacity=".35"/>
+<circle cx="7" cy="4.4" r="1" fill="#fff" opacity=".5"/>
+<circle cx="17" cy="19.6" r="1" fill="#fff" opacity=".5"/>
+<path d="M12 5.5l2.3 3 2.6 1.6-2.6 1.6-2.3 3-2.3-3-2.6-1.6 2.6-1.6 2.3-3z" fill="url(#g7a)"/>
+<path d="M12 5.5l2.3 3 2.6 1.6-2.6 1.6-2.3 3" fill="none" stroke="#fff" stroke-width=".5" opacity=".4"/>
+<circle cx="12" cy="12" r="1.15" fill="#0b0f1a"/>
+<circle cx="12" cy="12" r=".5" fill="#fff" opacity=".9"/>
+<path d="M5.4 12h1.4M17.2 12h1.4" stroke="#3ae3a7" stroke-width=".5" opacity=".8"/>
+</svg>

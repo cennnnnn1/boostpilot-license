@@ -1,0 +1,78 @@
+{
+  "name": "eldorado-bot-launcher",
+  "version": "1.5.0",
+  "description": "BoostPilot - Launcher de escritorio",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "author": "BoostPilot",
+  "license": "UNLICENSED",
+  "build": {
+    "appId": "com.boostpilot.app",
+    "productName": "BoostPilot",
+    "directories": {
+      "output": "../release",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "panel-preload.js",
+      "index.html"
+    ],
+    "extraResources": [
+      {
+        "from": "../src",
+        "to": "bot/src",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../config",
+        "to": "bot/config"
+      },
+      {
+        "from": "build/seed-state",
+        "to": "bot/state"
+      },
+      {
+        "from": "../package.json",
+        "to": "bot/package.json"
+      },
+      {
+        "from": "resources/node",
+        "to": "node"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "BoostPilot",
+      "deleteAppDataOnUninstall": false
+    }
+  },
+  "devDependencies": {
+    "electron": "^43.3.0",
+    "electron-builder": "^26.15.3"
+  },
+  "allowScripts": {
+    "electron-winstaller@5.4.0": true
+  }
+}
