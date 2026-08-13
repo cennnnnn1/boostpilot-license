@@ -1,4 +1,6 @@
 {
-  "revoked": [],
-  "updatedAt": "2026-08-13T09:24:46.957Z"
+  "revoked": [
+    "c23d5a8094f44b9001bff1cf2217053e4ba0fe191b16f20d964c57b93334ca54"
+  ],
+  "updatedAt": "2026-08-13T09:25:25.984Z"
 }
