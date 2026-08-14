@@ -1,16 +1,4 @@
 {
-  "updatedAt": "2026-08-14T06:57:05.344Z",
-  "entries": {
-    "cbebffe638303ac3f69d531bf465c1bf3f6d2302d0981f50ceb8c7750a2c23d8": {
-      "plan": "De por vida",
-      "days": 36500,
-      "hours": 0,
-      "game": null,
-      "trial": false,
-      "active": true,
-      "paid": true,
-      "vip": false,
-      "maxDevices": 1
-    }
-  }
+  "updatedAt": "2026-08-14T07:22:56.991Z",
+  "entries": {}
 }
