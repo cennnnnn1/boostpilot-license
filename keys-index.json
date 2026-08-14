@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-14T08:07:07.091Z",
+  "updatedAt": "2026-08-14T08:07:11.291Z",
   "entries": {
     "f67c47c6865aa69becdcb3817489f891e401c4b26e9f9d26d22a012dd3b1de3f": {
       "plan": "Mensual",
@@ -24,7 +24,7 @@
       "paid": true,
       "vip": false,
       "maxDevices": 1,
-      "kickEpoch": 0,
+      "kickEpoch": 1,
       "pausedMs": 0
     }
   }
