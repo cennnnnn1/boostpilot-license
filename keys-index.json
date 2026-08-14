@@ -1,4 +1,16 @@
 {
-  "updatedAt": "2026-08-14T07:22:56.991Z",
-  "entries": {}
+  "updatedAt": "2026-08-14T07:23:36.427Z",
+  "entries": {
+    "f67c47c6865aa69becdcb3817489f891e401c4b26e9f9d26d22a012dd3b1de3f": {
+      "plan": "Mensual",
+      "days": 30,
+      "hours": 0,
+      "game": null,
+      "trial": false,
+      "active": true,
+      "paid": true,
+      "vip": false,
+      "maxDevices": 1
+    }
+  }
 }
