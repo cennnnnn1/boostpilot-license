@@ -1,4 +1,4 @@
-﻿{
+{
   "bot": {
     "panelPort": 3000,
     "login": {
@@ -31,13 +31,12 @@
     },
     "pricing": {
       "enabled": true,
-      "roundTo": 0.01,
-      "pacePerDay": 1300,
       "games": {
         "brawl_stars": {
           "Trophy Boost": {
             "mode": "segments",
             "enabled": true,
+            "pacePerDay": 1300,
             "segments": [
               {
                 "from": 0,
@@ -51,7 +50,8 @@
               "Solo queue": 1.15,
               "Offline mode": 1,
               "Stream": 1.2
-            }
+            },
+            "notify": true
           },
           "Prestigios": {
             "mode": "segments",
@@ -82,7 +82,8 @@
               "Solo queue": 1.15,
               "Offline mode": 1,
               "Stream": 1.2
-            }
+            },
+            "notify": true
           },
           "Rank Brawler": {
             "mode": "segments",
@@ -113,7 +114,8 @@
               "Solo queue": 1.15,
               "Offline mode": 1,
               "Stream": 1.2
-            }
+            },
+            "notify": true
           },
           "Rank Boost": {
             "mode": "tiers",
@@ -171,7 +173,896 @@
               "Solo queue": 1.15,
               "Offline mode": 1,
               "Stream": 1.2
+            },
+            "notify": true,
+            "pacePerDay": 18
+          }
+        },
+        "r6_siege": {
+          "Rank Boost": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [
+              {
+                "name": "Copper",
+                "pricePerDivision": 1.5,
+                "hoursPerDivision": 1,
+                "divisions": 5
+              },
+              {
+                "name": "Bronze",
+                "pricePerDivision": 2,
+                "hoursPerDivision": 1,
+                "divisions": 5
+              },
+              {
+                "name": "Silver",
+                "pricePerDivision": 3,
+                "hoursPerDivision": 1,
+                "divisions": 5
+              },
+              {
+                "name": "Gold",
+                "pricePerDivision": 4,
+                "hoursPerDivision": 1.5,
+                "divisions": 5
+              },
+              {
+                "name": "Platinum",
+                "pricePerDivision": 6,
+                "hoursPerDivision": 2,
+                "divisions": 5
+              },
+              {
+                "name": "Emerald",
+                "pricePerDivision": 9,
+                "hoursPerDivision": 2,
+                "divisions": 5
+              },
+              {
+                "name": "Diamond",
+                "pricePerDivision": 18,
+                "hoursPerDivision": 2.5,
+                "divisions": 5
+              },
+              {
+                "name": "Champion",
+                "pricePerDivision": 68.5,
+                "hoursPerDivision": 3,
+                "divisions": 5
+              }
+            ],
+            "divisionOrder": "reversed",
+            "pacePerDay": 14
+          }
+        },
+        "valorant": {
+          "regionLocked": true,
+          "skipConsole": true,
+          "regions": {
+            "NA": { "enabled": true },
+            "EU": { "enabled": true },
+            "AP": { "enabled": true },
+            "LATAM": { "enabled": true },
+            "BRASIL": { "enabled": true },
+            "KR": { "enabled": true }
+          },
+          "Rank Boost": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [
+              { "name": "Iron", "pricePerDivision": 1, "hoursPerDivision": 24, "divisions": 3 },
+              { "name": "Bronze", "pricePerDivision": 1.5, "hoursPerDivision": 24, "divisions": 3 },
+              { "name": "Silver", "pricePerDivision": 2, "hoursPerDivision": 24, "divisions": 3 },
+              { "name": "Gold", "pricePerDivision": 4, "hoursPerDivision": 24, "divisions": 3 },
+              { "name": "Platinum", "pricePerDivision": 4.67, "hoursPerDivision": 24, "divisions": 3 },
+              { "name": "Diamond", "pricePerDivision": 6, "hoursPerDivision": 24, "divisions": 3 },
+              { "name": "Ascendant", "pricePerDivision": 8, "hoursPerDivision": 24, "divisions": 3 },
+              { "name": "Immortal", "pricePerDivision": 10, "hoursPerDivision": 24, "divisions": 3 },
+              { "name": "Radiant", "skip": true }
+            ],
+            "pacePerDay": 1
+          },
+          "Placements": {
+            "mode": "units",
+            "enabled": true,
+            "notify": true,
+            "unitLabel": "placement",
+            "pricePerUnit": 1.5,
+            "hoursPerUnit": 1.5,
+            "rankMultipliers": {
+              "iron": 1,
+              "bronze": 1,
+              "silver": 1,
+              "gold": 2,
+              "platinum": 2,
+              "diamond": 2,
+              "ascendant": 2.67,
+              "immortal": 4
             }
+          },
+          "Net Wins": {
+            "mode": "units",
+            "enabled": true,
+            "notify": true,
+            "unitLabel": "win",
+            "pricePerUnit": 1.5,
+            "hoursPerUnit": 1.5,
+            "rankMultipliers": {
+              "iron": 1,
+              "bronze": 1,
+              "silver": 1,
+              "gold": 2,
+              "platinum": 2,
+              "diamond": 2,
+              "ascendant": 2.67,
+              "immortal": 4
+            }
+          },
+          "Games": {
+            "mode": "units",
+            "enabled": true,
+            "notify": true,
+            "unitLabel": "game",
+            "pricePerUnit": 0.75,
+            "hoursPerUnit": 0.75,
+            "rankMultipliers": {
+              "iron": 1,
+              "bronze": 1,
+              "silver": 1,
+              "gold": 2,
+              "platinum": 2,
+              "diamond": 2,
+              "ascendant": 2.67,
+              "immortal": 4
+            }
+          }
+        },
+        "league_of_legends": {
+          "regionLocked": true,
+          "skipConsole": true,
+          "regions": {
+            "NA": { "enabled": true },
+            "EU": { "enabled": true },
+            "AP": { "enabled": true },
+            "LATAM": { "enabled": true },
+            "BRASIL": { "enabled": true },
+            "KR": { "enabled": true }
+          },
+          "Rank Boost": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [
+              {
+                "name": "Iron",
+                "pricePerDivision": 4.5,
+                "hoursPerDivision": 1,
+                "divisions": 4
+              },
+              {
+                "name": "Bronze",
+                "pricePerDivision": 4.8,
+                "hoursPerDivision": 1,
+                "divisions": 4
+              },
+              {
+                "name": "Silver",
+                "pricePerDivision": 5.94,
+                "hoursPerDivision": 1.5,
+                "divisions": 4
+              },
+              {
+                "name": "Gold",
+                "pricePerDivision": 10.08,
+                "hoursPerDivision": 2,
+                "divisions": 4
+              },
+              {
+                "name": "Platinum",
+                "pricePerDivision": 14.64,
+                "hoursPerDivision": 2,
+                "divisions": 4
+              },
+              {
+                "name": "Emerald",
+                "pricePerDivision": 24,
+                "hoursPerDivision": 2.5,
+                "divisions": 4
+              },
+              {
+                "name": "Diamond",
+                "pricePerDivision": 35,
+                "hoursPerDivision": 3,
+                "divisions": 4
+              }
+            ],
+            "divisionOrder": "reversed",
+            "pacePerDay": 13
+          }
+        },
+        "rocket_league": {
+          "Rank Boost": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [
+              {
+                "name": "Bronze",
+                "pricePerDivision": 1,
+                "hoursPerDivision": 1,
+                "divisions": 3
+              },
+              {
+                "name": "Silver",
+                "pricePerDivision": 2,
+                "hoursPerDivision": 1,
+                "divisions": 3
+              },
+              {
+                "name": "Gold",
+                "pricePerDivision": 3,
+                "hoursPerDivision": 1,
+                "divisions": 3
+              },
+              {
+                "name": "Platinum",
+                "pricePerDivision": 5,
+                "hoursPerDivision": 1.5,
+                "divisions": 3
+              },
+              {
+                "name": "Diamond",
+                "pricePerDivision": 8,
+                "hoursPerDivision": 2,
+                "divisions": 3
+              },
+              {
+                "name": "Champion",
+                "pricePerDivision": 12,
+                "hoursPerDivision": 2,
+                "divisions": 3
+              },
+              {
+                "name": "Grand Champion",
+                "pricePerDivision": 35,
+                "hoursPerDivision": 3,
+                "divisions": 3
+              },
+              {
+                "name": "Supersonic Legend",
+                "skip": true
+              }
+            ],
+            "pacePerDay": 17
+          }
+        },
+        "marvel_rivals": {
+          "Rank Boost": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [
+              {
+                "name": "Bronze",
+                "pricePerDivision": 1.7,
+                "hoursPerDivision": 1,
+                "divisions": 3
+              },
+              {
+                "name": "Silver",
+                "pricePerDivision": 2,
+                "hoursPerDivision": 1,
+                "divisions": 3
+              },
+              {
+                "name": "Gold",
+                "pricePerDivision": 2.95,
+                "hoursPerDivision": 1,
+                "divisions": 3
+              },
+              {
+                "name": "Platinum",
+                "pricePerDivision": 3.5,
+                "hoursPerDivision": 1.5,
+                "divisions": 3
+              },
+              {
+                "name": "Diamond",
+                "pricePerDivision": 6.5,
+                "hoursPerDivision": 2,
+                "divisions": 3
+              },
+              {
+                "name": "Grandmaster",
+                "pricePerDivision": 18.5,
+                "hoursPerDivision": 2,
+                "divisions": 3
+              },
+              {
+                "name": "Celestial",
+                "pricePerDivision": 37,
+                "hoursPerDivision": 2.5,
+                "divisions": 3
+              },
+              {
+                "name": "Eternity",
+                "pricePerDivision": 79,
+                "hoursPerDivision": 3,
+                "divisions": 1
+              },
+              {
+                "name": "One Above All",
+                "skip": true
+              }
+            ],
+            "divisionOrder": "reversed",
+            "pacePerDay": 15
+          }
+        },
+        "apex_legends": {
+          "Rank Boost": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [
+              {
+                "name": "Rookie",
+                "pricePerDivision": 1,
+                "hoursPerDivision": 1,
+                "divisions": 4
+              },
+              {
+                "name": "Bronze",
+                "pricePerDivision": 1,
+                "hoursPerDivision": 1,
+                "divisions": 4
+              },
+              {
+                "name": "Silver",
+                "pricePerDivision": 2,
+                "hoursPerDivision": 1,
+                "divisions": 4
+              },
+              {
+                "name": "Gold",
+                "pricePerDivision": 5,
+                "hoursPerDivision": 1,
+                "divisions": 4
+              },
+              {
+                "name": "Platinum",
+                "pricePerDivision": 6.67,
+                "hoursPerDivision": 1.5,
+                "divisions": 4
+              },
+              {
+                "name": "Diamond",
+                "pricePerDivision": 20,
+                "hoursPerDivision": 2,
+                "divisions": 4
+              },
+              {
+                "name": "Master",
+                "skip": true
+              }
+            ],
+            "divisionOrder": "reversed",
+            "pacePerDay": 22
+          }
+        },
+        "fc26": {
+          "Division Rivals": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "pacePerDay": 6,
+            "tiers": [
+              {
+                "name": "Division 10",
+                "pricePerDivision": 0,
+                "hoursPerDivision": 1,
+                "divisions": 1
+              },
+              {
+                "name": "Division 9",
+                "pricePerDivision": 1.5,
+                "hoursPerDivision": 1,
+                "divisions": 1
+              },
+              {
+                "name": "Division 8",
+                "pricePerDivision": 2,
+                "hoursPerDivision": 1,
+                "divisions": 1
+              },
+              {
+                "name": "Division 7",
+                "pricePerDivision": 2.5,
+                "hoursPerDivision": 1,
+                "divisions": 1
+              },
+              {
+                "name": "Division 6",
+                "pricePerDivision": 2.5,
+                "hoursPerDivision": 1,
+                "divisions": 1
+              },
+              {
+                "name": "Division 5",
+                "pricePerDivision": 3,
+                "hoursPerDivision": 1.5,
+                "divisions": 1
+              },
+              {
+                "name": "Division 4",
+                "pricePerDivision": 3,
+                "hoursPerDivision": 1.5,
+                "divisions": 1
+              },
+              {
+                "name": "Division 3",
+                "pricePerDivision": 3.5,
+                "hoursPerDivision": 1.5,
+                "divisions": 1
+              },
+              {
+                "name": "Division 2",
+                "pricePerDivision": 3.5,
+                "hoursPerDivision": 2,
+                "divisions": 1
+              },
+              {
+                "name": "Division 1",
+                "pricePerDivision": 3.5,
+                "hoursPerDivision": 2,
+                "divisions": 1
+              },
+              {
+                "name": "Elite",
+                "pricePerDivision": 6,
+                "hoursPerDivision": 2.5,
+                "divisions": 1
+              }
+            ]
+          },
+          "Champions Finals": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "pacePerDay": 4,
+            "tiers": [
+              {
+                "name": "Rank 15",
+                "pricePerDivision": 0,
+                "hoursPerDivision": 1,
+                "divisions": 1
+              },
+              {
+                "name": "Rank 14",
+                "pricePerDivision": 2,
+                "hoursPerDivision": 1,
+                "divisions": 1
+              },
+              {
+                "name": "Rank 13",
+                "pricePerDivision": 2.5,
+                "hoursPerDivision": 1,
+                "divisions": 1
+              },
+              {
+                "name": "Rank 12",
+                "pricePerDivision": 3,
+                "hoursPerDivision": 1,
+                "divisions": 1
+              },
+              {
+                "name": "Rank 11",
+                "pricePerDivision": 3.5,
+                "hoursPerDivision": 1.5,
+                "divisions": 1
+              },
+              {
+                "name": "Rank 10",
+                "pricePerDivision": 3.5,
+                "hoursPerDivision": 1.5,
+                "divisions": 1
+              },
+              {
+                "name": "Rank 9",
+                "pricePerDivision": 4,
+                "hoursPerDivision": 1.5,
+                "divisions": 1
+              },
+              {
+                "name": "Rank 8",
+                "pricePerDivision": 4,
+                "hoursPerDivision": 1.5,
+                "divisions": 1
+              },
+              {
+                "name": "Rank 7",
+                "pricePerDivision": 4.5,
+                "hoursPerDivision": 2,
+                "divisions": 1
+              },
+              {
+                "name": "Rank 6",
+                "pricePerDivision": 4.5,
+                "hoursPerDivision": 2,
+                "divisions": 1
+              },
+              {
+                "name": "Rank 5",
+                "pricePerDivision": 5,
+                "hoursPerDivision": 2,
+                "divisions": 1
+              },
+              {
+                "name": "Rank 4",
+                "pricePerDivision": 5,
+                "hoursPerDivision": 2.5,
+                "divisions": 1
+              },
+              {
+                "name": "Rank 3",
+                "pricePerDivision": 6,
+                "hoursPerDivision": 2.5,
+                "divisions": 1
+              },
+              {
+                "name": "Rank 2",
+                "pricePerDivision": 6,
+                "hoursPerDivision": 3,
+                "divisions": 1
+              },
+              {
+                "name": "Rank 1",
+                "pricePerDivision": 6.5,
+                "hoursPerDivision": 3,
+                "divisions": 1
+              }
+            ]
+          }
+        },
+        "call_of_duty": {},
+        "clash_royale": {
+          "Trophy Boost": {
+            "mode": "segments",
+            "enabled": true,
+            "notify": true,
+            "per": 1000,
+            "segments": [
+              {
+                "from": 0,
+                "to": 4000,
+                "price": 0.5,
+                "hours": 3.33
+              },
+              {
+                "from": 4000,
+                "to": 8000,
+                "price": 1,
+                "hours": 3.33
+              },
+              {
+                "from": 8000,
+                "to": 12000,
+                "price": 2,
+                "hours": 3.33
+              },
+              {
+                "from": 12000,
+                "to": 15000,
+                "price": 3,
+                "hours": 3.33
+              }
+            ]
+          },
+          "Path of Legends": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [
+              {
+                "name": "Bronze",
+                "pricePerDivision": 1,
+                "hoursPerDivision": 0.5,
+                "divisions": 1
+              },
+              {
+                "name": "Silver",
+                "pricePerDivision": 2,
+                "hoursPerDivision": 1,
+                "divisions": 1
+              },
+              {
+                "name": "Gold",
+                "pricePerDivision": 3,
+                "hoursPerDivision": 1.5,
+                "divisions": 1
+              },
+              {
+                "name": "Platinum",
+                "pricePerDivision": 5,
+                "hoursPerDivision": 2,
+                "divisions": 1
+              },
+              {
+                "name": "Diamond",
+                "pricePerDivision": 8,
+                "hoursPerDivision": 2.5,
+                "divisions": 1
+              },
+              {
+                "name": "Master",
+                "pricePerDivision": 12,
+                "hoursPerDivision": 3,
+                "divisions": 1
+              },
+              {
+                "name": "Champion",
+                "pricePerDivision": 18,
+                "hoursPerDivision": 4,
+                "divisions": 1
+              },
+              {
+                "name": "Grand Champion",
+                "pricePerDivision": 25,
+                "hoursPerDivision": 5,
+                "divisions": 1
+              },
+              {
+                "name": "Ultimate Champion",
+                "pricePerDivision": 35,
+                "hoursPerDivision": 6,
+                "divisions": 1
+              }
+            ]
+          },
+          "Custom Request": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [],
+            "pacePerDay": 6
+          }
+        },
+        "fortnite": {
+          "Battle Royale Rank Boost": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [
+              {
+                "name": "Bronze",
+                "pricePerDivision": 1,
+                "hoursPerDivision": 1,
+                "divisions": 3
+              },
+              {
+                "name": "Silver",
+                "pricePerDivision": 2,
+                "hoursPerDivision": 1,
+                "divisions": 3
+              },
+              {
+                "name": "Gold",
+                "pricePerDivision": 3,
+                "hoursPerDivision": 1,
+                "divisions": 3
+              },
+              {
+                "name": "Platinum",
+                "pricePerDivision": 5,
+                "hoursPerDivision": 1.5,
+                "divisions": 3
+              },
+              {
+                "name": "Diamond",
+                "pricePerDivision": 8,
+                "hoursPerDivision": 2,
+                "divisions": 3
+              },
+              {
+                "name": "Elite",
+                "pricePerDivision": 12,
+                "hoursPerDivision": 2.5,
+                "divisions": 3
+              },
+              {
+                "name": "Champion",
+                "pricePerDivision": 20,
+                "hoursPerDivision": 3,
+                "divisions": 3
+              },
+              {
+                "name": "Unreal",
+                "pricePerDivision": 35,
+                "hoursPerDivision": 4,
+                "divisions": 2
+              }
+            ],
+            "pacePerDay": 16
+          },
+          "Reload Rank Boost": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [
+              {
+                "name": "Bronze",
+                "pricePerDivision": 1,
+                "hoursPerDivision": 1,
+                "divisions": 3
+              },
+              {
+                "name": "Silver",
+                "pricePerDivision": 2,
+                "hoursPerDivision": 1,
+                "divisions": 3
+              },
+              {
+                "name": "Gold",
+                "pricePerDivision": 3,
+                "hoursPerDivision": 1,
+                "divisions": 3
+              },
+              {
+                "name": "Platinum",
+                "pricePerDivision": 5,
+                "hoursPerDivision": 1.5,
+                "divisions": 3
+              },
+              {
+                "name": "Diamond",
+                "pricePerDivision": 8,
+                "hoursPerDivision": 2,
+                "divisions": 3
+              },
+              {
+                "name": "Elite",
+                "pricePerDivision": 12,
+                "hoursPerDivision": 2.5,
+                "divisions": 3
+              },
+              {
+                "name": "Champion",
+                "pricePerDivision": 20,
+                "hoursPerDivision": 3,
+                "divisions": 3
+              },
+              {
+                "name": "Unreal",
+                "pricePerDivision": 35,
+                "hoursPerDivision": 4,
+                "divisions": 2
+              }
+            ],
+            "pacePerDay": 16
+          },
+          "Custom Request": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [],
+            "pacePerDay": 6
+          }
+        },
+        "osrs": {
+          "Power Leveling": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [],
+            "pacePerDay": 6
+          },
+          "Questing": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [],
+            "pacePerDay": 6
+          },
+          "Fire Cape": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [],
+            "pacePerDay": 6
+          },
+          "Minigames": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [],
+            "pacePerDay": 6
+          },
+          "PvM": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [],
+            "pacePerDay": 6
+          },
+          "Quiver": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [],
+            "pacePerDay": 6
+          },
+          "Ironman": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [],
+            "pacePerDay": 6
+          },
+          "Gathering": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [],
+            "pacePerDay": 6
+          },
+          "Combat": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [],
+            "pacePerDay": 6
+          },
+          "Achievements": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [],
+            "pacePerDay": 6
+          },
+          "Blood Torva": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [],
+            "pacePerDay": 6
+          },
+          "Yama": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [],
+            "pacePerDay": 6
+          },
+          "Contracts": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [],
+            "pacePerDay": 6
+          },
+          "Raids": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [],
+            "pacePerDay": 6
+          },
+          "Achievement Diaries": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [],
+            "pacePerDay": 6
+          },
+          "Custom Request": {
+            "mode": "tiers",
+            "enabled": true,
+            "notify": true,
+            "tiers": [],
+            "pacePerDay": 6
           }
         }
       }
@@ -268,11 +1159,11 @@
     "customRequestDelayMs": 5000,
     "clarifyRepriceMs": 180000,
     "orderAcceptedEnabled": true,
-    "orderAcceptedMessage": "Thanks for your purchase. Send me your account details and I'll get started right away. ðŸš€",
+    "orderAcceptedMessage": "Thanks for your purchase. Send me your account details and I'll get started right away. 🚀",
     "orderAcceptedImage": "",
     "orderAcceptedDelayMs": 5000,
     "followUpEnabled": true,
-    "followUpMessage": "Hi! Just reminding you about my offer. If you have any questions or want to get started, reply here and I'll begin right away. ðŸ‘",
+    "followUpMessage": "Hi! Just reminding you about my offer. If you have any questions or want to get started, reply here and I'll begin right away. 👍",
     "followUpImage": "",
     "followUpDelayMs": 5000
   },
@@ -440,7 +1331,7 @@
     "port": 8080,
     "plans": {
       "tresdias": {
-        "label": "3 DÃ­as",
+        "label": "3 Días",
         "days": 3,
         "price": 6
       },
@@ -466,7 +1357,11 @@
           "only": "TRC20"
         }
       ],
-      "note": "EnviÃ¡ SOLO por red TRC20 (otra red = fondos perdidos). DespuÃ©s del pago, pegÃ¡ tu TXID + captura en el ticket de Discord y el staff te entrega tu key en minutos. Los pagos son solo en criptomonedas y no hay reembolsos una vez emitida la llave."
+      "note": "Enviá SOLO por red TRC20 (otra red = fondos perdidos). Después del pago, pegá tu TXID + captura en el ticket de Discord y el staff te entrega tu key en minutos. Los pagos son solo en criptomonedas y no hay reembolsos una vez emitida la llave."
     }
+  },
+  "license": {
+    "blacklistUrl": "",
+    "pollMs": 300000
   }
 }

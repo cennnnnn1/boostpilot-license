@@ -1,5 +1,3 @@
-import fs from 'fs/promises';
-
 const DEFAULT_DELIVERY = {
   Minute20: 0.34, Hour1: 1, Hour2: 2, Hour3: 3, Hour5: 5, Hour8: 8, Hour12: 12,
   Day1: 24, Day2: 48, Day3: 72, Day7: 168, Day14: 336, Day28: 672, Day45: 1080,
@@ -59,7 +57,12 @@ function deliveryCodeForHours(hours, cfg) {
   return best;
 }
 
-const CATEGORY_ALIASES = { 'prestige icon': 'Prestigios', 'brawlers rank': 'Rank Brawler' };
+const CATEGORY_ALIASES = {
+  'prestige icon': 'Prestigios', 'brawlers rank': 'Rank Brawler',
+  'placement': 'Placements', 'placement matches': 'Placements', 'placements match': 'Placements',
+  'net win': 'Net Wins', 'netwin': 'Net Wins', 'net wins match': 'Net Wins',
+  'game': 'Games', 'games boost': 'Games', 'game boost': 'Games',
+};
 
 function matchCategory(category, gameCfg) {
   const cat = String(category || '').trim();
@@ -92,8 +95,9 @@ function multipliersFromText(text, multipliers) {
   return mult;
 }
 
-function rankList(tiers) {
+function rankList(tiers, cfg) {
   const list = [];
+  const reversed = cfg && cfg.divisionOrder === 'reversed';
   for (const t of tiers || []) {
     if (!t || !t.name) continue;
     if (t.skip) {
@@ -102,10 +106,11 @@ function rankList(tiers) {
     }
     const divs = Math.max(t.divisions || t.divisionsPerTier || 1, 1);
     for (let d = 1; d <= divs; d++) {
-      const label = divs > 1 ? `${t.name} ${['I', 'II', 'III', 'IV', 'V'][d - 1] || d}` : t.name;
+      const rv = reversed ? divs - d + 1 : d;
+      const label = divs > 1 ? `${t.name} ${['I', 'II', 'III', 'IV', 'V'][rv - 1] || rv}` : t.name;
       list.push({
         tier: t.name,
-        div: d,
+        div: rv,
         label,
         tierCfg: t,
         price: Number(t.pricePerDivision || 0),
@@ -118,7 +123,7 @@ function rankList(tiers) {
 }
 
 function rankIndex(text, list) {
-  const raw = String(text || '').trim().replace(/\s+/g, ' ');
+  const raw = String(text || '').trim().replace(/\s+/g, ' ').replace(/\s+\d+\s*rr\b/i, '').trim();
   if (!raw) return null;
   let i = list.findIndex((x) => x.label.toLowerCase() === raw.toLowerCase());
   if (i >= 0) return i;
@@ -137,13 +142,81 @@ function rankIndex(text, list) {
       if (k >= 0) return k;
     }
   }
+  const stripRank = (s) => String(s || '').trim().replace(/^(?:rank|division|div|tier|rango)\s+/i, '').toLowerCase();
+  const sRaw = stripRank(raw);
+  const k = list.findIndex((x) => {
+    if (x.skip) return false;
+    return stripRank(x.label) === sRaw || stripRank(x.tier) === sRaw;
+  });
+  if (k >= 0) {
+    let g = k;
+    while (g > 0 && !list[g - 1].skip && list[g - 1].tier === list[k].tier) g--;
+    return g;
+  }
   return null;
 }
 
 function parseRankRange(text) {
-  const cur = (String(text || '').match(/current rank\s*[:]?\s*(.+?)(?=;|$)/i) || [])[1];
-  const des = (String(text || '').match(/desired rank\s*[:]?\s*(.+?)(?=;|$)/i) || [])[1];
+  const cur = (String(text || '').match(/current (?:rank|division)\s*[:]?\s*(.+?)(?=;|$)/i) || [])[1];
+  const des = (String(text || '').match(/desired\s+(?:rank|division)\s*[:]?\s*(.+?)(?=;|$)/i) || [])[1] ||
+             (String(text || '').match(/game\s+level\s*[:]?\s*(.+?)(?=;|$)/i) || [])[1];
   return { current: cur ? cur.trim() : null, desired: des ? des.trim() : null };
+}
+
+function parseRR(text) {
+  const t = String(text || '');
+  const m = t.match(/(?:current\s+)?(?:rr|rating)\s*[:\s]*(\d{1,3})\b/i);
+  if (m) {
+    const before = t.slice(0, m.index);
+    if (/(?:over|above|at\s+least|min(?:imum)?|under|below|desired|up\s+to)\s+$/i.test(before)) return null;
+    if (/(?:over|above|at\s+least|min(?:imum)?|under|below|up\s+to)\s+(?:\d{1,3}\s*rr\s*)?$/i.test(before)) return null;
+    return Math.min(Number(m[1]), 99);
+  }
+  const m2 = t.match(/\b(\d{1,3})\s*rr\b/i);
+  if (m2) {
+    const before = t.slice(0, m2.index);
+    if (/(?:over|above|at\s+least|min(?:imum)?|under|below|desired|up\s+to)\s+$/i.test(before)) return null;
+    return Math.min(Number(m2[1]), 99);
+  }
+  return null;
+}
+
+function parseDesiredRR(text) {
+  const t = String(text || '');
+  const m = t.match(/desired\s+(?:rr|rating)\s*[:\s]*(\d{1,3})\b/i);
+  if (m) return Math.min(Number(m[1]), 99);
+  const m2 = t.match(/(?:up\s+to|to|al)\s+(\d{1,3})\s*rr\b/i);
+  if (m2) return Math.min(Number(m2[1]), 99);
+  const m3 = t.match(/(?:over|above|at\s+least|min(?:imum)?|under|below)\s+(\d{1,3})\s*rr\b/i);
+  if (m3) return Math.min(Number(m3[1]), 99);
+  const m4 = t.match(/(\d{1,3})\s*\+\s*rr\b/i);
+  if (m4) return Math.min(Number(m4[1]), 99);
+  return null;
+}
+
+const RR_PER_WIN = { iron: 25, bronze: 25, silver: 25, gold: 25, platinum: 20, diamond: 15, ascendant: 15, immortal: 12 };
+
+function computeRRBoost(cfg, text, currentRank) {
+  const curRR = parseRR(text);
+  const desRR = parseDesiredRR(text);
+  if (curRR == null || desRR == null || desRR <= curRR) return null;
+  const rrNeeded = desRR - curRR;
+  const rankName = String(currentRank || '').toLowerCase().replace(/\s*[ivx]+.*$/i, '');
+  const rrPerWin = RR_PER_WIN[rankName] || 15;
+  const winsNeeded = Math.ceil(rrNeeded / rrPerWin);
+  const netWinsCfg = cfg['Net Wins'];
+  if (!netWinsCfg || netWinsCfg.enabled === false) return null;
+  const pricePerWin = Number(netWinsCfg.pricePerUnit || 0);
+  const hoursPerWin = Number(netWinsCfg.hoursPerUnit || 0);
+  if (pricePerWin <= 0) return null;
+  const price = winsNeeded * pricePerWin;
+  const hours = winsNeeded * hoursPerWin;
+  return {
+    price,
+    hours,
+    detail: `RR boost ${curRR}→${desRR} (${rrNeeded} rr, ~${winsNeeded} wins)`,
+    rrBoost: true,
+  };
 }
 
 function computeSegments(cfg, from, to) {
@@ -172,21 +245,56 @@ function computeSegments(cfg, from, to) {
   return { price, hours, from: lo, to: hi, detail: `${hi - lo} (${lo}->${hi})` };
 }
 
-function computeTiers(cfg, text) {
-  const list = rankList(cfg.tiers);
+function computeTiers(cfg, text, gameCfg) {
+  const list = rankList(cfg.tiers, cfg);
   if (!list.length) return null;
   const { current, desired } = parseRankRange(text);
   const ci = rankIndex(current, list);
   const di = rankIndex(desired, list);
-  if (ci == null || di == null || ci === di) return null;
+  if (ci == null) return null;
+  if (di == null) return { emptyDesired: true, detail: `${current || '?'} -> ?` };
+  if (ci === di) {
+    return computeRRBoost(gameCfg || cfg, text, current) || null;
+  }
   const lo = Math.min(ci, di);
   const hi = Math.max(ci, di);
   for (let k = lo; k <= hi; k++) {
     if (list[k].skip) return { skipTier: list[k].tier };
   }
   const range = list.slice(lo + 1, hi + 1);
-  const price = range.reduce((s, x) => s + x.price, 0);
-  const hours = range.reduce((s, x) => s + x.hours, 0);
+  let price = range.reduce((s, x) => s + x.price, 0);
+  let hours = range.reduce((s, x) => s + x.hours, 0);
+  const pace = Number(cfg.pacePerDay);
+  if (pace > 0) {
+    const steps = hi - lo;
+    hours = (steps / pace) * 24;
+  }
+  if (ci < di && range.length > 0) {
+    const rr = parseRR(text);
+    if (rr != null && rr > 0) {
+      const firstPrice = range[0].price;
+      const discount = firstPrice * (rr / 100);
+      price -= discount;
+      if (pace > 0) {
+        hours -= (1 / pace) * 24 * (rr / 100);
+      } else {
+        hours -= range[0].hours * (rr / 100);
+      }
+    }
+  }
+  const desRR = parseDesiredRR(text);
+  if (desRR != null && desRR > 0 && range.length > 0) {
+    const lastStepPrice = range[range.length - 1].price;
+    const rrExtra = lastStepPrice * (desRR / 100);
+    price += rrExtra;
+    if (pace > 0) {
+      hours += (1 / pace) * 24 * (desRR / 100);
+    } else {
+      hours += range[range.length - 1].hours * (desRR / 100);
+    }
+  }
+  price = Math.max(price, 0);
+  hours = Math.max(hours, 0.5);
   if (price <= 0) return null;
   return {
     price,
@@ -198,6 +306,97 @@ function computeTiers(cfg, text) {
 const PHASE_TARGET = { 1: 1000, 2: 2000, 3: 3000 };
 const PHASE_TROPHY = { 1000: 1, 2000: 2, 3000: 3 };
 
+function unitsCount(text, cfg) {
+  const t = String(text || '');
+  const label = (cfg && cfg.unitLabel) ? String(cfg.unitLabel).toLowerCase() : '';
+  const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const lab = label ? esc(label) + 's?' : '(?:wins?|placements?|placement\\s+games?)';
+  const gameLabel = label === 'win' ? '|games?|matches?' : '';
+  const anyLabel = `(?:${lab}${gameLabel})`;
+  let m = t.match(new RegExp(`(\\d{1,2})\\s*(?:net\\s+)?${anyLabel}\\b`, 'i'));
+  if (m) return Number(m[1]);
+  m = t.match(new RegExp(`(?:number\\s+of\\s+(?:games?|matches?)\\s*[:\\s]*|count\\s+of\\s+)?${anyLabel}\\s*(?:count)?\\s*:?\\s*(\\d{1,2})\\b`, 'i'));
+  if (m) return Number(m[1]);
+  m = t.match(new RegExp(`(?:number\\s+of\\s+(?:games?|matches?)\\s*[:\\s]*|count\\s+of\\s+)\\s*(?:count)?\\s*:?\\s*(\\d{1,2})\\b`, 'i'));
+  if (m) return Number(m[1]);
+  m = t.match(new RegExp(`\\b${anyLabel}\\b[^\\n]*?[-\\u2013\\u2014]\\s*(\\d{1,2})\\s*(?:${anyLabel}|matches?|games?)\\b`, 'i'));
+  if (m) return Number(m[1]);
+  return null;
+}
+
+function computeUnits(cfg, text) {
+  const count = unitsCount(text, cfg);
+  if (!count || count <= 0) return null;
+  const perHours = Number(cfg.hoursPerUnit || 0);
+  const rp = cfg.rankPrices;
+  if (rp && typeof rp === 'object') {
+    const rank = rankFromText(text);
+    const rankPrice = rank ? Number(rp[rank]) : NaN;
+    if (!isNaN(rankPrice) && rankPrice > 0) {
+      return { price: rankPrice * count, hours: perHours * count, count, detail: `${count} ${cfg.unitLabel || 'unidades'}` };
+    }
+  }
+  const per = Number(cfg.pricePerUnit || 0);
+  if (per <= 0) return null;
+  let price = per * count;
+  let hours = perHours * count;
+  const rm = cfg.rankMultipliers;
+  if (rm && typeof rm === 'object') {
+    const rank = rankFromText(text);
+    if (rank) {
+      const mult = Number(rm[rank] || 1);
+      price *= mult;
+      hours *= mult;
+    }
+  }
+  return {
+    price,
+    hours,
+    count,
+    detail: `${count} ${cfg.unitLabel || 'unidades'}`,
+  };
+}
+
+const RANK_NAMES = ['iron', 'bronze', 'silver', 'gold', 'platinum', 'diamond', 'ascendant', 'immortal', 'radiant'];
+
+function rankFromText(text) {
+  const t = String(text || '').toLowerCase();
+  for (const r of RANK_NAMES) {
+    if (new RegExp(`\\b${r}\\b`, 'i').test(t)) return r;
+  }
+  return null;
+}
+
+const REGION_CANON = {
+  'north america': 'NA', 'na': 'NA', 'us': 'NA', 'usa': 'NA', 'canada': 'NA',
+  'europe': 'EU', 'eu': 'EU', 'europea': 'EU',
+  'asia': 'AP', 'apac': 'AP', 'southeast asia': 'AP', 'sea': 'AP', 'asia pacific': 'AP', 'oceania': 'AP', 'oce': 'AP', 'australia': 'AP',
+  'south america': 'LATAM', 'latam': 'LATAM', 'sudamerica': 'LATAM',
+  'brasil': 'BRASIL', 'brazil': 'BRASIL', 'br': 'BRASIL',
+  'korea': 'KR', 'korea del sur': 'KR', 'kr': 'KR', 'south korea': 'KR',
+};
+
+function canonRegion(val) {
+  const v = String(val || '').trim().toLowerCase().replace(/\s+/g, ' ').replace(/[()]/g, '');
+  if (REGION_CANON[v]) return REGION_CANON[v];
+  for (const [k, c] of Object.entries(REGION_CANON)) {
+    if (k.length <= 2) {
+      if (new RegExp(`\\b${k}\\b`).test(v)) return c;
+    } else if (v.includes(k)) {
+      return c;
+    }
+  }
+  return null;
+}
+
+function regionFromText(text) {
+  const t = String(text || '');
+  let val = (t.match(/server\s*[:]?\s*(.+?)(?=;|$)/i) || [])[1];
+  if (!val) val = (t.match(/region\s*[:]?\s*(.+?)(?=;|$)/i) || [])[1];
+  if (!val) return null;
+  return canonRegion(val);
+}
+
 function brawlPrestigeBand(text, tr) {
   const desired = tr.desired;
   const current = tr.current;
@@ -205,14 +404,71 @@ function brawlPrestigeBand(text, tr) {
   if (desired > 2000 && desired <= 3000) {
     return { from: current != null ? current : 2000, to: desired, bandFrom: 2000, bandTo: 3000, label: 'p2 a p3' };
   }
-  if (desired >= 1000 && desired <= 2000 && current != null && current >= 1000 && current < desired) {
+  if (desired >= 1000 && desired <= 2000 && current != null && current < desired) {
     return { from: current, to: desired, bandFrom: 1000, bandTo: 2000, label: 'p1 a p2' };
+  }
+  if (desired >= 1000 && desired <= 2000 && current == null) {
+    return { from: 0, to: desired, bandFrom: 0, bandTo: 2000, label: 'p0 a p2' };
   }
   return null;
 }
 
+function trophyRanges(text) {
+  const t = String(text || '');
+  const out = [];
+  const re = /\b(\d{3,4})\s*(?:-|a|to|hasta|al)\s*(\d{3,4})\b/gi;
+  let m;
+  while ((m = re.exec(t))) {
+    const from = Number(m[1]);
+    const to = Number(m[2]);
+    if (from >= 1000 && to >= 1000 && to > from) out.push({ from, to });
+  }
+  return out;
+}
+
+function normalizeBrawlerName(name) {
+  const n = String(name || '').toLowerCase().trim();
+  if (n.includes('larry') || n.includes('lawrie')) return 'larry & lawrie';
+  if (n === 'r-t' || n === 'rt') return 'r-t';
+  return n;
+}
+
+function parseMultiBrawlerDescriptions(text) {
+  const t = String(text || '');
+  const BW_RE = BRAWLER_NAMES.map((b) => b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+  const targets = [];
+  const targetRe = new RegExp(`\\b(${BW_RE})\\s+(?:to|hasta|al|goal|target)\\s+(?:p(?:restige)?\\s*)?(\\d{1,4})\\b`, 'gi');
+  let m;
+  while ((m = targetRe.exec(t))) {
+    let to = Number(m[2]);
+    if (to >= 1 && to <= 3) to = PHASE_TARGET[to] || to;
+    targets.push({ brawler: normalizeBrawlerName(m[1]), to, idx: m.index });
+  }
+  if (targets.length < 2) return [];
+  const currents = [];
+  const currentRe = new RegExp(`\\b(${BW_RE})\\s+(\\d{3,4})\\b`, 'gi');
+  while ((m = currentRe.exec(t))) {
+    const from = Number(m[2]);
+    if (from >= 100 && from <= 4000) currents.push({ brawler: normalizeBrawlerName(m[1]), from, idx: m.index });
+  }
+  const ranges = [];
+  for (const tgt of targets) {
+    const match = currents.find((c) => c.brawler === tgt.brawler && c.from < tgt.to);
+    if (match) ranges.push({ from: match.from, to: tgt.to });
+  }
+  return ranges;
+}
+
 function bandCovered(segs, bandFrom, bandTo) {
-  return (segs || []).some((s) => Number(s.price || 0) > 0 && Number(s.from ?? 0) <= bandFrom && Number(s.to ?? Infinity) >= bandTo);
+  let covered = bandFrom;
+  const sorted = [...(segs || [])].sort((a, b) => Number(a.from ?? 0) - Number(b.from ?? 0));
+  for (const s of sorted) {
+    if (Number(s.price || 0) <= 0) continue;
+    const sFrom = Number(s.from ?? 0);
+    const sTo = Number(s.to ?? Infinity);
+    if (sFrom <= covered && sTo > covered) covered = sTo;
+  }
+  return covered >= bandTo;
 }
 const SKIP_RE = /\b(vendo|vender|vende|venta|venderla|cambio|intercambi|trad(?:e|ing)|selling|sell\b|sale\b|for sale|wanna sell|quiero vender)\b/i;
 
@@ -303,6 +559,27 @@ function explicitTarget(text) {
   if (out.desired == null) {
     const to = t.match(/\b(?:to|hasta|al|goal|target)\s+([\d.,]+k?)\b/i);
     if (to) out.desired = parseNumber(to[1]);
+  }
+  if (out.desired == null) {
+    const prest = t.match(/\bprestige\s+(\d)\b/i);
+    if (prest) {
+      const PHASE = { 1: 1000, 2: 2000, 3: 3000 };
+      out.desired = PHASE[Number(prest[1])] || null;
+    }
+  }
+  if (out.current == null) {
+    const trophy = t.match(/\b(\d{1,4})\s*(?:troph(?:y|ies)|t)\b/i);
+    if (trophy) {
+      const n = parseNumber(trophy[1]);
+      if (n != null && n >= 0 && n <= 3000) out.current = n;
+    }
+  }
+  if (out.current == null) {
+    const from = t.match(/\bfrom\s+(\d[\d.,]*k?)\b/i);
+    if (from) {
+      const n = parseNumber(from[1]);
+      if (n != null && n >= 0 && n <= 3000) out.current = n;
+    }
   }
   const range = t.match(/\b(\d[\d.,]*k?)\s*(?:-|a|to|hasta|al)\s*(\d[\d.,]*k?)\b/i);
   if (range) {
@@ -430,21 +707,38 @@ export function computePrice({ game, category, description, config } = {}) {
   }
 
   if (catCfg.mode === 'segments') {
-    const from = segFrom != null ? segFrom : toNumber((text.match(/current (?:brawler )?troph(?:y|ies)(?: count)?\s*[:]?\s*([\d.,]+)/i) || [])[1]);
-    const to = segTo != null ? segTo : toNumber((text.match(/desired (?:brawler )?troph(?:y|ies)(?: count)?\s*[:]?\s*([\d.,]+)/i) || [])[1]);
-    if (from == null || to == null) return null;
-    if (to < from) return null;
+    if (segFrom == null) {
+      const mFrom = text.match(/current (?:brawler )?troph(?:y|ies)(?: count)?\s*[:]?\s*([\d.,]+)/i);
+      if (mFrom) segFrom = toNumber(mFrom[1]);
+    }
+    if (segTo == null) {
+      const mTo = text.match(/desired (?:brawler )?troph(?:y|ies)(?: count)?\s*[:]?\s*([\d.,]+)/i);
+      if (mTo) segTo = toNumber(mTo[1]);
+    }
+    if (segFrom == null || segTo == null) {
+      const hasMultiBrawler = hasBrawlerName(text) || (trophyRanges(text).length >= 2) || /\b\d+\s+brawlers?\b/i.test(text);
+      if (!hasMultiBrawler) {
+        const et = explicitTarget(text);
+        if (segFrom == null && et.current != null) segFrom = et.current;
+        if (segTo == null && et.desired != null) segTo = et.desired;
+      }
+    }
+    if (segFrom == null || segTo == null) return null;
+    if (segTo < segFrom) return null;
     const segMax = Math.max(0, ...(catCfg.segments || []).map((s) => (s.to != null ? Number(s.to) : 0)));
-    if (to > segMax) return { ok: false, reason: 'rango por encima del máximo configurado (se salta)', to };
-    segFrom = from;
-    segTo = to;
-    out = computeSegments(catCfg, from, to);
+    if (segTo > segMax) return { ok: false, reason: 'rango por encima del máximo configurado (se salta)', to: segTo };
+    out = computeSegments(catCfg, segFrom, segTo);
     if (!out) return null;
   } else if (catCfg.mode === 'tiers') {
-    const t = computeTiers(catCfg, text);
+    const t = computeTiers(catCfg, text, gameCfg);
     if (!t) return null;
+    if (t.emptyDesired) return { ok: false, reason: 'rango deseado vacío (precio manual)' };
     if (t.skipTier) return { ok: false, reason: `rango incluye ${t.skipTier} (sin precio automatico)` };
     out = t;
+  } else if (catCfg.mode === 'units') {
+    const u = computeUnits(catCfg, text);
+    if (!u) return null;
+    out = u;
   } else {
     return null;
   }
@@ -453,21 +747,32 @@ export function computePrice({ game, category, description, config } = {}) {
   let price = out.price * mult;
   let hours = out.hours * mult;
 
+  let region = null;
+  const regionCfg = (gameCfg.regionLocked && gameCfg.regions) ? gameCfg.regions : (catCfg.regions || null);
+  if (regionCfg) {
+    region = regionFromText(text);
+    if (region) {
+      const rc = regionCfg[region];
+      if (!rc || rc.enabled === false) {
+        return { ok: false, reason: `regi\u00f3n ${region} no soportada (se salta)` };
+      }
+      const rmult = Number(rc.multiplier);
+      if (Number.isFinite(rmult) && rmult > 0 && rmult !== 1) {
+        price *= rmult;
+        hours *= rmult;
+      }
+    }
+  }
+
   const hasSegHours = (catCfg.segments || []).some((s) => s.hours != null && Number(s.hours) > 0);
   let segPace = null;
   if (catCfg.mode === 'segments' && segFrom != null && segTo != null && !catCfg.useSegmentHours && !hasSegHours) {
-    segPace = Number(catCfg.pacePerDay != null ? catCfg.pacePerDay : (pricing.pacePerDay != null ? pricing.pacePerDay : 1500));
+    segPace = Number(catCfg.pacePerDay != null ? catCfg.pacePerDay : 1500);
     const total = Math.abs(segTo - segFrom);
     hours = (total / Math.max(1, segPace)) * 24 * mult;
   }
 
-  const roundTo = pricing.roundTo != null ? Number(pricing.roundTo) : 0.01;
-  if (roundTo > 0 && roundTo !== 0.01) {
-    const factor = Math.max(1, Math.round(1 / roundTo));
-    price = Math.round((price + Number.EPSILON) * factor) / factor;
-  } else {
-    price = roundPrice(price);
-  }
+  price = roundPrice(price);
   if (catCfg.mode === 'segments') {
     const floor = configFloor(catCfg.segments || []);
     if (floor > 0) price = Math.max(price, floor);
@@ -488,6 +793,7 @@ export function computePrice({ game, category, description, config } = {}) {
   } else {
     note = `precio sugerido (${out.detail}${mult !== 1 ? ' x' + mult : ''})`;
   }
+  if (region) note += ` | server ${region}`;
 
   return {
     ok: true,
@@ -495,6 +801,7 @@ export function computePrice({ game, category, description, config } = {}) {
     hours,
     deliveryTime,
     etaLabel,
+    region,
     multiplier: mult,
     detail: out.detail,
     from: out.from != null ? out.from : null,
@@ -576,10 +883,46 @@ export function interpretDescription({ game, category, description, config } = {
   }
   if (current != null && current >= target) return { ok: false, reason: 'ya alcanzado el objetivo' };
   if (target > segMax) return { ok: false, reason: 'rango por encima del máximo configurado (se salta)' };
-  const count = brawlerCount(text);
+
   const mult = multipliersFromText(text, catCfg.multipliers);
-  const roundTo = pricing.roundTo != null ? Number(pricing.roundTo) : 0.01;
-  const factor = Math.max(1, Math.round(1 / roundTo));
+  let ranges = trophyRanges(text);
+  if (ranges.length < 2) ranges = parseMultiBrawlerDescriptions(text);
+  if (ranges.length >= 2) {
+    let price = 0;
+    let hours = 0;
+    const parts = [];
+    for (const r of ranges) {
+      if (r.to > segMax) return { ok: false, reason: 'rango por encima del máximo configurado (se salta)' };
+      const p = proportionalForRange(segs, r.from, r.to);
+      price += p.price;
+      hours += p.hours;
+      parts.push(`${fmtNum(r.from)} -> ${fmtNum(r.to)}`);
+    }
+    price *= mult;
+    hours *= mult;
+    const floor = configFloor(segs);
+    if (floor > 0) price = Math.max(price, floor);
+    const budget = budgetFromText(text);
+    if (budget != null && budget > 0) price = Math.min(price, budget);
+    price = roundPrice(price);
+    if (!Number.isFinite(price) || price <= 0) return null;
+    const deliveryTime = deliveryCodeForHours(hours, pricing);
+    const etaLabel = fmtEta(hours);
+    return {
+      ok: true,
+      price,
+      hours,
+      deliveryTime,
+      etaLabel,
+      multiplier: mult,
+      detail: `${ranges.length} brawlers (${parts.join(', ')})`,
+      from: ranges[0].from,
+      to: ranges[0].to,
+      note: `interpretado: ${ranges.length} brawlers (${parts.join(', ')}) | ~${etaLabel}${budget != null ? ` | max $${budget}` : ''}`,
+    };
+  }
+
+  const count = brawlerCount(text);
 
   let price;
   let hours;
@@ -605,11 +948,7 @@ export function interpretDescription({ game, category, description, config } = {
   const budget = budgetFromText(text);
   if (budget != null && budget > 0) price = Math.min(price, budget);
 
-  if (roundTo > 0 && roundTo !== 0.01) {
-    price = Math.round((price + Number.EPSILON) * factor) / factor;
-  } else {
-    price = roundPrice(price);
-  }
+  price = roundPrice(price);
   if (!Number.isFinite(price) || price <= 0) return null;
 
   const deliveryTime = deliveryCodeForHours(hours, pricing);
@@ -637,14 +976,6 @@ export function interpretDescription({ game, category, description, config } = {
     note: parts.join(' | '),
     budgetMatch: !!budgetMatch,
   };
-}
-
-export async function loadPricingFile(filePath) {
-  try {
-    return JSON.parse(await fs.readFile(filePath, 'utf8'));
-  } catch {
-    return {};
-  }
 }
 
 export { matchCategory };

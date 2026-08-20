@@ -63,6 +63,28 @@ export class FastMode {
     this._catSkippedLogged = new Set();
   }
 
+  async resetHistory() {
+    this.pending = [];
+    this.tracked = new Map();
+    this.orders = new Map();
+    this._noPriceIds = new Set();
+    this._autoOnlySkipped = new Set();
+    this._catSkippedLogged = new Set();
+    this.stats.found = 0;
+    this.stats.placed = 0;
+    this.stats.skipped = 0;
+    this.stats.errors = 0;
+    this.stats.pending = 0;
+    this.stats.ordersTracked = 0;
+    for (const file of [this.pendingFile, this.ordersFile]) {
+      try {
+        const tmp = `${file}.${process.pid}.${Date.now()}.tmp`;
+        await fs.writeFile(tmp, JSON.stringify([]));
+        await fs.rename(tmp, file);
+      } catch (e) {}
+    }
+  }
+
   _createdTs(item) {
     const src = item && (item.createdDate || item.createdAt);
     if (!src) return NaN;
@@ -145,6 +167,16 @@ export class FastMode {
     return ce[key] === false;
   }
 
+  _notifyAllowed({ game, category } = {}) {
+    const key = this.gameKeyFor(String(game)) || game;
+    const pricing = (this.config.bot && this.config.bot.pricing) || {};
+    const gameCfg = pricing.games && pricing.games[key];
+    if (!gameCfg) return true;
+    const catCfg = matchCategory(category, gameCfg);
+    if (!catCfg) return true;
+    return catCfg.notify !== false;
+  }
+
   _autoAllowsGame(gameKey) {
     const list = this.cfg.autoOnlyGames;
     if (!Array.isArray(list) || !list.length) return true;
@@ -154,6 +186,28 @@ export class FastMode {
   _pricingSkipReason(reason) {
     const r = String(reason || '');
     return /se salta|venta\/intercambio|ya alcanzado|incluye pro/i.test(r);
+  }
+
+  _regionFromText(text) {
+    const t = String(text || '');
+    let val = (t.match(/server\s*[:]?\s*(.+?)(?=;|$)/i) || [])[1];
+    if (!val) val = (t.match(/region\s*[:]?\s*(.+?)(?=;|$)/i) || [])[1];
+    if (!val) return null;
+    const v = val.trim().toLowerCase().replace(/\s+/g, ' ').replace(/[()]/g, '');
+    const map = {
+      'north america': 'NA', 'na': 'NA', 'us': 'NA', 'usa': 'NA', 'canada': 'NA',
+      'europe': 'EU', 'eu': 'EU', 'europea': 'EU',
+      'asia': 'AP', 'apac': 'AP', 'southeast asia': 'AP', 'sea': 'AP', 'asia pacific': 'AP', 'oceania': 'AP', 'oce': 'AP', 'australia': 'AP',
+      'south america': 'LATAM', 'latam': 'LATAM', 'sudamerica': 'LATAM',
+      'brasil': 'BRASIL', 'brazil': 'BRASIL', 'br': 'BRASIL',
+      'korea': 'KR', 'korea del sur': 'KR', 'kr': 'KR', 'south korea': 'KR',
+    };
+    if (map[v]) return map[v];
+    for (const [k, c] of Object.entries(map)) {
+      if (k.length <= 2) { if (new RegExp(`\\b${k}\\b`).test(v)) return c; }
+      else if (v.includes(k)) return c;
+    }
+    return null;
   }
 
   buildText(item, details) {
@@ -217,6 +271,26 @@ export class FastMode {
       return;
     }
 
+    const gameCfg = (this.config.bot && this.config.bot.pricing && this.config.bot.pricing.games && this.config.bot.pricing.games[gameKey]) || {};
+    if (gameCfg.regionLocked && gameCfg.regions) {
+      const region = this._regionFromText(text);
+      if (region) {
+        const rc = gameCfg.regions[region];
+        if (!rc || rc.enabled === false) {
+          console.log(`[fast][skip] ${item.id.slice(0, 8)} (región ${region} desactivada): ${summary.slice(0, 90)}`);
+          this.stats.skipped++;
+          this.upsertRecord({
+            id: item.id, href: `https://www.eldorado.gg/boosting-request/${item.id}`,
+            game: gameKey, category, description: summary, buyer: item.buyerUsername,
+            price: null, eta: '', note: `región ${region} desactivada`,
+            reason: `región ${region}`, status: 'skipped', source: 'fast',
+            createdAt: new Date().toISOString(), seenAt: new Date().toISOString(),
+          });
+          return;
+        }
+      }
+    }
+
     const catDisabled = this._categoryShouldSkip({ game: gameKey, category });
     if (catDisabled) {
       console.log(`[fast][auto-off] ${item.id.slice(0, 8)} (categoria desactivada en auto): ${summary.slice(0, 90)}`);
@@ -259,8 +333,10 @@ export class FastMode {
 
     if (mode === false || mode === 'off') {
       console.log(`[fast] REQUEST DETECTADO (solo lectura): ${label.toUpperCase()} | ${summary.slice(0, 100)}`);
-      this.beep();
-      this.notify('Request detectado', `${label.toUpperCase()}: ${summary.slice(0, 80)}`);
+      if (this._notifyAllowed({ game: gameKey, category })) {
+        this.beep();
+        this.notify('Request detectado', `${label.toUpperCase()}: ${summary.slice(0, 80)}`);
+      }
       const rec = {
         id: item.id, href, game: gameKey, category,
         description: summary, buyer: item.buyerUsername,
@@ -274,7 +350,7 @@ export class FastMode {
       };
       this.upsertRecord(rec);
       this.tracked.set(item.id, { ts: this._createdTs(item), rec });
-      announce(rec);
+      if (this._notifyAllowed({ game: gameKey, category })) announce(rec);
       return;
     }
 
@@ -321,6 +397,40 @@ export class FastMode {
         this._discord('offerFailed', { title: 'Fallo al crear oferta (auto)', fields: [{ name: 'Error', value: String(err.message).slice(0, 150) }] });
         return;
       }
+    } else if (isAuto && !catDisabled) {
+      console.log('[fast][auto] Sin precio sugerido: enviando mensaje por defecto al comprador.');
+      const chat = this.config.chat || {};
+      const createdAt = new Date().toISOString();
+      const p = {
+        id: item.id, href, game: label, category,
+        description: summary, buyer: item.buyerUsername,
+        price: null, deliveryTime: deliveryTime || 'Day3', etaLabel: '',
+        note: 'sin precio (mensaje automático)', suggested: false,
+        fields: details.descriptionValues || [],
+        vip: false, createdAt, createdDate: item.createdDate || null,
+        gameId: item.gameId || null,
+        responded: false, respondedAt: null,
+      };
+      const message = this._messageFor(p, true);
+      if (message && chat.enabled !== false) {
+        try {
+          await this._chatWithImage(p, message, this._chatPlan(p, true) || {});
+          console.log(`[fast][auto] Mensaje enviado a ${item.buyerUsername || '?'} (${label}/${category || '-'})`);
+        } catch (err) {
+          console.error(`[fast][auto] No se pudo enviar mensaje a ${item.id.slice(0, 8)}: ${err.message}`);
+        }
+      }
+      this.upsertRecord({
+        id: item.id, href, game: gameKey, category,
+        description: summary, buyer: item.buyerUsername,
+        price: null, deliveryTime: deliveryTime || 'Day3', etaLabel: '',
+        note: 'sin precio (mensaje automático)', status: 'messaged', source: 'fast',
+        createdAt, seenAt: new Date().toISOString(),
+      });
+      this.tracked.delete(item.id);
+      this.beep();
+      this.notify('Mensaje automático enviado', `${label.toUpperCase()} | ${item.buyerUsername || '?'} | sin precio`);
+      return;
     } else if (isAuto) {
       console.log(catDisabled
         ? '[fast] Categoria desactivada en auto: la oferta queda en Pedidos (no se envia automatica).'
@@ -347,11 +457,13 @@ export class FastMode {
     this.tracked.set(item.id, { ts: this._createdTs(item), rec: p });
     await this.savePending();
     this.stats.pending = this.pending.length;
-    this.beep();
-    this.notify(
-      'Request esperando confirmacion',
-      `${label.toUpperCase()} | Entrega ${p.deliveryTime}${suggested ? ` | $${suggested.price}` : ''}`
-    );
+    if (this._notifyAllowed({ game: gameKey, category })) {
+      this.beep();
+      this.notify(
+        'Request esperando confirmacion',
+        `${label.toUpperCase()} | Entrega ${p.deliveryTime}${suggested ? ` | $${suggested.price}` : ''}`
+      );
+    }
     console.log(`[fast][pending] ${item.id.slice(0, 8)} esperando confirmacion en el panel (${p.deliveryTime})${suggested ? ` con precio sugerido $${suggested.price}` : ' (precio manual)'}.`);
     this.upsertRecord({
       id: item.id, href, game: gameKey, category,
@@ -361,7 +473,7 @@ export class FastMode {
       status: 'pending', source: 'fast',
       createdAt, seenAt: new Date().toISOString(),
     });
-    announce({});
+    if (this._notifyAllowed({ game: gameKey, category })) announce({});
   }
 
   async pollOnce() {
@@ -616,9 +728,12 @@ export class FastMode {
     return { ok: true };
   }
 
-  _chatPlan(p) {
+  _chatPlan(p, noPrice) {
     const chat = this.config.chat || {};
     const cat = String(p.category || '');
+    if (noPrice && chat.customRequestEnabled !== false && chat.customRequestMessage) {
+      return { text: String(chat.customRequestMessage), image: chat.customRequestImage || '', delayMs: chat.customRequestDelayMs };
+    }
     const isCustom = /custom request/i.test(cat);
     if (isCustom && chat.customRequestEnabled !== false && chat.customRequestMessage) {
       return { text: String(chat.customRequestMessage), image: chat.customRequestImage || '', delayMs: chat.customRequestDelayMs };
@@ -629,11 +744,14 @@ export class FastMode {
     if (chat.welcomeEnabled !== false && chat.welcomeMessage) {
       return { text: String(chat.welcomeMessage), image: chat.welcomeImage || '', delayMs: chat.welcomeDelayMs };
     }
+    if (chat.customRequestEnabled !== false && chat.customRequestMessage) {
+      return { text: String(chat.customRequestMessage), image: chat.customRequestImage || '', delayMs: chat.customRequestDelayMs };
+    }
     return null;
   }
 
-  _messageFor(p) {
-    const plan = this._chatPlan(p);
+  _messageFor(p, noPrice) {
+    const plan = this._chatPlan(p, noPrice);
     return plan ? plan.text : '';
   }
 
@@ -1274,6 +1392,11 @@ export class FastMode {
         this._waitTimer = null;
         console.log('[fast] Sesion cargada. Fast Mode activo.');
         console.log(`[fast] Fast Mode por API activo. Polling cada ${this.cfg.pollIntervalMs || 1500}ms.`);
+        const cancelEvery = this.cfg.cancelCheckIntervalMs ?? 60000;
+        if (!this._cancelLoop && cancelEvery > 0) {
+          this._cancelLoop = this._runCancelLoop(cancelEvery);
+          console.log(`[fast] Deteccion de cancelaciones cada ${Math.round(cancelEvery / 1000)}s.`);
+        }
         if (!this._ordersLoop) {
           const ordersEvery = this.cfg.ordersCheckIntervalMs ?? 120000;
           if (ordersEvery > 0) {

@@ -109,7 +109,7 @@
   .top-right { display: flex; align-items: center; gap: 8px; flex: none; margin-left: auto; white-space: nowrap; }
   .lang-box { display: flex; align-items: center; gap: 8px; flex: none; white-space: nowrap; }
   .lang-box label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
-  .ctrl { display: flex; align-items: center; gap: 10px; flex: none; }
+  .ctrl { display: flex; align-items: center; gap: 10px; flex: none; flex-wrap: wrap; justify-content: flex-end; }
   .hd-mode-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
   .lang-box select { padding: 5px 8px; font-size: 12px; font-weight: 600; }
   .status-pill {
@@ -132,6 +132,7 @@
     padding: 7px 12px; font-size: 12.5px;
   }
   .btn-logout:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 8px 22px rgba(229,57,53,.45); }
+  .status-pill.sub { font-size: 11px; padding: 6px 10px; }
   .status-pill.sub.ok { color: var(--gold2); border-color: rgba(255,106,138,.4); background: rgba(255,106,138,.1); }
   .status-pill.sub.ok::before { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
   .status-pill.sub.bad { color: var(--red); border-color: rgba(248,113,113,.4); background: rgba(248,113,113,.1); }
@@ -225,10 +226,10 @@
     *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
   }
 
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: 14px; margin-bottom: 18px; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 18px; }
   .stat {
     background: linear-gradient(165deg, rgba(255,255,255,.08) 0%, rgba(24,33,56,.95) 100%);
-    border: 1px solid rgba(255,255,255,.09); border-radius: 18px; padding: 18px 20px;
+    border: 1px solid rgba(255,255,255,.09); border-radius: 18px; padding: 14px 16px;
     position: relative; overflow: hidden;
     transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
     box-shadow: 0 8px 24px rgba(2,6,18,.35);
@@ -238,11 +239,24 @@
   .stat::after { content: ''; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--glow, var(--blue)); opacity: .95; }
   .stat .s-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
   .stat .ic { width: 36px; height: 36px; padding: 8px; box-sizing: border-box; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.06); border-radius: 11px; }
-  .stat .v { font-size: 30px; font-weight: 800; letter-spacing: -.5px; line-height: 1; }
-  .stat .l { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-top: 10px; }
+  .stat .v { font-size: 26px; font-weight: 800; letter-spacing: -.5px; line-height: 1; }
+  .stat .l { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-top: 7px; }
   .stat.pending { --glow: var(--blue); } .stat.pending .ic, .stat.pending .v { color: var(--blue); }
-  .stat.placed { --glow: var(--gold); } .stat.placed .ic, .stat.placed .v { color: var(--gold2); }
-  .stat.skipped { --glow: var(--amber); } .stat.skipped .ic, .stat.skipped .v { color: var(--amber); }
+  .stat.subcard {
+    --glow: var(--blue);
+    border-color: rgba(102,179,255,.25);
+    background: linear-gradient(165deg, rgba(102,179,255,.14) 0%, rgba(24,33,56,.95) 55%);
+    text-align: center;
+    display: flex; flex-direction: column;
+  }
+  .stat.subcard .s-top { justify-content: center; }
+  .stat.subcard .sub-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .7px; color: var(--blue); font-weight: 800; }
+  .stat.subcard .sub-big { font-size: 24px; font-weight: 800; color: var(--blue); margin-top: 8px; line-height: 1.05; letter-spacing: -.5px; }
+  .stat.subcard .sub-clock { font-family: 'Consolas', 'Menlo', 'Courier New', monospace; font-size: 15px; font-weight: 700; color: var(--blue); margin-top: 3px; letter-spacing: 1px; }
+  .stat.subcard .sub-bar { height: 5px; border-radius: 999px; background: rgba(102,179,255,.15); margin-top: 9px; overflow: hidden; }
+  .stat.subcard .sub-bar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #66b3ff, #a8d8ff); box-shadow: 0 0 10px rgba(102,179,255,.65); transition: width .3s ease; }
+  .stat.placed { --glow: var(--blue); } .stat.placed .ic, .stat.placed .v { color: var(--blue); }
+  .stat.skipped { --glow: var(--blue); } .stat.skipped .ic, .stat.skipped .v { color: var(--blue); }
   .stat.seen { --glow: var(--muted); } .stat.seen .ic, .stat.seen .v { color: var(--muted); }
   .stat.opened { --glow: var(--green); } .stat.opened .ic, .stat.opened .v { color: var(--green); }
   .stat.rejected { --glow: var(--red); } .stat.rejected .ic, .stat.rejected .v { color: var(--red); }
@@ -550,8 +564,46 @@
   .pr-cat-card { display: none; }
   .pr-cat-card.active { display: block; }
 
+  .pr-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+  .pr-tile {
+    position: relative; display: flex; align-items: flex-end; overflow: hidden;
+    height: 150px; padding: 14px 16px; text-align: left; cursor: pointer;
+    border: 1px solid var(--line); border-radius: 16px; color: var(--text);
+    background: var(--bg2);
+    background: linear-gradient(150deg, color-mix(in srgb, var(--tile) 34%, var(--bg2)) 0%, var(--bg2) 70%);
+    transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+  }
+  .pr-tile:hover { transform: translateY(-2px); border-color: var(--tile); box-shadow: 0 10px 26px rgba(0,0,0,.28); }
+  .pr-tile-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+  .pr-tile-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,10,16,0) 30%, rgba(8,10,16,.78) 100%); }
+  .pr-tile-name { position: relative; z-index: 1; font-size: 16px; font-weight: 800; letter-spacing: .2px; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+  .pr-game-panel { display: none; }
+  .pr-panel-head {
+    display: flex; align-items: center; gap: 14px; margin: 0 0 12px; flex-wrap: wrap;
+    border: 1px solid var(--line); border-radius: 14px; background: var(--bg2); padding: 12px 16px;
+  }
+  .pr-panel-head h4 { margin: 0; font-size: 18px; color: var(--gold); }
+  .pr-game-regions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+  .pr-game-region { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--text); cursor: pointer; user-select: none; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg1); }
+  .pr-game-region input { accent-color: var(--gold); width: 14px; height: 14px; cursor: pointer; }
+  .pr-game-region input:not(:checked) + span { color: var(--muted); text-decoration: line-through; }
+  .pr-back { white-space: nowrap; }
+  .pr-regions { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .pr-region {
+    display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 12px;
+    background: var(--bg1); padding: 8px 12px;
+  }
+  .pr-region .pr-enable { margin-left: 0; font-weight: 700; color: var(--text); }
+  .pr-region .money { margin-left: auto; }
+
   @media (max-width: 1260px) {
     .brand-sub { display: none; }
+  }
+  @media (max-width: 980px) {
+    header.topbar { flex-wrap: wrap; row-gap: 6px; }
+    header.topbar nav.tabs { flex: 1 1 100%; order: 5; justify-content: center; }
+    header.topbar .top-right { margin-left: 0; }
+    .brand { flex: 1 1 auto; }
   }
   @media (max-width: 720px) {
     header.topbar { padding: 12px 16px; }
@@ -597,10 +649,6 @@
     </button>
   </nav>
   <div class="top-right">
-    <div class="ctrl">
-      <span id="botStatus" class="status-pill active">Modo: Activo</span>
-      <span id="subPill" class="status-pill sub ok" style="display:none"></span>
-    </div>
     <div class="lang-box">
       <select id="langSel">
         <option value="es">Español</option>
@@ -704,7 +752,6 @@
       <div class="set-row"><label class="check"><input type="checkbox" id="f-enabled"><span data-i18n="st_enable"></span></label></div>
       <div class="set-row"><label class="check"><input type="checkbox" id="f-skipDuo"><span data-i18n="st_skipduo"></span></label></div>
       <div class="set-row"><label class="check"><input type="checkbox" id="f-skipSquad"><span data-i18n="st_skipsquad"></span></label></div>
-      <div class="set-row"><label class="check"><input type="checkbox" id="f-skipConsole"><span data-i18n="st_skipconsole"></span></label></div>
       <div class="set-row"><label class="col" data-i18n="st_skipcats"></label><textarea id="f-skipCategories" data-i18n-ph="st_skipcats_ph"></textarea></div>
       <div class="set-row"><label class="col" data-i18n="st_skipkw"></label><textarea id="f-skipKeywords" data-i18n-ph="st_skipkw_ph"></textarea></div>
     </div>
@@ -751,14 +798,9 @@
       <h3 data-i18n="tab_pricing"></h3>
       <div class="hint" data-i18n="pr_hint"></div>
       <div class="set-row"><label class="check"><input type="checkbox" id="pr-enabled"><span data-i18n="st_pricing_enable"></span></label></div>
-      <div class="set-row"><label class="col" data-i18n="pr_round"></label><input type="number" id="pr-round" step="0.01" min="0.001" value="0.01"></div>
-      <div class="set-row"><label class="col" data-i18n="pr_pace"></label><input type="number" id="pr-pace" step="1" min="1" value="1500"></div>
     </div>
-    <div id="pr-games"></div>
-    <div class="savebar-inline">
-      <button id="pr-save" class="btn btn-primary"><span data-i18n="pr_save"></span></button>
-      <span class="msg" id="pr-saveMsg"></span>
-    </div>
+    <div id="pr-tiles"></div>
+    <div id="pr-panels"></div>
   </div>
   <div id="tab-cons" class="tab">
     <div class="set-box">
@@ -968,7 +1010,7 @@ const I18N = {
     st_chat: 'Auto-chat + imagen de prueba', st_chat_enable: 'Enviar mensajes autom\u00e1ticos al comprador', st_chat_welcome: 'Mensaje de bienvenida (despu\u00e9s de crear la oferta)', st_chat_welcome_msg: 'Texto del mensaje de bienvenida', st_chat_custom: 'Mensaje para pedidos personalizados (Custom Request)', st_chat_custom_msg: 'Texto del mensaje para pedidos personalizados', st_chat_accepted: 'Mensaje cuando aceptan el pedido (pedir datos de acceso)', st_chat_accepted_msg: 'Texto del mensaje de aceptaci\u00f3n', st_chat_follow: 'Recordatorio a clientes que no respondieron', st_chat_follow_msg: 'Texto del recordatorio', st_chat_image: 'Enviar imagen de prueba', st_chat_image_path: 'Imagen de prueba (ruta)', st_chat_delay_sec: 'Esperar (segundos) antes de enviar', st_keys: 'Teclas', st_keys_hint: 'Atajo para ocultar y mostrar el panel r\u00e1pidamente.', st_keys_hide: 'Ocultar panel',
     st_save: 'Guardar ajustes', st_saved: 'Guardado a las', st_error: 'Error:', st_errconn: 'Error de conexi\u00f3n:', st_unknown: 'desconocido',
     st_active: 'Activo', st_paused: 'Pausado', btn_pause: 'Pausar', btn_resume: 'Continuar', btn_stop: 'Cerrar', btn_stopping: 'Cerrando...', stop_confirm: '\u00bfSeguro que quer\u00e9s cerrar el programa? Dejar\u00e1 de monitorear ofertas.',
-    login_title: 'Acceso al bot', login_sub: 'Ingresa tu llave de acceso \u00fanica para continuar.', login_btn: 'Entrar', login_err_required: 'Ingresa tu llave.', login_err_invalid: 'Llave inv\u00e1lida.', login_err_revoked: 'Esta llave fue revocada.', login_err_expired: 'Tu suscripci\u00f3n venci\u00f3.', login_err_conn: 'Error de conexi\u00f3n.',     sub_days: 'Te quedan {n} d\u00edas', sub_count: '{d}d {h}h {m}m', sub_until: 'Vence el', sub_expired: 'Suscripci\u00f3n vencida', logout: 'Salir', expired_title: 'Suscripci\u00f3n vencida', expired_msg: 'Tu acceso ya no est\u00e1 activo. Contacta a tu vendedor para renovar.', tab_keys: 'Llaves', admin_title: 'Gesti\u00f3n de llaves', admin_sub: 'Ingresa la llave maestra para administrar las suscripciones de tus clientes.', admin_btn: 'Entrar a gesti\u00f3n', admin_err: 'Llave maestra incorrecta.', admin_leave: 'Salir de gesti\u00f3n', k_new: 'Nueva llave', k_owner: 'Due\u00f1o', k_days: 'D\u00edas', k_plan: 'Plan (opcional)', k_count: 'Cantidad', k_note: 'Nota (opcional)', k_generate: 'Generar llaves', k_generated: 'Llaves generadas (c\u00f3pialas y env\u00edaselas al cliente):', k_copy: 'Copiar', k_copied: 'Copiada.', k_list: 'Tus llaves', k_refresh: 'Actualizar', k_th_key: 'Llave', k_th_owner: 'Due\u00f1o', k_th_plan: 'Plan', k_th_state: 'Estado', k_th_left: 'Restante', k_th_actions: 'Acciones', k_extend: 'Extender', k_extend_days: 'D\u00edas a agregar:', k_revoke: 'Revocar', k_confirm_revoke: '\u00bfRevocar la llave {n}? El cliente perder\u00e1 el acceso al instante.', k_none: 'A\u00fan no generaste llaves.', k_extended: 'Llave extendida.', k_revoked: 'Llave revocada.', k_delete: 'Eliminar', k_confirm_delete: '\u00bfEliminar definitivamente la llave {n}? Esta acci\u00f3n no se puede deshacer.', k_deleted: 'Llave eliminada.', k_state_active: 'Activa', k_state_expired: 'Vencida', k_state_revoked: 'Revocada', k_state_unused: 'Sin activar', k_expires: 'Vence', k_days_fmt: '{n} d\u00edas', k_th_pay: 'Pago', k_pay_pending: 'Pago pendiente', k_paid: 'Pagada', k_mark_paid: 'Marcar pagada', k_marked_paid: 'Llave marcada como pagada.', login_err_device_limit: 'Esta llave ya est\u00e1 en uso en el m\u00e1ximo de dispositivos permitidos.', adm_export: 'Exportar CSV', adm_backup: 'Backup', adm_total: 'Llaves', adm_active: 'Activas', adm_expired: 'Vencidas', adm_revoked: 'Revocadas', adm_unpaid: 'Sin pagar', adm_used: 'Usadas / sin activar', adm_vip: 'VIP', adm_revenue: 'Facturado (pagado)', adm_search: 'Buscar por llave, due\u00f1o, vendedor o nota...', k_price: 'Precio (USD)', k_seller: 'Vendedor', k_vip: 'VIP', k_max_devices: 'Dispositivos por llave', k_unpaid_check: 'Pago pendiente', k_th_seller: 'Vendedor', k_th_devices: 'Dispos.', k_state_all: 'Todos', k_plan_custom: '(plan libre)', k_logs: 'Log', k_log_title: 'Log de la llave {n}', k_close: 'Cerrar', k_no_logs: 'Sin eventos todav\u00eda.', k_loading: 'Cargando', k_set_vip: 'Hacer VIP', k_unset_vip: 'Quitar VIP', k_vip_done: 'Estado VIP actualizado.', k_clear_devices: 'Quitar dispositivos', k_clear_devices_q: '\u00bfDesvincular todos los dispositivos de la llave {n}?', k_devices_cleared: 'Dispositivos desvinculados.', k_reactivate: 'Reactivar', k_reactivated: 'Llave reactivada.', tab_history: 'Historial', hist_boost: 'Boost en curso', hist_elapsed: 'Transcurrido', hist_left: 'queda', hist_days: 'Ofertas por d\u00eda', hist_games: 'Por juego', hist_table: 'Historial de pedidos', hist_all: 'Todos', hist_date: 'Fecha', hist_game: 'Juego', hist_desc: 'Descripci\u00f3n', hist_buyer: 'Comprador', hist_price: 'Precio', hist_status: 'Estado', hist_open: 'Abrir', hist_none: 'Sin pedidos que coincidan.', hist_resp: 'Respuesta', hist_responded: 'Respondi\u00f3', hist_noresponse: 'Sin respuesta', hist_remind: 'Recordar', hist_remind_confirm: '\u00bfEnviar recordatorio a', hist_remind_ok: 'Recordatorio enviado.', hist_remind_fail: 'No se pudo enviar:',
+    login_title: 'Acceso al bot', login_sub: 'Ingresa tu llave de acceso \u00fanica para continuar.', login_btn: 'Entrar', login_err_required: 'Ingresa tu llave.', login_err_invalid: 'Llave inv\u00e1lida.', login_err_revoked: 'Esta llave fue revocada.', login_err_expired: 'Tu suscripci\u00f3n venci\u00f3.', login_err_conn: 'Error de conexi\u00f3n.',     sub_days: 'Te quedan {n} d\u00edas', sub_count: '{d}d {h}h {m}m {s}s', sub_expires_in: 'Su sesión expira en:', sub_until: 'Vence el', sub_card: 'Tiempo de tu llave', sub_lifetime: 'Suscripci\u00f3n de por vida', sub_hours: '{n} horas', sub_minutes: '{n} minutos', sub_seconds: '{n} segundos', sub_expired: 'Suscripci\u00f3n vencida', logout: 'Salir', expired_title: 'Suscripci\u00f3n vencida', expired_msg: 'Tu acceso ya no est\u00e1 activo. Contacta a tu vendedor para renovar.', tab_keys: 'Llaves', admin_title: 'Gesti\u00f3n de llaves', admin_sub: 'Ingresa la llave maestra para administrar las suscripciones de tus clientes.', admin_btn: 'Entrar a gesti\u00f3n', admin_err: 'Llave maestra incorrecta.', admin_leave: 'Salir de gesti\u00f3n', k_new: 'Nueva llave', k_owner: 'Due\u00f1o', k_days: 'D\u00edas', k_plan: 'Plan (opcional)', k_count: 'Cantidad', k_note: 'Nota (opcional)', k_generate: 'Generar llaves', k_generated: 'Llaves generadas (c\u00f3pialas y env\u00edaselas al cliente):', k_copy: 'Copiar', k_copied: 'Copiada.', k_list: 'Tus llaves', k_refresh: 'Actualizar', k_th_key: 'Llave', k_th_owner: 'Due\u00f1o', k_th_plan: 'Plan', k_th_state: 'Estado', k_th_left: 'Restante', k_th_actions: 'Acciones', k_extend: 'Extender', k_extend_days: 'D\u00edas a agregar:', k_revoke: 'Revocar', k_confirm_revoke: '\u00bfRevocar la llave {n}? El cliente perder\u00e1 el acceso al instante.', k_none: 'A\u00fan no generaste llaves.', k_extended: 'Llave extendida.', k_revoked: 'Llave revocada.', k_delete: 'Eliminar', k_confirm_delete: '\u00bfEliminar definitivamente la llave {n}? Esta acci\u00f3n no se puede deshacer.', k_deleted: 'Llave eliminada.', k_state_active: 'Activa', k_state_expired: 'Vencida', k_state_revoked: 'Revocada', k_state_unused: 'Sin activar', k_expires: 'Vence', k_days_fmt: '{n} d\u00edas', k_th_pay: 'Pago', k_pay_pending: 'Pago pendiente', k_paid: 'Pagada', k_mark_paid: 'Marcar pagada', k_marked_paid: 'Llave marcada como pagada.', login_err_device_limit: 'Esta key ya esta en uso en otro dispositivo. Contacta a tu vendedor para desbloquearla.', adm_export: 'Exportar CSV', adm_backup: 'Backup', adm_total: 'Llaves', adm_active: 'Activas', adm_expired: 'Vencidas', adm_revoked: 'Revocadas', adm_unpaid: 'Sin pagar', adm_used: 'Usadas / sin activar', adm_vip: 'VIP', adm_revenue: 'Facturado (pagado)', adm_search: 'Buscar por llave, due\u00f1o, vendedor o nota...', k_price: 'Precio (USD)', k_seller: 'Vendedor', k_vip: 'VIP', k_max_devices: 'Dispositivos por llave', k_unpaid_check: 'Pago pendiente', k_th_seller: 'Vendedor', k_th_devices: 'Dispos.', k_state_all: 'Todos', k_plan_custom: '(plan libre)', k_logs: 'Log', k_log_title: 'Log de la llave {n}', k_close: 'Cerrar', k_no_logs: 'Sin eventos todav\u00eda.', k_loading: 'Cargando', k_set_vip: 'Hacer VIP', k_unset_vip: 'Quitar VIP', k_vip_done: 'Estado VIP actualizado.', k_clear_devices: 'Quitar dispositivos', k_clear_devices_q: '\u00bfDesvincular todos los dispositivos de la llave {n}?', k_devices_cleared: 'Dispositivos desvinculados.', k_reactivate: 'Reactivar', k_reactivated: 'Llave reactivada.', tab_history: 'Historial', hist_boost: 'Boost en curso', hist_elapsed: 'Transcurrido', hist_left: 'queda', hist_days: 'Ofertas por d\u00eda', hist_games: 'Por juego', hist_table: 'Historial de pedidos', hist_all: 'Todos', hist_date: 'Fecha', hist_game: 'Juego', hist_desc: 'Descripci\u00f3n', hist_buyer: 'Comprador', hist_price: 'Precio', hist_status: 'Estado', hist_open: 'Abrir', hist_none: 'Sin pedidos que coincidan.', hist_resp: 'Respuesta', hist_responded: 'Respondi\u00f3', hist_noresponse: 'Sin respuesta', hist_remind: 'Recordar', hist_remind_confirm: '\u00bfEnviar recordatorio a', hist_remind_ok: 'Recordatorio enviado.', hist_remind_fail: 'No se pudo enviar:',
   },
   en: {
     doc_title: 'BoostPilot', brand_sub: 'Automatic boosting offers',
@@ -1027,7 +1069,7 @@ const I18N = {
     st_chat: 'Auto-chat + proof image', st_chat_enable: 'Send automatic messages to the buyer', st_chat_welcome: 'Welcome message (after placing the offer)', st_chat_welcome_msg: 'Welcome message text', st_chat_custom: 'Message for custom requests (Custom Request)', st_chat_custom_msg: 'Custom request message text', st_chat_accepted: 'Message when the order is accepted (ask for login details)', st_chat_accepted_msg: 'Accepted message text', st_chat_follow: 'Follow-up for buyers who did not reply', st_chat_follow_msg: 'Follow-up message text', st_chat_image: 'Send proof image', st_chat_image_path: 'Proof image (path)', st_chat_delay_sec: 'Wait (seconds) before sending', st_keys: 'Hotkeys', st_keys_hint: 'Shortcut to quickly hide and show the panel.', st_keys_hide: 'Hide panel',
     st_save: 'Save settings', st_saved: 'Saved at', st_error: 'Error:', st_errconn: 'Connection error:', st_unknown: 'unknown',
     st_active: 'Active', st_paused: 'Paused', btn_pause: 'Pause', btn_resume: 'Resume', btn_stop: 'Close', btn_stopping: 'Closing...', stop_confirm: 'Are you sure you want to close the program? It will stop monitoring offers.',
-    login_title: 'Bot access', login_sub: 'Enter your unique access key to continue.', login_btn: 'Enter', login_err_required: 'Enter your key.', login_err_invalid: 'Invalid key.', login_err_revoked: 'This key was revoked.', login_err_expired: 'Your subscription has expired.', login_err_conn: 'Connection error.', sub_days: '{n} days left', sub_count: '{d}d {h}h {m}m', sub_until: 'Expires', sub_expired: 'Subscription expired', logout: 'Sign out', expired_title: 'Subscription expired', expired_msg: 'Your access is no longer active. Contact your seller to renew.', tab_keys: 'Keys', admin_title: 'Key management', admin_sub: 'Enter the master key to manage your customers\' subscriptions.', admin_btn: 'Enter management', admin_err: 'Incorrect master key.', admin_leave: 'Exit management', k_new: 'New key', k_owner: 'Owner', k_days: 'Days', k_plan: 'Plan (optional)', k_count: 'Quantity', k_note: 'Note (optional)', k_generate: 'Generate keys', k_generated: 'Generated keys (copy them and send them to the customer):', k_copy: 'Copy', k_copied: 'Copied.', k_list: 'Your keys', k_refresh: 'Refresh', k_th_key: 'Key', k_th_owner: 'Owner', k_th_plan: 'Plan', k_th_state: 'Status', k_th_left: 'Remaining', k_th_actions: 'Actions', k_extend: 'Extend', k_extend_days: 'Days to add:', k_revoke: 'Revoke', k_confirm_revoke: 'Revoke key {n}? The customer will lose access immediately.', k_none: 'No keys generated yet.', k_extended: 'Key extended.', k_revoked: 'Key revoked.', k_state_active: 'Active', k_state_expired: 'Expired', k_state_revoked: 'Revoked', k_state_unused: 'Not activated', k_expires: 'Expires', k_days_fmt: '{n} days', k_th_pay: 'Payment', k_pay_pending: 'Payment pending', k_paid: 'Paid', k_mark_paid: 'Mark paid', k_marked_paid: 'Key marked as paid.', tab_history: 'History', hist_boost: 'Boost in progress', hist_elapsed: 'Elapsed', hist_left: 'left', hist_days: 'Offers per day', hist_games: 'By game', hist_table: 'Order history', hist_all: 'All', hist_date: 'Date', hist_game: 'Game', hist_desc: 'Description', hist_buyer: 'Buyer', hist_price: 'Price', hist_status: 'Status', hist_open: 'Open', hist_none: 'No matching orders.', hist_resp: 'Reply', hist_responded: 'Replied', hist_noresponse: 'No reply', hist_remind: 'Remind', hist_remind_confirm: 'Send reminder to', hist_remind_ok: 'Reminder sent.', hist_remind_fail: 'Could not send:',
+    login_title: 'Bot access', login_sub: 'Enter your unique access key to continue.', login_btn: 'Enter', login_err_required: 'Enter your key.', login_err_invalid: 'Invalid key.', login_err_revoked: 'This key was revoked.', login_err_expired: 'Your subscription has expired.', login_err_conn: 'Connection error.', sub_days: '{n} days left', sub_count: '{d}d {h}h {m}m {s}s', sub_expires_in: 'Your session expires in:', sub_until: 'Expires', sub_card: 'Your key time', sub_lifetime: 'Lifetime subscription', sub_hours: '{n} hours', sub_minutes: '{n} minutes', sub_seconds: '{n} seconds', sub_expired: 'Subscription expired', logout: 'Sign out', expired_title: 'Subscription expired', expired_msg: 'Your access is no longer active. Contact your seller to renew.', tab_keys: 'Keys', admin_title: 'Key management', admin_sub: 'Enter the master key to manage your customers\' subscriptions.', admin_btn: 'Enter management', admin_err: 'Incorrect master key.', admin_leave: 'Exit management', k_new: 'New key', k_owner: 'Owner', k_days: 'Days', k_plan: 'Plan (optional)', k_count: 'Quantity', k_note: 'Note (optional)', k_generate: 'Generate keys', k_generated: 'Generated keys (copy them and send them to the customer):', k_copy: 'Copy', k_copied: 'Copied.', k_list: 'Your keys', k_refresh: 'Refresh', k_th_key: 'Key', k_th_owner: 'Owner', k_th_plan: 'Plan', k_th_state: 'Status', k_th_left: 'Remaining', k_th_actions: 'Actions', k_extend: 'Extend', k_extend_days: 'Days to add:', k_revoke: 'Revoke', k_confirm_revoke: 'Revoke key {n}? The customer will lose access immediately.', k_none: 'No keys generated yet.', k_extended: 'Key extended.', k_revoked: 'Key revoked.', k_state_active: 'Active', k_state_expired: 'Expired', k_state_revoked: 'Revoked', k_state_unused: 'Not activated', k_expires: 'Expires', k_days_fmt: '{n} days', k_th_pay: 'Payment', k_pay_pending: 'Payment pending', k_paid: 'Paid', k_mark_paid: 'Mark paid', k_marked_paid: 'Key marked as paid.', tab_history: 'History', hist_boost: 'Boost in progress', hist_elapsed: 'Elapsed', hist_left: 'left', hist_days: 'Offers per day', hist_games: 'By game', hist_table: 'Order history', hist_all: 'All', hist_date: 'Date', hist_game: 'Game', hist_desc: 'Description', hist_buyer: 'Buyer', hist_price: 'Price', hist_status: 'Status', hist_open: 'Open', hist_none: 'No matching orders.', hist_resp: 'Reply', hist_responded: 'Replied', hist_noresponse: 'No reply', hist_remind: 'Remind', hist_remind_confirm: 'Send reminder to', hist_remind_ok: 'Reminder sent.', hist_remind_fail: 'Could not send:',
   },
   fr: {
     doc_title: 'BoostPilot', brand_sub: 'Offres de boosting automatiques',
@@ -1086,7 +1128,7 @@ const I18N = {
     st_chat_prestige: 'Message pour les prestiges (Brawler)', st_chat_prestige_msg: 'Texte du message de prestige (vide = message de bienvenue)',
     st_save: 'Enregistrer', st_saved: 'Enregistr\u00e9 \u00e0', st_error: 'Erreur :', st_errconn: 'Erreur de connexion :', st_unknown: 'inconnu',
     st_active: 'Actif', st_paused: 'En pause', btn_pause: 'Pause', btn_resume: 'Reprendre', btn_stop: 'Fermer', btn_stopping: 'Fermeture...', stop_confirm: 'Voulez-vous vraiment fermer le programme ? Il cessera de surveiller les offres.',
-    login_title: 'Acc\u00e8s au bot', login_sub: 'Saisissez votre cl\u00e9 d\u2019acc\u00e8s unique pour continuer.', login_btn: 'Entrer', login_err_required: 'Saisissez votre cl\u00e9.', login_err_invalid: 'Cl\u00e9 invalide.', login_err_revoked: 'Cette cl\u00e9 a \u00e9t\u00e9 r\u00e9voqu\u00e9e.', login_err_expired: 'Votre abonnement a expir\u00e9.', login_err_conn: 'Erreur de connexion.', sub_days: '{n} jours restants', sub_count: '{d}d {h}h {m}m', sub_until: 'Expire le', sub_expired: 'Abonnement expir\u00e9', logout: 'Quitter', expired_title: 'Abonnement expir\u00e9', expired_msg: 'Votre acc\u00e8s n\u2019est plus actif. Contactez votre vendeur pour le renouveler.', tab_keys: 'Cl\u00e9s', admin_title: 'Gestion des cl\u00e9s', admin_sub: 'Saisissez la cl\u00e9 ma\u00eetresse pour g\u00e9rer les abonnements de vos clients.', admin_btn: 'Entrer dans la gestion', admin_err: 'Cl\u00e9 ma\u00eetresse incorrecte.', admin_leave: 'Quitter la gestion', k_new: 'Nouvelle cl\u00e9', k_owner: 'Propri\u00e9taire', k_days: 'Jours', k_plan: 'Forfait (optionnel)', k_count: 'Quantit\u00e9', k_note: 'Note (optionnelle)', k_generate: 'G\u00e9n\u00e9rer les cl\u00e9s', k_generated: 'Cl\u00e9s g\u00e9n\u00e9r\u00e9es (copiez-les et envoyez-les au client) :', k_copy: 'Copier', k_copied: 'Copi\u00e9e.', k_list: 'Vos cl\u00e9s', k_refresh: 'Actualiser', k_th_key: 'Cl\u00e9', k_th_owner: 'Propri\u00e9taire', k_th_plan: 'Forfait', k_th_state: '\u00c9tat', k_th_left: 'Restant', k_th_actions: 'Actions', k_extend: '\u00c9tendre', k_extend_days: 'Jours \u00e0 ajouter :', k_revoke: 'R\u00e9voquer', k_confirm_revoke: 'R\u00e9voquer la cl\u00e9 {n} ? Le client perdra l\u2019acc\u00e8s imm\u00e9diatement.', k_none: 'Aucune cl\u00e9 g\u00e9n\u00e9r\u00e9e pour le moment.', k_extended: 'Cl\u00e9 \u00e9tendue.', k_revoked: 'Cl\u00e9 r\u00e9voqu\u00e9e.', k_state_active: 'Active', k_state_expired: 'Expir\u00e9e', k_state_revoked: 'R\u00e9voqu\u00e9e', k_state_unused: 'Non activ\u00e9e', k_expires: 'Expire', k_days_fmt: '{n} jours', k_th_pay: 'Paiement', k_pay_pending: 'Paiement en attente', k_paid: 'Pay\u00e9e', k_mark_paid: 'Marquer pay\u00e9e', k_marked_paid: 'Cl\u00e9 marqu\u00e9e comme pay\u00e9e.', tab_history: 'Historique', hist_boost: 'Boost en cours', hist_elapsed: '\u00c9coul\u00e9', hist_left: 'reste', hist_days: 'Offres par jour', hist_games: 'Par jeu', hist_table: 'Historique des commandes', hist_all: 'Tous', hist_date: 'Date', hist_game: 'Jeu', hist_desc: 'Description', hist_buyer: 'Acheteur', hist_price: 'Prix', hist_status: '\u00c9tat', hist_open: 'Ouvrir', hist_none: 'Aucune commande correspondante.',
+    login_title: 'Acc\u00e8s au bot', login_sub: 'Saisissez votre cl\u00e9 d\u2019acc\u00e8s unique pour continuer.', login_btn: 'Entrer', login_err_required: 'Saisissez votre cl\u00e9.', login_err_invalid: 'Cl\u00e9 invalide.', login_err_revoked: 'Cette cl\u00e9 a \u00e9t\u00e9 r\u00e9voqu\u00e9e.', login_err_expired: 'Votre abonnement a expir\u00e9.', login_err_conn: 'Erreur de connexion.', sub_days: '{n} jours restants', sub_count: '{d}d {h}h {m}m {s}s', sub_expires_in: 'Votre session expire dans:', sub_until: 'Expire le', sub_card: 'Temps de votre cl\u00e9', sub_lifetime: 'Abonnement \u00e0 vie', sub_hours: '{n} heures', sub_minutes: '{n} minutes', sub_seconds: '{n} secondes', sub_expired: 'Abonnement expir\u00e9', logout: 'Quitter', expired_title: 'Abonnement expir\u00e9', expired_msg: 'Votre acc\u00e8s n\u2019est plus actif. Contactez votre vendeur pour le renouveler.', tab_keys: 'Cl\u00e9s', admin_title: 'Gestion des cl\u00e9s', admin_sub: 'Saisissez la cl\u00e9 ma\u00eetresse pour g\u00e9rer les abonnements de vos clients.', admin_btn: 'Entrer dans la gestion', admin_err: 'Cl\u00e9 ma\u00eetresse incorrecte.', admin_leave: 'Quitter la gestion', k_new: 'Nouvelle cl\u00e9', k_owner: 'Propri\u00e9taire', k_days: 'Jours', k_plan: 'Forfait (optionnel)', k_count: 'Quantit\u00e9', k_note: 'Note (optionnelle)', k_generate: 'G\u00e9n\u00e9rer les cl\u00e9s', k_generated: 'Cl\u00e9s g\u00e9n\u00e9r\u00e9es (copiez-les et envoyez-les au client) :', k_copy: 'Copier', k_copied: 'Copi\u00e9e.', k_list: 'Vos cl\u00e9s', k_refresh: 'Actualiser', k_th_key: 'Cl\u00e9', k_th_owner: 'Propri\u00e9taire', k_th_plan: 'Forfait', k_th_state: '\u00c9tat', k_th_left: 'Restant', k_th_actions: 'Actions', k_extend: '\u00c9tendre', k_extend_days: 'Jours \u00e0 ajouter :', k_revoke: 'R\u00e9voquer', k_confirm_revoke: 'R\u00e9voquer la cl\u00e9 {n} ? Le client perdra l\u2019acc\u00e8s imm\u00e9diatement.', k_none: 'Aucune cl\u00e9 g\u00e9n\u00e9r\u00e9e pour le moment.', k_extended: 'Cl\u00e9 \u00e9tendue.', k_revoked: 'Cl\u00e9 r\u00e9voqu\u00e9e.', k_state_active: 'Active', k_state_expired: 'Expir\u00e9e', k_state_revoked: 'R\u00e9voqu\u00e9e', k_state_unused: 'Non activ\u00e9e', k_expires: 'Expire', k_days_fmt: '{n} jours', k_th_pay: 'Paiement', k_pay_pending: 'Paiement en attente', k_paid: 'Pay\u00e9e', k_mark_paid: 'Marquer pay\u00e9e', k_marked_paid: 'Cl\u00e9 marqu\u00e9e comme pay\u00e9e.', tab_history: 'Historique', hist_boost: 'Boost en cours', hist_elapsed: '\u00c9coul\u00e9', hist_left: 'reste', hist_days: 'Offres par jour', hist_games: 'Par jeu', hist_table: 'Historique des commandes', hist_all: 'Tous', hist_date: 'Date', hist_game: 'Jeu', hist_desc: 'Description', hist_buyer: 'Acheteur', hist_price: 'Prix', hist_status: '\u00c9tat', hist_open: 'Ouvrir', hist_none: 'Aucune commande correspondante.',
   },
   pt: {
     doc_title: 'BoostPilot', brand_sub: 'Ofertas autom\u00e1ticas de boosting',
@@ -1145,7 +1187,7 @@ const I18N = {
     st_chat_prestige: 'Mensagem para prest\u00edgios (Brawler)', st_chat_prestige_msg: 'Texto da mensagem de prest\u00edgios (vazio = mensagem de boas-vindas)',
     st_save: 'Salvar ajustes', st_saved: 'Salvo \u00e0s', st_error: 'Erro:', st_errconn: 'Erro de conex\u00e3o:', st_unknown: 'desconhecido',
     st_active: 'Ativo', st_paused: 'Pausado', btn_pause: 'Pausar', btn_resume: 'Retomar', btn_stop: 'Fechar', btn_stopping: 'Fechando...', stop_confirm: 'Tem certeza que quer fechar o programa? Ele deixar\u00e1 de monitorar ofertas.',
-    login_title: 'Acesso ao bot', login_sub: 'Digite sua chave de acesso \u00fanica para continuar.', login_btn: 'Entrar', login_err_required: 'Digite sua chave.', login_err_invalid: 'Chave inv\u00e1lida.', login_err_revoked: 'Esta chave foi revogada.', login_err_expired: 'Sua assinatura expirou.', login_err_conn: 'Erro de conex\u00e3o.', sub_days: '{n} dias restantes', sub_count: '{d}d {h}h {m}m', sub_until: 'Expira em', sub_expired: 'Assinatura expirada', logout: 'Sair', expired_title: 'Assinatura expirada', expired_msg: 'Seu acesso n\u00e3o est\u00e1 mais ativo. Contate seu vendedor para renovar.', tab_keys: 'Chaves', admin_title: 'Gest\u00e3o de chaves', admin_sub: 'Digite a chave mestre para gerenciar as assinaturas dos seus clientes.', admin_btn: 'Entrar na gest\u00e3o', admin_err: 'Chave mestre incorreta.', admin_leave: 'Sair da gest\u00e3o', k_new: 'Nova chave', k_owner: 'Dono', k_days: 'Dias', k_plan: 'Plano (opcional)', k_count: 'Quantidade', k_note: 'Nota (opcional)', k_generate: 'Gerar chaves', k_generated: 'Chaves geradas (copie e envie ao cliente):', k_copy: 'Copiar', k_copied: 'Copiada.', k_list: 'Suas chaves', k_refresh: 'Atualizar', k_th_key: 'Chave', k_th_owner: 'Dono', k_th_plan: 'Plano', k_th_state: 'Estado', k_th_left: 'Restante', k_th_actions: 'A\u00e7\u00f5es', k_extend: 'Estender', k_extend_days: 'Dias a adicionar:', k_revoke: 'Revogar', k_confirm_revoke: 'Revogar a chave {n}? O cliente perder\u00e1 o acesso na hora.', k_none: 'Voc\u00ea ainda n\u00e3o gerou chaves.', k_extended: 'Chave estendida.', k_revoked: 'Chave revogada.', k_state_active: 'Ativa', k_state_expired: 'Vencida', k_state_revoked: 'Revogada', k_state_unused: 'Sem ativar', k_expires: 'Expira', k_days_fmt: '{n} dias', k_th_pay: 'Pagamento', k_pay_pending: 'Pagamento pendente', k_paid: 'Paga', k_mark_paid: 'Marcar paga', k_marked_paid: 'Chave marcada como paga.', tab_history: 'Hist\u00f3rico', hist_boost: 'Boost em andamento', hist_elapsed: 'Decorrido', hist_left: 'resta', hist_days: 'Ofertas por dia', hist_games: 'Por jogo', hist_table: 'Hist\u00f3rico de pedidos', hist_all: 'Todos', hist_date: 'Data', hist_game: 'Jogo', hist_desc: 'Descri\u00e7\u00e3o', hist_buyer: 'Comprador', hist_price: 'Pre\u00e7o', hist_status: 'Estado', hist_open: 'Abrir', hist_none: 'Nenhum pedido correspondente.',
+    login_title: 'Acesso ao bot', login_sub: 'Digite sua chave de acesso \u00fanica para continuar.', login_btn: 'Entrar', login_err_required: 'Digite sua chave.', login_err_invalid: 'Chave inv\u00e1lida.', login_err_revoked: 'Esta chave foi revogada.', login_err_expired: 'Sua assinatura expirou.', login_err_conn: 'Erro de conex\u00e3o.', sub_days: '{n} dias restantes', sub_count: '{d}d {h}h {m}m {s}s', sub_expires_in: 'Sua sessão expira em:', sub_until: 'Expira em', sub_card: 'Tempo da sua chave', sub_lifetime: 'Assinatura vitalícia', sub_hours: '{n} horas', sub_minutes: '{n} minutos', sub_seconds: '{n} segundos', sub_expired: 'Assinatura expirada', logout: 'Sair', expired_title: 'Assinatura expirada', expired_msg: 'Seu acesso n\u00e3o est\u00e1 mais ativo. Contate seu vendedor para renovar.', tab_keys: 'Chaves', admin_title: 'Gest\u00e3o de chaves', admin_sub: 'Digite a chave mestre para gerenciar as assinaturas dos seus clientes.', admin_btn: 'Entrar na gest\u00e3o', admin_err: 'Chave mestre incorreta.', admin_leave: 'Sair da gest\u00e3o', k_new: 'Nova chave', k_owner: 'Dono', k_days: 'Dias', k_plan: 'Plano (opcional)', k_count: 'Quantidade', k_note: 'Nota (opcional)', k_generate: 'Gerar chaves', k_generated: 'Chaves geradas (copie e envie ao cliente):', k_copy: 'Copiar', k_copied: 'Copiada.', k_list: 'Suas chaves', k_refresh: 'Atualizar', k_th_key: 'Chave', k_th_owner: 'Dono', k_th_plan: 'Plano', k_th_state: 'Estado', k_th_left: 'Restante', k_th_actions: 'A\u00e7\u00f5es', k_extend: 'Estender', k_extend_days: 'Dias a adicionar:', k_revoke: 'Revogar', k_confirm_revoke: 'Revogar a chave {n}? O cliente perder\u00e1 o acesso na hora.', k_none: 'Voc\u00ea ainda n\u00e3o gerou chaves.', k_extended: 'Chave estendida.', k_revoked: 'Chave revogada.', k_state_active: 'Ativa', k_state_expired: 'Vencida', k_state_revoked: 'Revogada', k_state_unused: 'Sem ativar', k_expires: 'Expira', k_days_fmt: '{n} dias', k_th_pay: 'Pagamento', k_pay_pending: 'Pagamento pendente', k_paid: 'Paga', k_mark_paid: 'Marcar paga', k_marked_paid: 'Chave marcada como paga.', tab_history: 'Hist\u00f3rico', hist_boost: 'Boost em andamento', hist_elapsed: 'Decorrido', hist_left: 'resta', hist_days: 'Ofertas por dia', hist_games: 'Por jogo', hist_table: 'Hist\u00f3rico de pedidos', hist_all: 'Todos', hist_date: 'Data', hist_game: 'Jogo', hist_desc: 'Descri\u00e7\u00e3o', hist_buyer: 'Comprador', hist_price: 'Pre\u00e7o', hist_status: 'Estado', hist_open: 'Abrir', hist_none: 'Nenhum pedido correspondente.',
   },
   de: {
     doc_title: 'BoostPilot', brand_sub: 'Automatische Boosting-Angebote',
@@ -1204,7 +1246,7 @@ const I18N = {
     st_chat_prestige: 'Nachricht f\u00fcr Prestiges (Brawler)', st_chat_prestige_msg: 'Text der Prestige-Nachricht (leer = Begr\u00fc\u00dfungsnachricht)',
     st_save: 'Einstellungen speichern', st_saved: 'Gespeichert um', st_error: 'Fehler:', st_errconn: 'Verbindungsfehler:', st_unknown: 'unbekannt',
     st_active: 'Aktiv', st_paused: 'Pausiert', btn_pause: 'Pause', btn_resume: 'Fortsetzen', btn_stop: 'Schlie\u00dfen', btn_stopping: 'Wird geschlossen...', stop_confirm: 'M\u00f6chten Sie das Programm wirklich schlie\u00dfen? Es h\u00f6rt auf, Angebote zu \u00fcberwachen.',
-    login_title: 'Bot-Zugang', login_sub: 'Geben Sie Ihren eindeutigen Zugangsschl\u00fcssel ein.', login_btn: 'Anmelden', login_err_required: 'Schl\u00fcssel eingeben.', login_err_invalid: 'Ung\u00fcltiger Schl\u00fcssel.', login_err_revoked: 'Dieser Schl\u00fcssel wurde widerrufen.', login_err_expired: 'Ihr Abo ist abgelaufen.', login_err_conn: 'Verbindungsfehler.', sub_days: 'Noch {n} Tage', sub_count: '{d}d {h}h {m}m', sub_until: 'L\u00e4uft ab am', sub_expired: 'Abo abgelaufen', logout: 'Abmelden', expired_title: 'Abo abgelaufen', expired_msg: 'Ihr Zugang ist nicht mehr aktiv. Kontaktieren Sie Ihren Verk\u00e4ufer zur Verl\u00e4ngerung.', tab_keys: 'Schl\u00fcssel', admin_title: 'Schl\u00fcsselverwaltung', admin_sub: 'Geben Sie den Master-Schl\u00fcssel ein, um die Abonnements Ihrer Kunden zu verwalten.', admin_btn: 'Zur Verwaltung', admin_err: 'Falscher Master-Schl\u00fcssel.', admin_leave: 'Verwaltung verlassen', k_new: 'Neuer Schl\u00fcssel', k_owner: 'Besitzer', k_days: 'Tage', k_plan: 'Plan (optional)', k_count: 'Anzahl', k_note: 'Notiz (optional)', k_generate: 'Schl\u00fcssel erzeugen', k_generated: 'Erzeugte Schl\u00fcssel (kopieren und an den Kunden senden):', k_copy: 'Kopieren', k_copied: 'Kopiert.', k_list: 'Ihre Schl\u00fcssel', k_refresh: 'Aktualisieren', k_th_key: 'Schl\u00fcssel', k_th_owner: 'Besitzer', k_th_plan: 'Plan', k_th_state: 'Status', k_th_left: 'Verbleibend', k_th_actions: 'Aktionen', k_extend: 'Verl\u00e4ngern', k_extend_days: 'Tage hinzuf\u00fcgen:', k_revoke: 'Widerrufen', k_confirm_revoke: 'Schl\u00fcssel {n} widerrufen? Der Kunde verliert sofort den Zugriff.', k_none: 'Noch keine Schl\u00fcssel erzeugt.', k_extended: 'Schl\u00fcssel verl\u00e4ngert.', k_revoked: 'Schl\u00fcssel widerrufen.', k_state_active: 'Aktiv', k_state_expired: 'Abgelaufen', k_state_revoked: 'Widerrufen', k_state_unused: 'Nicht aktiviert', k_expires: 'L\u00e4uft ab', k_days_fmt: '{n} Tage', k_th_pay: 'Zahlung', k_pay_pending: 'Zahlung ausstehend', k_paid: 'Bezahlt', k_mark_paid: 'Als bezahlt markieren', k_marked_paid: 'Schl\u00fcssel als bezahlt markiert.', tab_history: 'Verlauf', hist_boost: 'Boost l\u00e4uft', hist_elapsed: 'Verstrichen', hist_left: '\u00fcbrig', hist_days: 'Angebote pro Tag', hist_games: 'Nach Spiel', hist_table: 'Auftragsverlauf', hist_all: 'Alle', hist_date: 'Datum', hist_game: 'Spiel', hist_desc: 'Beschreibung', hist_buyer: 'K\u00e4ufer', hist_price: 'Preis', hist_status: 'Status', hist_open: '\u00d6ffnen', hist_none: 'Keine passenden Auftr\u00e4ge.',
+    login_title: 'Bot-Zugang', login_sub: 'Geben Sie Ihren eindeutigen Zugangsschl\u00fcssel ein.', login_btn: 'Anmelden', login_err_required: 'Schl\u00fcssel eingeben.', login_err_invalid: 'Ung\u00fcltiger Schl\u00fcssel.', login_err_revoked: 'Dieser Schl\u00fcssel wurde widerrufen.', login_err_expired: 'Ihr Abo ist abgelaufen.', login_err_conn: 'Verbindungsfehler.', sub_days: 'Noch {n} Tage', sub_count: '{d}d {h}h {m}m {s}s', sub_expires_in: 'Ihre Sitzung l\u00e4uft ab in:', sub_until: 'L\u00e4uft ab am', sub_card: 'Ihre Schl\u00fcsselzeit', sub_lifetime: 'Lebenslanges Abo', sub_hours: '{n} Stunden', sub_minutes: '{n} Minuten', sub_seconds: '{n} Sekunden', sub_expired: 'Abo abgelaufen', logout: 'Abmelden', expired_title: 'Abo abgelaufen', expired_msg: 'Ihr Zugang ist nicht mehr aktiv. Kontaktieren Sie Ihren Verk\u00e4ufer zur Verl\u00e4ngerung.', tab_keys: 'Schl\u00fcssel', admin_title: 'Schl\u00fcsselverwaltung', admin_sub: 'Geben Sie den Master-Schl\u00fcssel ein, um die Abonnements Ihrer Kunden zu verwalten.', admin_btn: 'Zur Verwaltung', admin_err: 'Falscher Master-Schl\u00fcssel.', admin_leave: 'Verwaltung verlassen', k_new: 'Neuer Schl\u00fcssel', k_owner: 'Besitzer', k_days: 'Tage', k_plan: 'Plan (optional)', k_count: 'Anzahl', k_note: 'Notiz (optional)', k_generate: 'Schl\u00fcssel erzeugen', k_generated: 'Erzeugte Schl\u00fcssel (kopieren und an den Kunden senden):', k_copy: 'Kopieren', k_copied: 'Kopiert.', k_list: 'Ihre Schl\u00fcssel', k_refresh: 'Aktualisieren', k_th_key: 'Schl\u00fcssel', k_th_owner: 'Besitzer', k_th_plan: 'Plan', k_th_state: 'Status', k_th_left: 'Verbleibend', k_th_actions: 'Aktionen', k_extend: 'Verl\u00e4ngern', k_extend_days: 'Tage hinzuf\u00fcgen:', k_revoke: 'Widerrufen', k_confirm_revoke: 'Schl\u00fcssel {n} widerrufen? Der Kunde verliert sofort den Zugriff.', k_none: 'Noch keine Schl\u00fcssel erzeugt.', k_extended: 'Schl\u00fcssel verl\u00e4ngert.', k_revoked: 'Schl\u00fcssel widerrufen.', k_state_active: 'Aktiv', k_state_expired: 'Abgelaufen', k_state_revoked: 'Widerrufen', k_state_unused: 'Nicht aktiviert', k_expires: 'L\u00e4uft ab', k_days_fmt: '{n} Tage', k_th_pay: 'Zahlung', k_pay_pending: 'Zahlung ausstehend', k_paid: 'Bezahlt', k_mark_paid: 'Als bezahlt markieren', k_marked_paid: 'Schl\u00fcssel als bezahlt markiert.', tab_history: 'Verlauf', hist_boost: 'Boost l\u00e4uft', hist_elapsed: 'Verstrichen', hist_left: '\u00fcbrig', hist_days: 'Angebote pro Tag', hist_games: 'Nach Spiel', hist_table: 'Auftragsverlauf', hist_all: 'Alle', hist_date: 'Datum', hist_game: 'Spiel', hist_desc: 'Beschreibung', hist_buyer: 'K\u00e4ufer', hist_price: 'Preis', hist_status: 'Status', hist_open: '\u00d6ffnen', hist_none: 'Keine passenden Auftr\u00e4ge.',
   },
   it: {
     doc_title: 'BoostPilot', brand_sub: 'Offerte di boosting automatiche',
@@ -1263,7 +1305,7 @@ const I18N = {
     st_chat_prestige: 'Messaggio per i prestigi (Brawler)', st_chat_prestige_msg: 'Testo del messaggio per i prestigi (vuoto = messaggio di benvenuto)',
     st_save: 'Salva impostazioni', st_saved: 'Salvato alle', st_error: 'Errore:', st_errconn: 'Errore di connessione:', st_unknown: 'sconosciuto',
     st_active: 'Attivo', st_paused: 'In pausa', btn_pause: 'Pausa', btn_resume: 'Riprendi', btn_stop: 'Chiudi', btn_stopping: 'Chiusura...', stop_confirm: 'Vuoi davvero chiudere il programma? Smetter\u00e0 di monitorare le offerte.',
-    login_title: 'Accesso al bot', login_sub: 'Inserisci la tua chiave di accesso unica per continuare.', login_btn: 'Accedi', login_err_required: 'Inserisci la tua chiave.', login_err_invalid: 'Chiave non valida.', login_err_revoked: 'Questa chiave \u00e8 stata revocata.', login_err_expired: 'Il tuo abbonamento \u00e8 scaduto.', login_err_conn: 'Errore di connessione.', sub_days: '{n} giorni rimanenti', sub_count: '{d}d {h}h {m}m', sub_until: 'Scade il', sub_expired: 'Abbonamento scaduto', logout: 'Esci', expired_title: 'Abbonamento scaduto', expired_msg: 'Il tuo accesso non \u00e8 pi\u00f9 attivo. Contatta il tuo venditore per rinnovarlo.', tab_keys: 'Chiavi', admin_title: 'Gestione chiavi', admin_sub: 'Inserisci la chiave master per gestire gli abbonamenti dei tuoi clienti.', admin_btn: 'Entra nella gestione', admin_err: 'Chiave master errata.', admin_leave: 'Esci dalla gestione', k_new: 'Nuova chiave', k_owner: 'Proprietario', k_days: 'Giorni', k_plan: 'Piano (opzionale)', k_count: 'Quantit\u00e0', k_note: 'Nota (opzionale)', k_generate: 'Genera chiavi', k_generated: 'Chiavi generate (copiale e inviale al cliente):', k_copy: 'Copia', k_copied: 'Copiata.', k_list: 'Le tue chiavi', k_refresh: 'Aggiorna', k_th_key: 'Chiave', k_th_owner: 'Proprietario', k_th_plan: 'Piano', k_th_state: 'Stato', k_th_left: 'Restanti', k_th_actions: 'Azioni', k_extend: 'Estendi', k_extend_days: 'Giorni da aggiungere:', k_revoke: 'Revoca', k_confirm_revoke: 'Revocare la chiave {n}? Il cliente perder\u00e0 subito l\u2019accesso.', k_none: 'Non hai ancora generato chiavi.', k_extended: 'Chiave estesa.', k_revoked: 'Chiave revocata.', k_state_active: 'Attiva', k_state_expired: 'Scaduta', k_state_revoked: 'Revocata', k_state_unused: 'Non attivata', k_expires: 'Scade', k_days_fmt: '{n} giorni', k_th_pay: 'Pagamento', k_pay_pending: 'Pagamento in attesa', k_paid: 'Pagata', k_mark_paid: 'Segna pagata', k_marked_paid: 'Chiave segnata come pagata.', tab_history: 'Cronologia', hist_boost: 'Boost in corso', hist_elapsed: 'Trascorso', hist_left: 'resta', hist_days: 'Offerte per giorno', hist_games: 'Per gioco', hist_table: 'Cronologia ordini', hist_all: 'Tutti', hist_date: 'Data', hist_game: 'Gioco', hist_desc: 'Descrizione', hist_buyer: 'Acquirente', hist_price: 'Prezzo', hist_status: 'Stato', hist_open: 'Apri', hist_none: 'Nessun ordine corrispondente.',
+    login_title: 'Accesso al bot', login_sub: 'Inserisci la tua chiave di accesso unica per continuare.', login_btn: 'Accedi', login_err_required: 'Inserisci la tua chiave.', login_err_invalid: 'Chiave non valida.', login_err_revoked: 'Questa chiave \u00e8 stata revocata.', login_err_expired: 'Il tuo abbonamento \u00e8 scaduto.', login_err_conn: 'Errore di connessione.', sub_days: '{n} giorni rimanenti', sub_count: '{d}d {h}h {m}m {s}s', sub_expires_in: 'La tua sessione scade tra:', sub_until: 'Scade il', sub_card: 'Il tuo tempo chiave', sub_lifetime: 'Abbonamento a vita', sub_hours: '{n} ore', sub_minutes: '{n} minuti', sub_seconds: '{n} secondi', sub_expired: 'Abbonamento scaduto', logout: 'Esci', expired_title: 'Abbonamento scaduto', expired_msg: 'Il tuo accesso non \u00e8 pi\u00f9 attivo. Contatta il tuo venditore per rinnovarlo.', tab_keys: 'Chiavi', admin_title: 'Gestione chiavi', admin_sub: 'Inserisci la chiave master per gestire gli abbonamenti dei tuoi clienti.', admin_btn: 'Entra nella gestione', admin_err: 'Chiave master errata.', admin_leave: 'Esci dalla gestione', k_new: 'Nuova chiave', k_owner: 'Proprietario', k_days: 'Giorni', k_plan: 'Piano (opzionale)', k_count: 'Quantit\u00e0', k_note: 'Nota (opzionale)', k_generate: 'Genera chiavi', k_generated: 'Chiavi generate (copiale e inviale al cliente):', k_copy: 'Copia', k_copied: 'Copiata.', k_list: 'Le tue chiavi', k_refresh: 'Aggiorna', k_th_key: 'Chiave', k_th_owner: 'Proprietario', k_th_plan: 'Piano', k_th_state: 'Stato', k_th_left: 'Restanti', k_th_actions: 'Azioni', k_extend: 'Estendi', k_extend_days: 'Giorni da aggiungere:', k_revoke: 'Revoca', k_confirm_revoke: 'Revocare la chiave {n}? Il cliente perder\u00e0 subito l\u2019accesso.', k_none: 'Non hai ancora generato chiavi.', k_extended: 'Chiave estesa.', k_revoked: 'Chiave revocata.', k_state_active: 'Attiva', k_state_expired: 'Scaduta', k_state_revoked: 'Revocata', k_state_unused: 'Non attivata', k_expires: 'Scade', k_days_fmt: '{n} giorni', k_th_pay: 'Pagamento', k_pay_pending: 'Pagamento in attesa', k_paid: 'Pagata', k_mark_paid: 'Segna pagata', k_marked_paid: 'Chiave segnata come pagata.', tab_history: 'Cronologia', hist_boost: 'Boost in corso', hist_elapsed: 'Trascorso', hist_left: 'resta', hist_days: 'Offerte per giorno', hist_games: 'Per gioco', hist_table: 'Cronologia ordini', hist_all: 'Tutti', hist_date: 'Data', hist_game: 'Gioco', hist_desc: 'Descrizione', hist_buyer: 'Acquirente', hist_price: 'Prezzo', hist_status: 'Stato', hist_open: 'Apri', hist_none: 'Nessun ordine corrispondente.',
   },
 };
 
@@ -1273,7 +1315,7 @@ const I18N_EXT = {
     tab_pricing: 'Precios',
     st_pricing_tab_hint: 'Configura los precios sugeridos en la pesta\u00f1a Precios (juegos, tramos y multiplicadores).',
     pr_hint: 'Ajusta el precio sugerido por juego y categor\u00eda. Semi-autom\u00e1tico: se precarga y queda en Confirmar. Autom\u00e1tico: se env\u00eda directo. Los pedidos sin precio siempre quedan en Confirmar.',
-    pr_round: 'Redondeo de precio', pr_pace: 'Trofeos por d\u00eda (ritmo)', pr_save: 'Guardar precios', pr_none: 'Todav\u00eda no hay juegos configurados.',     pr_nosupport: 'Tipo de precio no soportado en el editor.', pr_mult: 'Multiplicadores', pr_addrow: '+ A\u00f1adir fila', pr_delrow: 'Eliminar fila', pr_enable: 'Activar ofertas de esta categor\u00eda',
+    pr_pace: 'Trofeos por d\u00eda (ritmo)', pr_save: 'Guardar precios', pr_none: 'Todav\u00eda no hay juegos configurados.',     pr_nosupport: 'Tipo de precio no soportado en el editor.', pr_mult: 'Multiplicadores', pr_addrow: '+ A\u00f1adir fila', pr_delrow: 'Eliminar fila', pr_enable: 'Activar ofertas de esta categor\u00eda', pr_notify: 'Notificar esta categor\u00eda', pr_noprice: 'Sin precios configurados.', pr_back: 'Volver a juegos', pr_regions: 'Regiones', pr_region_enable: 'Habilitar esta regi\u00f3n', pr_rank_prices: 'Precio por rango',
     pr_rank: 'Rango', pr_from: 'Desde', pr_to: 'Hasta', pr_per: 'Cada', pr_price: 'Precio', pr_hours: 'Horas', pr_divs: 'Divisiones',
     st_webhook_save: 'Guardar webhook',
     w_step1: 'Abre el canal de Discord y ve a <b>Ajustes del canal &rarr; Integraciones &rarr; Webhooks</b>.',
@@ -1301,7 +1343,7 @@ const I18N_EXT = {
     tab_pricing: 'Pricing',
     st_pricing_tab_hint: 'Configure suggested prices in the Pricing tab (games, brackets and multipliers).',
     pr_hint: 'Set the suggested price per game and category. Semi-automatic: pre-filled and left in Confirm. Automatic: placed directly. Orders without a price always stay in Confirm.',
-    pr_round: 'Price rounding', pr_pace: 'Trophies per day (pace)', pr_save: 'Save prices', pr_none: 'No games configured yet.',     pr_nosupport: 'Pricing type not supported by the editor.', pr_mult: 'Multipliers', pr_addrow: '+ Add row', pr_delrow: 'Delete row', pr_enable: 'Enable offers for this category',
+    pr_pace: 'Trophies per day (pace)', pr_save: 'Save prices', pr_none: 'No games configured yet.',     pr_nosupport: 'Pricing type not supported by the editor.', pr_mult: 'Multipliers', pr_addrow: '+ Add row', pr_delrow: 'Delete row', pr_enable: 'Enable offers for this category', pr_notify: 'Notify for this category', pr_noprice: 'No prices configured.', pr_back: 'Back to games', pr_regions: 'Regions', pr_region_enable: 'Enable this region', pr_rank_prices: 'Price per rank',
     pr_rank: 'Rank', pr_from: 'From', pr_to: 'To', pr_per: 'Every', pr_price: 'Price', pr_hours: 'Hours', pr_divs: 'Divisions',
     st_webhook_save: 'Save webhook',
     w_step1: 'Open your Discord channel and go to <b>Channel settings &rarr; Integrations &rarr; Webhooks</b>.',
@@ -1329,7 +1371,7 @@ const I18N_EXT = {
     tab_pricing: 'Tarifs',
     st_pricing_tab_hint: 'Configurez les prix sugg\u00e9r\u00e9s dans l\u2019onglet Tarifs (jeux, paliers et multiplicateurs).',
     pr_hint: 'R\u00e9glez le prix sugg\u00e9r\u00e9 par jeu et cat\u00e9gorie. Semi-automatique : pr\u00e9-rempli et laiss\u00e9 \u00e0 confirmer. Automatique : plac\u00e9 directement. Sans prix, la demande reste \u00e0 confirmer.',
-    pr_round: 'Arrondi du prix', pr_pace: 'Troph\u00e9es par jour (rythme)', pr_save: 'Enregistrer les prix', pr_none: 'Aucun jeu configur\u00e9 pour l\u2019instant.',     pr_nosupport: 'Type de prix non pris en charge par l\u2019\u00e9diteur.', pr_mult: 'Multiplicateurs', pr_addrow: '+ Ajouter une ligne', pr_delrow: 'Supprimer la ligne', pr_enable: 'Activer les offres pour cette cat\u00e9gorie',
+    pr_pace: 'Troph\u00e9es par jour (rythme)', pr_save: 'Enregistrer les prix', pr_none: 'Aucun jeu configur\u00e9 pour l\u2019instant.',     pr_nosupport: 'Type de prix non pris en charge par l\u2019\u00e9diteur.', pr_mult: 'Multiplicateurs', pr_addrow: '+ Ajouter une ligne', pr_delrow: 'Supprimer la ligne', pr_enable: 'Activer les offres pour cette cat\u00e9gorie', pr_notify: 'Notifier pour cette cat\u00e9gorie', pr_noprice: 'Aucun prix configur\u00e9.', pr_back: 'Retour aux jeux', pr_regions: 'R\u00e9gions',     pr_region_enable: 'Activer cette r\u00e9gion', pr_rank_prices: 'Prix par rang',
     pr_rank: 'Rang', pr_from: 'De', pr_to: '\u00c0', pr_per: 'Chaque', pr_price: 'Prix', pr_hours: 'Heures', pr_divs: 'Divisions',
     st_webhook_save: 'Enregistrer le webhook',
     w_step1: 'Ouvrez votre canal Discord et allez dans <b>Param\u00e8tres du canal &rarr; Int\u00e9grations &rarr; Webhooks</b>.',
@@ -1353,7 +1395,7 @@ const I18N_EXT = {
     tab_pricing: 'Pre\u00e7os',
     st_pricing_tab_hint: 'Configure os pre\u00e7os sugeridos na aba Pre\u00e7os (jogos, faixas e multiplicadores).',
     pr_hint: 'Ajuste o pre\u00e7o sugerido por jogo e categoria. Semi-autom\u00e1tico: pr\u00e9-preenchido e fica em Confirmar. Autom\u00e1tico: enviado direto. Pedidos sem pre\u00e7o ficam sempre em Confirmar.',
-    pr_round: 'Arredondamento', pr_pace: 'Trof\u00e9us por dia (ritmo)', pr_save: 'Salvar pre\u00e7os', pr_none: 'Nenhum jogo configurado ainda.',     pr_nosupport: 'Tipo de pre\u00e7o n\u00e3o suportado no editor.', pr_mult: 'Multiplicadores', pr_addrow: '+ Adicionar linha', pr_delrow: 'Remover linha', pr_enable: 'Ativar ofertas desta categoria',
+    pr_pace: 'Trof\u00e9us por dia (ritmo)', pr_save: 'Salvar pre\u00e7os', pr_none: 'Nenhum jogo configurado ainda.',     pr_nosupport: 'Tipo de pre\u00e7o n\u00e3o suportado no editor.', pr_mult: 'Multiplicadores', pr_addrow: '+ Adicionar linha', pr_delrow: 'Remover linha', pr_enable: 'Ativar ofertas desta categoria', pr_notify: 'Notificar esta categoria', pr_noprice: 'Nenhum pre\u00e7o configurado.', pr_back: 'Voltar aos jogos', pr_regions: 'Regi\u00f5es',     pr_region_enable: 'Habilitar esta regi\u00e3o', pr_rank_prices: 'Pre\u00e7o por rank',
     pr_rank: 'Rank', pr_from: 'De', pr_to: 'At\u00e9', pr_per: 'Cada', pr_price: 'Pre\u00e7o', pr_hours: 'Horas', pr_divs: 'Divis\u00f5es',
     st_webhook_save: 'Salvar webhook',
     w_step1: 'Abra seu canal do Discord e v\u00e1 em <b>Configura\u00e7\u00f5es do canal &rarr; Integra\u00e7\u00f5es &rarr; Webhooks</b>.',
@@ -1377,7 +1419,7 @@ const I18N_EXT = {
     tab_pricing: 'Preise',
     st_pricing_tab_hint: 'Konfigurieren Sie die vorgeschlagenen Preise im Tab Preise (Spiele, Bereiche und Multiplikatoren).',
     pr_hint: 'Legen Sie den vorgeschlagenen Preis pro Spiel und Kategorie fest. Halbautomatisch: vorausgef\u00fcllt und bleibt in Best\u00e4tigen. Automatisch: direkt platzieren. Ohne Preis bleibt der Auftrag immer in Best\u00e4tigen.',
-    pr_round: 'Preisrundung', pr_pace: 'Troph\u00e4en pro Tag (Tempo)', pr_save: 'Preise speichern', pr_none: 'Noch keine Spiele konfiguriert.',     pr_nosupport: 'Preistyp vom Editor nicht unterst\u00fctzt.', pr_mult: 'Multiplikatoren', pr_addrow: '+ Zeile hinzuf\u00fcgen', pr_delrow: 'Zeile l\u00f6schen', pr_enable: 'Angebote f\u00fcr diese Kategorie aktivieren',
+    pr_pace: 'Troph\u00e4en pro Tag (Tempo)', pr_save: 'Preise speichern', pr_none: 'Noch keine Spiele konfiguriert.',     pr_nosupport: 'Preistyp vom Editor nicht unterst\u00fctzt.', pr_mult: 'Multiplikatoren', pr_addrow: '+ Zeile hinzuf\u00fcgen', pr_delrow: 'Zeile l\u00f6schen', pr_enable: 'Angebote f\u00fcr diese Kategorie aktivieren', pr_notify: 'F\u00fcr diese Kategorie benachrichtigen', pr_noprice: 'Keine Preise konfiguriert.', pr_back: 'Zur\u00fcck zu Spielen', pr_regions: 'Regionen',     pr_region_enable: 'Diese Region aktivieren', pr_rank_prices: 'Preis pro Rang',
     pr_rank: 'Rang', pr_from: 'Von', pr_to: 'Bis', pr_per: 'Alle', pr_price: 'Preis', pr_hours: 'Stunden', pr_divs: 'Divisionen',
     st_webhook_save: 'Webhook speichern',
     w_step1: '\u00d6ffnen Sie Ihren Discord-Kanal und gehen Sie zu <b>Kanaleinstellungen &rarr; Integrationen &rarr; Webhooks</b>.',
@@ -1401,7 +1443,7 @@ const I18N_EXT = {
     tab_pricing: 'Prezzi',
     st_pricing_tab_hint: 'Configura i prezzi suggeriti nella scheda Prezzi (giochi, fasce e moltiplicatori).',
     pr_hint: 'Imposta il prezzo suggerito per gioco e categoria. Semi-automatico: precompilato e resta in Conferma. Automatico: inviato subito. Senza prezzo la richiesta resta sempre in Conferma.',
-    pr_round: 'Arrotondamento prezzo', pr_pace: 'Trofei al giorno (ritmo)', pr_save: 'Salva prezzi', pr_none: 'Nessun gioco configurato.',     pr_nosupport: 'Tipo di prezzo non supportato dall\u2019editor.', pr_mult: 'Moltiplicatori', pr_addrow: '+ Aggiungi riga', pr_delrow: 'Elimina riga', pr_enable: 'Attiva offerte per questa categoria',
+    pr_pace: 'Trofei al giorno (ritmo)', pr_save: 'Salva prezzi', pr_none: 'Nessun gioco configurato.',     pr_nosupport: 'Tipo di prezzo non supportato dall\u2019editor.', pr_mult: 'Moltiplicatori', pr_addrow: '+ Aggiungi riga', pr_delrow: 'Elimina riga', pr_enable: 'Attiva offerte per questa categoria', pr_notify: 'Notifica per questa categoria', pr_noprice: 'Nessun prezzo configurato.', pr_back: 'Torna ai giochi', pr_regions: 'Regioni',     pr_region_enable: 'Abilita questa regione', pr_rank_prices: 'Prezzo per rango',
     pr_rank: 'Rango', pr_from: 'Da', pr_to: 'A', pr_per: 'Ogni', pr_price: 'Prezzo', pr_hours: 'Ore', pr_divs: 'Divisioni',
     st_webhook_save: 'Salva webhook',
     w_step1: 'Apri il tuo canale Discord e vai su <b>Impostazioni canale &rarr; Integrazioni &rarr; Webhooks</b>.',
@@ -1510,8 +1552,16 @@ document.querySelector('.brand-logo').addEventListener('click', function () {
   logoTimer = setTimeout(function () { logoClicks = 0; }, 2500);
 });
 
-function statCard(cls, labelKey, val, icon) {
-  return '<div class="stat ' + cls + '"><div class="s-top">' + ico(icon) + '<div class="v">' + val + '</div></div><div class="l">' + t(labelKey) + '</div></div>';
+function statCard(cls, labelKey, val, icon, extra) {
+  return '<div class="stat ' + cls + '"><div class="s-top">' + ico(icon) + '<div class="v">' + val + '</div></div><div class="l">' + t(labelKey) + '</div>' + (extra || '') + '</div>';
+}
+function timeCard() {
+  return '<div class="stat subcard" id="timeCard">' +
+    '<div class="s-top">' + ico('clock') + '<span class="sub-lbl">' + t('sub_card') + '</span></div>' +
+    '<div class="sub-big" id="subBig">&#8734;</div>' +
+    '<div class="sub-clock" id="subClock"></div>' +
+    '<div class="sub-bar"><i id="subBarFill"></i></div>' +
+  '</div>';
 }
 function refreshStats() {
   fetch('/api/stats')
@@ -1519,9 +1569,10 @@ function refreshStats() {
     .then(function (data) {
       var s = data.stats || {};
       document.getElementById('stats').innerHTML =
-        statCard('pending', 'stat_pending', s.pending, 'clock') +
+        timeCard() +
         statCard('placed', 'stat_placed', s.placed, 'send') +
         statCard('skipped', 'stat_skipped', s.skipped, 'skip');
+      tickSub();
     })
     .catch(function () {});
 }
@@ -1683,7 +1734,6 @@ function fillSettings(cfg) {
   document.getElementById('f-enabled').checked = !!f.enabled;
   document.getElementById('f-skipDuo').checked = !!f.skipDuo;
   document.getElementById('f-skipSquad').checked = !!f.skipSquad;
-  document.getElementById('f-skipConsole').checked = !!f.skipConsole;
   document.getElementById('f-skipCategories').value = (f.skipCategories || []).join(', ');
   document.getElementById('f-skipKeywords').value = (f.skipKeywords || []).join(', ');
   document.getElementById('c-enabled').checked = !!c.enabled;
@@ -1738,7 +1788,6 @@ function readSettings() {
       enabled: chk('f-enabled'),
       skipDuo: chk('f-skipDuo'),
       skipSquad: chk('f-skipSquad'),
-      skipConsole: chk('f-skipConsole'),
       skipCategories: split(document.getElementById('f-skipCategories')),
       skipKeywords: split(document.getElementById('f-skipKeywords')),
     },
@@ -1882,7 +1931,7 @@ document.getElementById('w-save').onclick = function () {
 var PR_MULT_KEYS = ['Duo', 'Solo queue', 'Offline mode', 'Stream'];
 
 function prBase() {
-  return (baseConfig && baseConfig.bot && baseConfig.bot.pricing) || { enabled: true, roundTo: 0.01, pacePerDay: 1300, games: {} };
+  return (baseConfig && baseConfig.bot && baseConfig.bot.pricing) || { enabled: true, games: {} };
 }
 function prGameName(gk) {
   var g = (baseConfig && baseConfig.games && baseConfig.games[gk]) || {};
@@ -1913,7 +1962,9 @@ function prDelCell(gk, cat, kind) {
   return '<div class="pr-del-cell"><button type="button" class="btn btn-danger btn-sm pr-del" data-gk="' + esc(gk) + '" data-cat="' + esc(cat) + '" data-kind="' + kind + '" title="' + esc(t('pr_delrow')) + '">&times;</button></div>';
 }
 function prRenderSegments(gk, cat, c) {
-  var h = '<div class="pr-table"><div class="pr-row pr-head">' + prHead('pr_from') + prHead('pr_to') + prHead('pr_per') + prHead('pr_price') +
+  var paceVal = c.pacePerDay != null ? c.pacePerDay : '';
+  var h = '<div class="pr-field"><label>' + esc(t('pr_pace')) + '</label><input type="number" step="1" min="1"' + prAttr(gk, cat, 'segments', null, 'pacePerDay') + ' value="' + esc(paceVal) + '"></div>';
+  h += '<div class="pr-table"><div class="pr-row pr-head">' + prHead('pr_from') + prHead('pr_to') + prHead('pr_per') + prHead('pr_price') +
     (c.useSegmentHours ? prHead('pr_hours') : '') +
     (c.useSegmentHours ? prHead('pr_minprice') : '') +
     (c.useSegmentHours ? prHead('pr_minhours') : '') +
@@ -1950,36 +2001,106 @@ function prRenderTiers(gk, cat, c) {
     '<button type="button" class="pr-add" data-add="tiers" data-gk="' + esc(gk) + '" data-cat="' + esc(cat) + '">' + esc(t('pr_addrow')) + '</button>' +
     prMultFields(gk, cat, c.multipliers);
 }
+var PR_RANK_NAMES = ['iron', 'bronze', 'silver', 'gold', 'platinum', 'diamond', 'ascendant', 'immortal'];
+function prRenderUnits(gk, cat, c) {
+  var h = '<div class="pr-units-base">';
+  h += prField(gk, cat, 'units', null, 'hoursPerUnit', c.hoursPerUnit, 'pr_hours');
+  h += '</div>';
+  var rp = c.rankPrices || {};
+  if (!Object.keys(rp).length && c.rankMultipliers && typeof c.rankMultipliers === 'object') {
+    rp = {};
+    var base = Number(c.pricePerUnit || 0);
+    PR_RANK_NAMES.forEach(function (rk) {
+      var m = Number(c.rankMultipliers[rk]);
+      rp[rk] = base > 0 ? Math.round(base * (isNaN(m) ? 1 : m) * 100) / 100 : '';
+    });
+  }
+  h += '<div class="pr-rank-prices"><div class="pr-mult-title">' + esc(t('pr_rank_prices')) + '</div><div class="pr-mult">';
+  PR_RANK_NAMES.forEach(function (rk) {
+    var val = rp[rk] != null ? rp[rk] : '';
+    h += '<div class="pr-field pr-x" data-kind="rankPrice"><label>' + esc(rk.charAt(0).toUpperCase() + rk.slice(1)) + '</label><div class="money"><span>$</span><input class="pr-money" type="number" step="0.01" min="0" inputmode="decimal" data-rank="' + esc(rk) + '" value="' + esc(val) + '"></div></div>';
+  });
+  h += '</div></div>';
+  return h;
+}
+var PR_CUR_GAME = null;
+var PR_TILE_COLORS = ['#7c5cff', '#ff6b6b', '#4ecdc4', '#f9c74f', '#90be6d', '#f9844a', '#577590', '#e56b6f', '#43aa8b', '#f94144', '#9b5de5', '#00b4d8'];
+function prTileColor(i) { return PR_TILE_COLORS[i % PR_TILE_COLORS.length]; }
+function prGameImg(gk) { return '/assets/games/' + gk + '.svg?v=2'; }
+function prOpenGame(gk) {
+  PR_CUR_GAME = gk;
+  document.getElementById('pr-tiles').style.display = gk ? 'none' : 'grid';
+  Array.prototype.forEach.call(document.querySelectorAll('#pr-panels .pr-game-panel'), function (p) {
+    p.style.display = p.getAttribute('data-gk') === gk ? 'block' : 'none';
+  });
+  var back = document.querySelector('#pr-panel-head');
+  if (back) back.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function prCloseGame() { prOpenGame(null); }
 function renderPricing() {
   var pr = prBase();
   var games = pr.games || {};
   document.getElementById('pr-enabled').checked = !!pr.enabled;
-  document.getElementById('pr-round').value = pr.roundTo != null ? pr.roundTo : 0.01;
-  document.getElementById('pr-pace').value = pr.pacePerDay != null ? pr.pacePerDay : 1500;
-  var gks = Object.keys(games);
-  var html = '';
-  if (!gks.length) html = '<div class="set-box"><div class="hint">' + esc(t('pr_none')) + '</div></div>';
-  gks.forEach(function (gk) {
-    var cats = Object.keys(games[gk] || {});
-    html += '<div class="pr-game"><h4>' + esc(prGameName(gk)) + '</h4>';
-    html += '<div class="pr-gen">';
-    cats.forEach(function (cat, i) {
-      html += '<button type="button" class="pr-cat-pill' + (i === 0 ? ' active' : '') + '" data-gk="' + esc(gk) + '" data-cat="' + esc(cat) + '">' + esc(cat) + '</button>';
+  var known = (baseConfig && baseConfig.games) ? Object.keys(baseConfig.games) : [];
+  var gks = known.slice();
+  Object.keys(games).forEach(function (g) { if (gks.indexOf(g) < 0) gks.push(g); });
+  var GAME_META = ['regionLocked', 'skipConsole', 'regions'];
+  var tiles = '';
+  if (!gks.length) {
+    tiles = '<div class="set-box"><div class="hint">' + esc(t('pr_none')) + '</div></div>';
+  } else {
+    tiles += '<div class="pr-tiles">';
+    gks.forEach(function (gk, i) {
+      tiles += '<button type="button" class="pr-tile" data-gk="' + esc(gk) + '" style="--tile:' + prTileColor(i) + '">' +
+        '<img class="pr-tile-img" src="' + esc(prGameImg(gk)) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">' +
+        '<span class="pr-tile-shade"></span>' +
+        '<span class="pr-tile-name">' + esc(prGameName(gk)) + '</span>' +
+        '</button>';
     });
-    html += '</div>';
+    tiles += '</div>';
+  }
+  document.getElementById('pr-tiles').innerHTML = tiles;
+  var panels = '';
+  gks.forEach(function (gk) {
+    var allCats = Object.keys(games[gk] || {});
+    var cats = allCats.filter(function (k) { return GAME_META.indexOf(k) < 0; });
+    var gData = games[gk] || {};
+    panels += '<div class="pr-game-panel" data-gk="' + esc(gk) + '">';
+    panels += '<div class="pr-panel-head" id="pr-panel-head"><button type="button" class="btn btn-secondary btn-sm pr-back" data-gk="' + esc(gk) + '">&larr; ' + esc(t('pr_back')) + '</button><h4>' + esc(prGameName(gk)) + '</h4>';
+    if (gData.regionLocked && gData.regions) {
+      panels += '<div class="pr-game-regions">';
+      Object.keys(gData.regions).forEach(function (rk) {
+        var r = gData.regions[rk] || {};
+        var en = r.enabled !== false;
+        panels += '<label class="pr-game-region" title="' + esc(t('pr_region_enable')) + '"><input type="checkbox" class="pr-game-region-en" data-rk="' + esc(rk) + '"' + (en ? ' checked' : '') + '><span>' + esc(rk) + '</span></label>';
+      });
+      panels += '</div>';
+    }
+    panels += '</div>';
+    if (!cats.length) {
+      panels += '<div class="hint pr-empty">' + esc(t('pr_noprice')) + '</div></div>';
+      return;
+    }
+    panels += '<div class="pr-gen">';
+    cats.forEach(function (cat, i) {
+      panels += '<button type="button" class="pr-cat-pill' + (i === 0 ? ' active' : '') + '" data-gk="' + esc(gk) + '" data-cat="' + esc(cat) + '">' + esc(cat) + '</button>';
+    });
+    panels += '</div>';
     cats.forEach(function (cat, i) {
       var c = games[gk][cat] || {};
-      html += '<div class="pr-cat-card' + (i === 0 ? ' active' : '') + '" data-gk="' + esc(gk) + '" data-cat="' + esc(cat) + '" data-mode="' + esc(c.mode) + '"' + (c.useSegmentHours ? ' data-hours="1"' : '') + '>';
-      html += '<div class="pr-cat-head"><h5>' + esc(cat) + '</h5><span class="pr-type">' + esc(c.mode) + (c.useSegmentHours ? ' &middot; ' + esc(t('pr_seg_hours')) : '') + '</span>' +
-        '<label class="pr-enable" title="' + esc(t('pr_enable')) + '"><input type="checkbox" class="pr-cat-enabled" data-gk="' + esc(gk) + '" data-cat="' + esc(cat) + '"' + (c.enabled !== false ? ' checked' : '') + '><span>' + esc(t('pr_enable')) + '</span></label></div>';
-      if (c.mode === 'segments') html += prRenderSegments(gk, cat, c);
-      else if (c.mode === 'tiers') html += prRenderTiers(gk, cat, c);
-      else html += '<div class="hint">' + esc(t('pr_nosupport')) + '</div>';
-      html += '</div>';
+      panels += '<div class="pr-cat-card' + (i === 0 ? ' active' : '') + '" data-gk="' + esc(gk) + '" data-cat="' + esc(cat) + '" data-mode="' + esc(c.mode) + '"' + (c.useSegmentHours ? ' data-hours="1"' : '') + (c.divisionOrder ? ' data-dorder="' + esc(c.divisionOrder) + '"' : '') + (c.mode === 'units' ? ' data-unitlabel="' + esc(c.unitLabel || 'unit') + '"' : '') + '>';
+      panels += '<div class="pr-cat-head"><h5>' + esc(cat) + '</h5><span class="pr-type">' + esc(c.mode) + (c.useSegmentHours ? ' &middot; ' + esc(t('pr_seg_hours')) : '') + '</span></div>';
+      if (c.mode === 'segments') panels += prRenderSegments(gk, cat, c);
+      else if (c.mode === 'tiers') panels += prRenderTiers(gk, cat, c);
+      else if (c.mode === 'units') panels += prRenderUnits(gk, cat, c);
+      else panels += '<div class="hint">' + esc(t('pr_nosupport')) + '</div>';
+      panels += '<div class="savebar-inline" style="margin-top:16px"><button type="button" class="btn btn-primary pr-save-game" data-gk="' + esc(gk) + '">' + esc(t('pr_save')) + '</button><span class="msg pr-save-msg" data-gk="' + esc(gk) + '"></span></div>';
+      panels += '</div>';
     });
-    html += '</div>';
+    panels += '</div>';
   });
-  document.getElementById('pr-games').innerHTML = html;
+  document.getElementById('pr-panels').innerHTML = panels;
+  prOpenGame(null);
 }
 function prSegFromRow(row, withHours) {
   var num = function (k) { var el = row.querySelector('[data-key="' + k + '"]'); var n = el ? parseFloat(el.value) : NaN; return isNaN(n) ? 0 : n; };
@@ -2003,23 +2124,60 @@ function prTierFromRow(row) {
 }
 function prCollectCards() {
   var games = {};
-  Array.prototype.forEach.call(document.querySelectorAll('#pr-games .pr-cat-card'), function (card) {
+  var GAME_META = ['regionLocked', 'skipConsole', 'regions'];
+  Array.prototype.forEach.call(document.querySelectorAll('#pr-panels .pr-game-panel'), function (panel) {
+    var gk = panel.getAttribute('data-gk');
+    var regs = {};
+    Array.prototype.forEach.call(panel.querySelectorAll('.pr-game-region'), function (lbl) {
+      var rk = lbl.getAttribute('data-rk') || lbl.querySelector('input') && lbl.querySelector('input').getAttribute('data-rk');
+      var enEl = lbl.querySelector('.pr-game-region-en');
+      if (rk && enEl) regs[rk] = { enabled: enEl.checked };
+    });
+    if (Object.keys(regs).length) {
+      var g = games[gk] || (games[gk] = {});
+      g._regions = regs;
+    }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#pr-panels .pr-cat-card'), function (card) {
     var gk = card.getAttribute('data-gk');
     var cat = card.getAttribute('data-cat');
     var mode = card.getAttribute('data-mode');
     var en = card.querySelector('.pr-cat-enabled');
-    var out = { mode: mode, enabled: en ? en.checked : true };
+    var nt = card.querySelector('.pr-cat-notify');
+    var out = { mode: mode, enabled: en ? en.checked : true, notify: nt ? nt.checked : true };
+    var dor = card.getAttribute('data-dorder');
+    if (dor) out.divisionOrder = dor;
     if (mode === 'segments') {
       out.segments = [];
       Array.prototype.forEach.call(card.querySelectorAll('.pr-row[data-kind="segments"]'), function (row) {
         out.segments.push(prSegFromRow(row, card.getAttribute('data-hours') === '1'));
       });
       if (card.getAttribute('data-hours') === '1') out.useSegmentHours = true;
+      var paceEl = card.querySelector('input[data-key="pacePerDay"]');
+      if (paceEl) {
+        var pn = parseFloat(paceEl.value);
+        if (!isNaN(pn) && pn > 0) out.pacePerDay = pn;
+      }
     } else if (mode === 'tiers') {
       out.tiers = [];
       Array.prototype.forEach.call(card.querySelectorAll('.pr-row[data-kind="tiers"]'), function (row) {
         out.tiers.push(prTierFromRow(row));
       });
+    } else if (mode === 'units') {
+      var numUnit = function (k) { var el = card.querySelector('[data-key="' + k + '"]'); var n = el ? parseFloat(el.value) : NaN; return isNaN(n) ? 0 : n; };
+      out.hoursPerUnit = numUnit('hoursPerUnit');
+      var ul = card.getAttribute('data-unitlabel');
+      if (ul) out.unitLabel = ul;
+      var rankPrices = {};
+      var hasRP = false;
+      Array.prototype.forEach.call(card.querySelectorAll('[data-kind="rankPrice"]'), function (cell) {
+        var inp = cell.querySelector('input[data-rank]');
+        if (!inp) return;
+        var rk = inp.getAttribute('data-rank');
+        var val = parseFloat(inp.value);
+        if (!isNaN(val) && val > 0) { rankPrices[rk] = val; hasRP = true; }
+      });
+      if (hasRP) out.rankPrices = rankPrices;
     }
     out.multipliers = {};
     Array.prototype.forEach.call(card.querySelectorAll('.pr-field[data-kind="mult"]'), function (cell) {
@@ -2031,15 +2189,26 @@ function prCollectCards() {
     var g = games[gk] || (games[gk] = {});
     g[cat] = out;
   });
+  Object.keys(games).forEach(function (gk) {
+    var g = games[gk];
+    if (g._regions) { g.regions = g._regions; delete g._regions; }
+  });
   return games;
 }
 function serializePricing() {
+  var games = prCollectCards();
+  var prev = prBase().games || {};
+  var GAME_META = ['regionLocked', 'skipConsole'];
+  Object.keys(prev).forEach(function (gk) {
+    if (!games[gk]) games[gk] = {};
+    GAME_META.forEach(function (mk) {
+      if (prev[gk][mk] != null && games[gk][mk] == null) games[gk][mk] = prev[gk][mk];
+    });
+  });
   return {
     pricing: {
       enabled: document.getElementById('pr-enabled').checked,
-      roundTo: parseFloat(document.getElementById('pr-round').value),
-      pacePerDay: parseFloat(document.getElementById('pr-pace').value),
-      games: prCollectCards(),
+      games: games,
     },
   };
 }
@@ -2072,7 +2241,11 @@ function prAddRow(btn) {
   }
   table.appendChild(row);
 }
-document.getElementById('pr-games').addEventListener('click', function (e) {
+document.getElementById('tab-precios').addEventListener('click', function (e) {
+  var tile = e.target.closest('.pr-tile');
+  if (tile) { prOpenGame(tile.getAttribute('data-gk')); return; }
+  var back = e.target.closest('.pr-back');
+  if (back) { prCloseGame(); return; }
   var pill = e.target.closest('.pr-cat-pill');
   if (pill) {
     var gk = pill.getAttribute('data-gk'), cat = pill.getAttribute('data-cat');
@@ -2090,35 +2263,37 @@ document.getElementById('pr-games').addEventListener('click', function (e) {
   }
   var add = e.target.closest('.pr-add');
   if (add) prAddRow(add);
-});
-document.getElementById('pr-save').onclick = function () {
-  var btn = this, msg = document.getElementById('pr-saveMsg');
-  var payload;
-  try { payload = serializePricing(); }
-  catch (e) { msg.textContent = t('st_error') + ' ' + e.message; msg.className = 'msg err'; return; }
-  btn.disabled = true;
-  msg.textContent = t('st_saving');
-  msg.className = 'msg';
-  fetch('/api/settings', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  })
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      btn.disabled = false;
-      if (d.ok) {
-        baseConfig = baseConfig || {};
-        baseConfig.bot = baseConfig.bot || {};
-        baseConfig.bot.pricing = { ...(baseConfig.bot.pricing || {}), ...payload.pricing };
-        msg.textContent = t('st_saved') + ' ' + new Date().toLocaleTimeString();
-        msg.className = 'msg';
-        renderPricing();
-      }
-      else { msg.textContent = t('st_error') + ' ' + (d.error || t('st_unknown')); msg.className = 'msg err'; }
+  var saveGame = e.target.closest('.pr-save-game');
+  if (saveGame) {
+    var gk2 = saveGame.getAttribute('data-gk');
+    var savebar = saveGame.closest('.savebar-inline');
+    var msg = savebar ? savebar.querySelector('.msg') : null;
+    if (!msg) msg = document.querySelector('.pr-save-msg[data-gk="' + gk2 + '"]');
+    var allMsgs = document.querySelectorAll('.pr-save-msg[data-gk="' + gk2 + '"]');
+    var payload;
+    try { payload = serializePricing(); }
+    catch (err) { if (msg) { msg.textContent = t('st_error') + ' ' + err.message; msg.className = 'msg err'; } return; }
+    saveGame.disabled = true;
+    if (msg) { msg.textContent = t('st_saving'); msg.className = 'msg'; }
+    fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
     })
-    .catch(function (e) { msg.textContent = t('st_errconn'); msg.className = 'msg err'; btn.disabled = false; });
-};
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        saveGame.disabled = false;
+        if (d.ok) {
+          baseConfig = baseConfig || {};
+          baseConfig.bot = baseConfig.bot || {};
+          baseConfig.bot.pricing = { ...(baseConfig.bot.pricing || {}), ...payload.pricing };
+          if (msg) { msg.textContent = t('st_saved') + ' ' + new Date().toLocaleTimeString(); msg.className = 'msg'; }
+        } else { if (msg) { msg.textContent = t('st_error') + ' ' + (d.error || t('st_unknown')); msg.className = 'msg err'; } }
+      })
+      .catch(function (err) { if (msg) { msg.textContent = t('st_errconn'); msg.className = 'msg err'; } saveGame.disabled = false; });
+    return;
+  }
+});
 
 function updateAutoBanner(mode) {
   var banner = document.getElementById('autoBanner');
@@ -2411,7 +2586,7 @@ document.getElementById('eldoPasteBtn').onclick = function () {
     .catch(function (e) { msg.textContent = t('st_errconn'); btn.disabled = false; });
 };
 
-var DELIVERY_OPTS = ['Automated', 'Instant', 'Minute20', 'Hour1', 'Hour2', 'Hour3', 'Hour5', 'Hour8', 'Hour12', 'Day1', 'Day2', 'Day3', 'Day7', 'Day14', 'Day28', 'Day45', 'Day60', 'NotApplicable'];
+var DELIVERY_OPTS = ['Minute20', 'Hour1', 'Hour2', 'Hour3', 'Hour5', 'Hour8', 'Hour12', 'Day1', 'Day2', 'Day3', 'Day7', 'Day14', 'Day28', 'Day45', 'Day60'];
 function deliveryOptions(current) {
   return DELIVERY_OPTS.map(function (code) {
     return '<option value="' + code + '"' + (code === current ? ' selected' : '') + '>' + esc(t('dlv_' + code)) + '</option>';
@@ -2842,40 +3017,73 @@ var dashboardReady = false;
 var intervalStarted = false;
 
 var subUntil = 0;
+var subTotal = 0;
+var subActive = false;
 function fmtRemaining(ms) {
   ms = Math.max(0, ms);
   var d = Math.floor(ms / 86400000);
   var h = Math.floor((ms % 86400000) / 3600000);
   var m = Math.floor((ms % 3600000) / 60000);
-  return t('sub_count').replace('{d}', d).replace('{h}', h).replace('{m}', m);
+  var s = Math.floor((ms % 60000) / 1000);
+  return t('sub_expires_in') + ' ' + t('sub_count').replace('{d}', d).replace('{h}', h).replace('{m}', m).replace('{s}', s);
 }
 function tickSub() {
-  var pill = document.getElementById('subPill');
-  if (!pill || pill.style.display === 'none' || !subUntil) return;
-  var ms = subUntil - Date.now();
-  if (ms <= 0) {
-    pill.textContent = t('sub_expired');
-    pill.className = 'status-pill sub bad';
-  } else {
-    pill.textContent = fmtRemaining(ms);
-    pill.className = 'status-pill sub ok';
-  }
-}
-function applySub(session) {
-  var pill = document.getElementById('subPill');
-  var out = document.getElementById('btnLogout');
-  if (!session) {
-    subUntil = 0;
-    if (pill) pill.style.display = 'none';
-    if (out) out.style.display = 'none';
+  var card = document.getElementById('timeCard');
+  if (!card) return;
+  if (!subActive) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+  var big = document.getElementById('subBig');
+  var clock = document.getElementById('subClock');
+  var fill = document.getElementById('subBarFill');
+  if (!subUntil) {
+    if (big) big.textContent = t('sub_lifetime');
+    if (clock) clock.textContent = '';
+    if (fill) fill.style.width = '100%';
     return;
   }
-  if (pill) {
-    pill.style.display = 'inline-flex';
-    subUntil = session.expiresAt ? new Date(session.expiresAt).getTime() : 0;
-    var until = session.expiresAt ? t('sub_until') + ' ' + fmtDate(session.expiresAt) : '';
-    pill.title = (session.owner ? session.owner + ' \u00b7 ' : '') + (session.plan || '') + (until ? ' | ' + until : '');
+  var ms = subUntil - Date.now();
+  if (ms <= 0) {
+    if (big) big.textContent = t('sub_expired');
+    if (clock) clock.textContent = '';
+    if (fill) fill.style.width = '0%';
+    return;
   }
+  var d = Math.floor(ms / 86400000);
+  var h = Math.floor((ms % 86400000) / 3600000);
+  var m = Math.floor((ms % 3600000) / 60000);
+  var s = Math.floor((ms % 60000) / 1000);
+  var lbl = '';
+  if (d > 0) {
+    lbl = t('k_days_fmt').replace('{n}', d);
+    if (clock) clock.textContent = h + 'h ' + m + 'm ' + s + 's';
+  } else if (h > 0) {
+    lbl = t('sub_hours').replace('{n}', h);
+    if (clock) clock.textContent = m + 'm ' + s + 's';
+  } else if (m > 0) {
+    lbl = t('sub_minutes').replace('{n}', m);
+    if (clock) clock.textContent = s + 's';
+  } else {
+    lbl = t('sub_seconds').replace('{n}', s);
+    if (clock) clock.textContent = '';
+  }
+  if (big) big.textContent = lbl;
+  if (fill && subTotal > 0) fill.style.width = Math.max(0, Math.min(100, ms / subTotal * 100)) + '%';
+}
+function applySub(session) {
+  var out = document.getElementById('btnLogout');
+  subActive = !!session;
+  if (!session) {
+    subUntil = 0;
+    subTotal = 0;
+    if (out) out.style.display = 'none';
+    tickSub();
+    return;
+  }
+  subUntil = session.expiresAt ? new Date(session.expiresAt).getTime() : 0;
+  subTotal = subUntil && session.activatedAt ? subUntil - new Date(session.activatedAt).getTime() : 0;
+  var until = session.expiresAt ? t('sub_until') + ' ' + fmtDate(session.expiresAt) : '';
+  var card = document.getElementById('timeCard');
+  if (card) card.title = (session.owner ? session.owner + ' \u00b7 ' : '') + (session.plan || '') + (until ? ' | ' + until : '');
   if (out) out.style.display = 'inline-flex';
   tickSub();
 }
@@ -2904,6 +3112,11 @@ function doLogin() {
     })
     .then(function (r) {
       if (r.d && r.d.ok && r.d.subscription) { enterDashboard(r.d.subscription); return; }
+      if (r.d && (r.d.error === 'device_used' || r.d.error === 'device_limit')) {
+        msg.textContent = 'This key is already in use on another device. Contact your seller to unlock it.';
+        btn.disabled = false;
+        return;
+      }
       msg.textContent = t('login_err_' + ((r.d && r.d.error) || 'invalid'));
       btn.disabled = false;
     })
@@ -3202,7 +3415,7 @@ function enterDashboard(sub) {
       else { startTimers(); refreshAll(); }
     });
     startTimers();
-    setInterval(tickSub, 60000);
+    setInterval(tickSub, 1000);
   }
 }
 
@@ -3218,6 +3431,12 @@ function checkSession() {
       showLogin();
     })
     .catch(function () { showLogin(); });
+}
+
+function watchSession() {
+  fetch('/api/me')
+    .then(function (res) { if (res.status === 401) checkSession(); })
+    .catch(function () {});
 }
 
 function init() {
@@ -3321,6 +3540,7 @@ function init() {
   });
   applyLang();
   checkSession();
+  setInterval(watchSession, 20000);
 }
 init();
 </script>
