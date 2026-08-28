@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-27T23:10:22.147Z",
+  "updatedAt": "2026-08-28T18:04:51.754Z",
   "entries": {
     "cbebffe638303ac3f69d531bf465c1bf3f6d2302d0981f50ceb8c7750a2c23d8": {
       "plan": "De por vida",
@@ -12,6 +12,19 @@
       "vip": false,
       "maxDevices": 1,
       "kickEpoch": 2,
+      "pausedMs": 0
+    },
+    "264c8a34be2ea47d168697f86520552a1de4f760f7528d537051fa16765711a1": {
+      "plan": "Mensual",
+      "days": 30,
+      "hours": 0,
+      "game": null,
+      "trial": false,
+      "active": true,
+      "paid": true,
+      "vip": false,
+      "maxDevices": 1,
+      "kickEpoch": 0,
       "pausedMs": 0
     }
   }
