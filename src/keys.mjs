@@ -1,5 +1,5 @@
-import { randomBytes, randomUUID } from 'crypto';
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
+import { randomBytes, randomUUID, createHash } from 'crypto';
+import { readFileSync, writeFileSync, renameSync, mkdirSync, existsSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -10,6 +10,20 @@ const LOGS_DIR = join(STATE_ROOT, 'logs');
 const DAY = 86400000;
 const HOUR = 3600000;
 const DEFAULT_MAX_DEVICES = 1;
+
+let _writeQueue = Promise.resolve();
+function enqueueWrite(fn) {
+  _writeQueue = _writeQueue.then(fn).catch(() => {});
+  return _writeQueue;
+}
+
+function sha256Key(raw) {
+  return createHash('sha256').update(String(raw || '').trim().toUpperCase()).digest('hex');
+}
+
+function durationHours(rec) {
+  return (Math.max(0, parseInt(rec.days, 10) || 0) * 24) + (Math.max(0, parseInt(rec.hours, 10) || 0));
+}
 
 function load() {
   try {
@@ -23,7 +37,9 @@ function load() {
 
 function save(data) {
   mkdirSync(dirname(KEYS_FILE), { recursive: true });
-  writeFileSync(KEYS_FILE, JSON.stringify(data, null, 2), 'utf8');
+  const tmp = KEYS_FILE + '.' + process.pid + '.tmp';
+  writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf8');
+  renameSync(tmp, KEYS_FILE);
 }
 
 function logFile(keyId) {
@@ -35,18 +51,25 @@ export function logKeyEvent(keyId, msg) {
     mkdirSync(LOGS_DIR, { recursive: true });
     let log = [];
     try {
-      log = JSON.parse(readFileSync(logFile(keyId), 'utf8')) || [];
+      let raw = readFileSync(logFile(keyId), 'utf8');
+      if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1);
+      log = JSON.parse(raw) || [];
     } catch {}
     log.push({ t: new Date().toISOString(), msg });
     if (log.length > 300) log = log.slice(-300);
-    writeFileSync(logFile(keyId), JSON.stringify(log, null, 2), 'utf8');
+    const lf = logFile(keyId);
+    const tmp = lf + '.' + process.pid + '.tmp';
+    writeFileSync(tmp, JSON.stringify(log, null, 2), 'utf8');
+    renameSync(tmp, lf);
   } catch (e) {}
 }
 
 export function keyEvents(keyId) {
   try {
-    return JSON.parse(readFileSync(logFile(keyId), 'utf8')) || [];
-  } catch {
+    let raw = readFileSync(logFile(keyId), 'utf8');
+    if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1);
+    return JSON.parse(raw) || [];
+  } catch (e) {
     return [];
   }
 }
@@ -57,7 +80,7 @@ function newKey() {
   return groups.join('-');
 }
 
-export function generateKeys({ owner, days, plan, count = 1, note = '', paid = true, price = 0, seller = null, vip = false, maxDevices = DEFAULT_MAX_DEVICES, hours = 0, game = null, trial = false }) {
+export function generateKeys({ owner, days, plan, count = 1, note = '', paid = true, price = 0, seller = null, hours = 0, game = null, trial = false }) {
   const data = load();
   const created = [];
   for (let i = 0; i < count; i++) {
@@ -78,9 +101,12 @@ export function generateKeys({ owner, days, plan, count = 1, note = '', paid = t
       paid: paid !== false,
       price: Number(price) || 0,
       seller: seller || null,
-      vip: !!vip,
-      maxDevices: Math.max(1, parseInt(maxDevices, 10) || DEFAULT_MAX_DEVICES),
+      vip: false,
+      maxDevices: 1,
       devices: [],
+      kickEpoch: 0,
+      pausedMs: 0,
+      pausedAt: null,
     };
     data.keys.push(rec);
     created.push(rec);
@@ -124,7 +150,7 @@ export function getSubscription(rec) {
     active: rec.active,
     paid: rec.paid !== false,
     vip: !!rec.vip,
-    maxDevices: Math.max(1, parseInt(rec.maxDevices, 10) || DEFAULT_MAX_DEVICES),
+    maxDevices: Math.max(1, parseInt(rec.maxDevices, 10) || 1),
     deviceCount: Array.isArray(rec.devices) ? rec.devices.length : 0,
     activatedAt: rec.activatedAt,
     expiresAt: rec.expiresAt,
@@ -132,6 +158,9 @@ export function getSubscription(rec) {
     price: Number(rec.price) || 0,
     seller: rec.seller || null,
     note: rec.note || '',
+    remote: !!rec.remote,
+    kickEpoch: parseInt(rec.kickEpoch, 10) || 0,
+    pausedMs: Math.max(0, parseInt(rec.pausedMs, 10) || 0),
   };
 }
 
@@ -143,43 +172,131 @@ export function registerDevice(rec, deviceId) {
   if (!r) return { ok: false, error: 'invalid' };
   if (!Array.isArray(r.devices)) r.devices = [];
   if (r.devices.includes(deviceId)) return { ok: true, deviceCount: r.devices.length };
-  const max = Math.max(1, parseInt(r.maxDevices, 10) || DEFAULT_MAX_DEVICES);
-  if (r.devices.length >= max) return { ok: false, error: 'device_limit', maxDevices: max };
+  if (r.devices.length >= 8) r.devices = r.devices.slice(-7);
   r.devices.push(deviceId);
   if (rec) {
     if (!Array.isArray(rec.devices)) rec.devices = [];
     if (!rec.devices.includes(deviceId)) rec.devices.push(deviceId);
   }
-  logKeyEvent(r.id, `Dispositivo registrado: ${deviceId} (${r.devices.length}/${max}).`);
+  logKeyEvent(r.id, `Dispositivo registrado (local, informativo): ${deviceId} (${r.devices.length}).`);
   save(data);
   return { ok: true, deviceCount: r.devices.length };
 }
 
-export function updateDevices(raw, { maxDevices, clearDevices, reactivate } = {}) {
+export function updateDevices(raw, { clearDevices, reactivate } = {}) {
   const rec = findKey(raw);
   if (!rec) return { ok: false, error: 'not_found' };
   const data = load();
   const r = data.keys.find((x) => x.id === rec.id);
   if (!r) return { ok: false, error: 'not_found' };
-  if (maxDevices !== undefined) {
-    r.maxDevices = Math.max(1, parseInt(maxDevices, 10) || DEFAULT_MAX_DEVICES);
-    logKeyEvent(r.id, `Limite de dispositivos actualizado a ${r.maxDevices}.`);
-  }
   if (clearDevices) {
     const removed = (r.devices || []).length;
     r.devices = [];
-    logKeyEvent(r.id, `Se desvincularon ${removed} dispositivo(s).`);
+    logKeyEvent(r.id, `Se desvincularon ${removed} dispositivo(s) (local).`);
   }
   if (reactivate !== undefined && typeof reactivate === 'boolean') {
     r.active = reactivate;
-    logKeyEvent(r.id, reactivate ? 'Llave reactivada.' : 'Llave desactivada.');
+    if (reactivate) {
+      const pausedMs = Math.max(0, parseInt(r.pausedMs, 10) || 0);
+      if (r.pausedAt) {
+        const delta = Date.now() - Date.parse(r.pausedAt);
+        if (!Number.isNaN(delta) && delta > 0) r.pausedMs = pausedMs + delta;
+      }
+      r.pausedAt = null;
+      logKeyEvent(r.id, reactivate ? `Llave reactivada (tiempo congelado: +${Math.round(r.pausedMs / 86400000 * 10) / 10} días en total).` : 'Llave desactivada.');
+    } else {
+      logKeyEvent(r.id, 'Llave desactivada.');
+    }
   }
   save(data);
-  return { ok: true, key: rec.key, maxDevices: r.maxDevices, deviceCount: r.devices.length, active: r.active };
+  return { ok: true, key: rec.key, maxDevices: 1, deviceCount: r.devices.length, active: r.active };
 }
 
-export function validateLogin(raw, deviceId = null) {
-  const rec = findKey(raw);
+export function mergeRemoteKey(raw, entry) {
+  const k = String(raw || '').trim().toUpperCase();
+  if (!k || !entry || typeof entry !== 'object') return { ok: false, error: 'invalid' };
+  const data = load();
+  let r = data.keys.find((x) => x.key.toUpperCase() === k) || null;
+  let created = false;
+  if (!r) {
+    r = {
+      id: 'remote-' + sha256Key(k),
+      key: k,
+      owner: entry.owner || 'Cliente',
+      plan: entry.plan || `${entry.days || 0} días`,
+      days: Math.max(0, parseInt(entry.days, 10) || 0),
+      hours: Math.max(0, parseInt(entry.hours, 10) || 0),
+      game: entry.game || null,
+      trial: !!entry.trial,
+      note: 'Activada remotamente',
+      createdAt: new Date().toISOString(),
+      activatedAt: null,
+      expiresAt: null,
+      active: entry.active !== false,
+      paid: entry.paid !== false,
+      price: 0,
+      seller: null,
+      vip: false,
+      maxDevices: 1,
+      devices: [],
+      remote: true,
+      kickEpoch: parseInt(entry.kickEpoch, 10) || 0,
+      pausedMs: Math.max(0, parseInt(entry.pausedMs, 10) || 0),
+      pausedAt: null,
+    };
+    data.keys.push(r);
+    created = true;
+  }
+
+  const prevDur = durationHours(r);
+  r.active = entry.active !== false;
+  r.paid = entry.paid !== false;
+  r.vip = false;
+  r.trial = !!entry.trial;
+  r.game = entry.game || r.game || null;
+  r.plan = entry.plan || r.plan;
+  r.maxDevices = 1;
+  if (r.hours > 0 || (entry.hours && entry.hours > 0)) r.hours = Math.max(0, parseInt(entry.hours, 10) || 0);
+  r.days = Math.max(0, parseInt(entry.days, 10) || 0);
+
+  const newDur = durationHours(r);
+  if (r.activatedAt && r.expiresAt && newDur > prevDur) {
+    const base = Math.max(Date.now(), new Date(r.expiresAt).getTime());
+    const deltaH = newDur - prevDur;
+    r.expiresAt = new Date(base + deltaH * HOUR).toISOString();
+  }
+
+  r.kickEpoch = parseInt(entry.kickEpoch, 10) || 0;
+  const entryPaused = Math.max(0, parseInt(entry.pausedMs, 10) || 0);
+  const localPaused = Math.max(0, parseInt(r.pausedMs, 10) || 0);
+  if (entryPaused > localPaused) {
+    const deltaMs = entryPaused - localPaused;
+    if (r.expiresAt) {
+      r.expiresAt = new Date(new Date(r.expiresAt).getTime() + deltaMs).toISOString();
+    } else if (r.activatedAt) {
+      r.activatedAt = new Date(new Date(r.activatedAt).getTime() + deltaMs).toISOString();
+      r.expiresAt = new Date(Date.now() + durationHours(r) * HOUR + deltaMs).toISOString();
+    }
+    r.pausedMs = entryPaused;
+    logKeyEvent(r.id, `Tiempo congelado aplicado al reactivar: +${Math.round(deltaMs / 86400000 * 10) / 10} días.`);
+  } else {
+    r.pausedMs = entryPaused;
+  }
+
+  save(data);
+  if (created) logKeyEvent(r.id, 'Llave activada desde el índice remoto.');
+  else logKeyEvent(r.id, 'Estado sincronizado con el índice remoto.');
+  return { ok: true, rec: r, created };
+}
+
+export function validateLogin(raw, deviceId = null, remoteEntry = null) {
+  let rec = findKey(raw);
+  if (remoteEntry) {
+    const merged = mergeRemoteKey(raw, remoteEntry);
+    if (!merged.ok) return { ok: false, error: 'invalid' };
+    rec = findKey(raw);
+    if (!rec) return { ok: false, error: 'invalid' };
+  }
   if (!rec) return { ok: false, error: 'invalid' };
   if (!rec.active) return { ok: false, error: 'revoked' };
   if (rec.paid === false && !rec.trial) return { ok: false, error: 'unpaid' };
@@ -214,8 +331,9 @@ export function revokeKey(raw) {
   const data = load();
   const r = data.keys.find((x) => x.id === rec.id);
   r.active = false;
+  r.pausedAt = new Date().toISOString();
   save(data);
-  logKeyEvent(r.id, 'Llave revocada.');
+  logKeyEvent(r.id, 'Llave revocada (pausa iniciada).');
   return { ok: true, key: rec.key };
 }
 
@@ -227,6 +345,18 @@ export function deleteKey(raw) {
   save(data);
   logKeyEvent(rec.id, 'Llave eliminada definitivamente.');
   return { ok: true, key: rec.key };
+}
+
+export function bumpKick(raw) {
+  const rec = findKey(raw);
+  if (!rec) return { ok: false, error: 'not_found' };
+  const data = load();
+  const r = data.keys.find((x) => x.id === rec.id);
+  if (!r) return { ok: false, error: 'not_found' };
+  r.kickEpoch = (parseInt(r.kickEpoch, 10) || 0) + 1;
+  save(data);
+  logKeyEvent(r.id, 'Señal de expulsión enviada (reset HWID).');
+  return { ok: true, key: rec.key, kickEpoch: r.kickEpoch };
 }
 
 export function markPaid(raw) {

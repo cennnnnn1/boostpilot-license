@@ -13,13 +13,22 @@ const fake = [
   },
 ];
 
-startDashboardServer(() => fake, 3199);
+const config = { bot: { login: { enabled: false }, fastMode: { autoPlace: 'confirm' } }, games: {}, chat: {}, filters: {}, hotkeys: {} };
+
+const server = startDashboardServer({
+  getData: () => fake,
+  getConfig: () => config,
+  saveConfig: async () => {},
+  saveSettings: async () => {},
+}, 3199);
 
 const res = await fetch('http://localhost:3199/api/dashboard');
 const json = await res.json();
 console.log('API OK, requests:', json.requests.length);
 const page = await fetch('http://localhost:3199/');
 const html = await page.text();
-console.log('HTML OK, contiene titulo:', html.includes('Panel Eldorado'));
+console.log('HTML OK, contiene titulo:', html.includes('BoostPilot'));
 
-process.exit(0);
+server.closeAllConnections();
+server.close();
+setTimeout(() => process.exit(0), 80);

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <title>BoostPilot</title>
@@ -10,88 +10,167 @@ html { color-scheme: dark; }
 body {
   margin: 0; font-family: 'Segoe UI', system-ui, sans-serif;
   background:
-    radial-gradient(700px 400px at 50% -20%, rgba(255,154,61,.10), transparent 60%),
-    radial-gradient(600px 480px at 50% 130%, rgba(255,106,138,.10), transparent 60%),
-    #000;
-  color: #e6ebf7; display: flex; flex-direction: column; user-select: none; overflow: hidden;
+    radial-gradient(900px 480px at 50% -18%, rgba(168,85,247,.14), transparent 60%),
+    radial-gradient(700px 420px at 50% 122%, rgba(255,106,138,.13), transparent 60%),
+    #07080f;
+  color: #eef1fb; display: flex; flex-direction: column; user-select: none; overflow: hidden;
 }
-.wrap { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 10px 26px; -webkit-app-region: drag; }
+.wrap {
+  flex: 1; display: flex; flex-direction: column; justify-content: center;
+  padding: 16px 22px; -webkit-app-region: drag; position: relative; z-index: 2;
+}
+.card {
+  background: linear-gradient(180deg, rgba(22,27,46,.72), rgba(17,21,39,.55));
+  border: 1px solid rgba(255,255,255,.05);
+  border-radius: 20px;
+  padding: 22px 18px 20px;
+  box-shadow: 0 0 0 1px rgba(255,106,138,.04), 0 18px 50px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.04);
+  backdrop-filter: blur(10px);
+  animation: fadeIn .45s ease;
+}
 .logo {
-  width: 56px; height: 56px; border-radius: 17px; margin: 0 auto 14px; flex: none;
+  width: 60px; height: 60px; border-radius: 18px; margin: 0 auto 14px; flex: none;
   background: transparent;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 8px 26px rgba(255,106,138,.3); animation: fadeIn .4s ease;
+  position: relative;
+  animation: fadeIn .45s ease, logoGlow 3.2s ease-in-out infinite;
 }
-.logo svg { width: 56px; height: 56px; }
-.title { font-size: 20px; font-weight: 800; letter-spacing: .3px; text-align: center; margin-bottom: 8px; animation: fadeIn .4s ease; background: linear-gradient(90deg, #ff9dc0, #ff6a8a, #e8437e); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.lead { font-size: 13.5px; color: #8a8f9c; line-height: 1.5; margin: 0 0 18px; text-align: center; }
+.logo::after {
+  content: ''; position: absolute; inset: -10px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,106,138,.35), rgba(168,85,247,.12) 55%, transparent 70%);
+  filter: blur(6px); z-index: -1; animation: halo 3.2s ease-in-out infinite;
+}
+.logo svg { width: 60px; height: 60px; filter: drop-shadow(0 6px 16px rgba(232,67,126,.45)); }
+.title {
+  font-size: 21px; font-weight: 800; letter-spacing: .3px; text-align: center; margin: 0 0 6px;
+  background: linear-gradient(92deg, #ff9dc0, #ff6a8a, #a855f7, #ff6a8a, #ff9dc0);
+  background-size: 220% auto;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: fadeIn .45s ease, shimmer 5.5s linear infinite;
+}
+.lead { font-size: 13px; color: #8b93ad; line-height: 1.55; margin: 0 0 16px; text-align: center; }
 input[type=text] {
-  width: 100%; background: #000; border: 1px solid #2b2b2b; color: #e6ebf7; border-radius: 10px;
+  width: 100%; background: rgba(7,8,15,.8); border: 1px solid #20263c; color: #eef1fb; border-radius: 12px;
   padding: 14px 14px; font-size: 18px; letter-spacing: 3px; text-align: center; font-family: 'Consolas', 'Cascadia Code', monospace;
-  outline: none; margin-bottom: 12px; -webkit-app-region: no-drag;
+  outline: none; margin-bottom: 14px; -webkit-app-region: no-drag;
+  transition: border-color .2s ease, box-shadow .2s ease;
 }
-input:focus { border-color: #f5c244; box-shadow: none; }
+input:focus {
+  border-color: rgba(255,106,138,.7);
+  box-shadow: 0 0 0 3px rgba(255,106,138,.16), 0 0 18px rgba(255,106,138,.25);
+}
 .btn {
-  width: 100%; border: 1px solid transparent; border-radius: 10px; padding: 13px 14px; font-size: 14px; font-weight: 700;
+  position: relative; overflow: hidden;
+  width: 100%; border: 1px solid transparent; border-radius: 12px; padding: 13px 14px; font-size: 14px; font-weight: 700;
   cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; -webkit-app-region: no-drag;
-  transition: filter .15s ease, opacity .15s ease;
+  transition: filter .15s ease, opacity .15s ease, box-shadow .2s ease, transform .1s ease;
 }
-.btn.primary { background: linear-gradient(135deg, #f5c244, #e0a423); color: #1a1405; background-clip: padding-box; }
-.btn.primary:hover { filter: brightness(1.06); }
-.btn.primary:disabled { opacity: .55; cursor: default; }
-.btn.ghost { background: #13131a; border-color: #2b2b2b; color: #cfd6e6; }
-.btn.ghost:hover { filter: brightness(1.15); }
-.btn.renew { background: linear-gradient(135deg, #34d399, #10b981); color: #04251b; margin-top: 8px; background-clip: padding-box; }
-.btn.renew:hover { filter: brightness(1.06); }
+.btn.primary {
+  background: linear-gradient(135deg, #ff9dc0, #ff6a8a 45%, #e8437e);
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(255,106,138,.30), inset 0 1px 0 rgba(255,255,255,.25);
+  background-clip: padding-box;
+}
+.btn.primary::after {
+  content: ''; position: absolute; top: 0; left: -70%; width: 45%; height: 100%;
+  background: linear-gradient(105deg, transparent, rgba(255,255,255,.45), transparent);
+  transform: skewX(-20deg);
+}
+.btn.primary:hover { filter: brightness(1.08); box-shadow: 0 10px 30px rgba(255,106,138,.45), inset 0 1px 0 rgba(255,255,255,.25); }
+.btn.primary:hover::after { animation: shine .9s ease; }
+.btn.primary:active { transform: translateY(1px); }
+.btn.primary:disabled { opacity: .55; cursor: default; transform: none; box-shadow: none; }
+.btn.ghost {
+  background: linear-gradient(180deg, rgba(32,38,60,.7), rgba(17,21,39,.6));
+  border-color: #20263c; color: #cfd6e6;
+}
+.btn.ghost:hover { filter: brightness(1.2); box-shadow: 0 0 16px rgba(168,85,247,.18); }
+.btn.renew {
+  background: linear-gradient(135deg, #34d399, #10b981);
+  color: #04251b; margin-top: 8px;
+  box-shadow: 0 8px 20px rgba(16,185,129,.28), inset 0 1px 0 rgba(255,255,255,.3);
+  background-clip: padding-box;
+}
+.btn.renew:hover { filter: brightness(1.06); box-shadow: 0 10px 26px rgba(16,185,129,.42); }
 .status { min-height: 20px; text-align: center; font-size: 12.5px; margin-top: 10px; color: #8b98bd; }
 .status.err { color: #f87171; }
 .status.ok { color: #34d399; }
 .welcome { color: #34d399; font-size: 15px; font-weight: 700; margin-top: 12px; letter-spacing: .3px; text-align: center; animation: fadeIn .4s ease; }
-.footer { padding: 10px 16px; border-top: 1px solid #1c1c24; display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 11.5px; color: #8a8f9c; -webkit-app-region: no-drag; }
+.footer {
+  padding: 10px 16px; border-top: 1px solid #141827; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  font-size: 11.5px; color: #8a8f9c; -webkit-app-region: no-drag; position: relative; z-index: 2;
+}
 .foot-left { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: #555; flex: none; }
-.dot.on { background: #34d399; animation: pulse 1.6s infinite; }
-.dot.off { background: #f87171; }
+.dot.on { background: #34d399; animation: pulse 1.6s infinite; box-shadow: 0 0 10px rgba(52,211,153,.8); }
+.dot.off { background: #f87171; box-shadow: 0 0 10px rgba(248,113,113,.6); }
 .foot-actions { display: flex; gap: 6px; }
 .foot-actions button {
-  background: #13131a; border: 1px solid #2b2b2b; color: #cfd6e6; border-radius: 8px;
+  background: linear-gradient(180deg, rgba(32,38,60,.7), rgba(17,21,39,.6));
+  border: 1px solid #20263c; color: #cfd6e6; border-radius: 8px;
   padding: 5px 10px; font-size: 11.5px; font-weight: 600; cursor: pointer;
+  transition: filter .15s ease, box-shadow .2s ease;
 }
-.foot-actions button:hover { filter: brightness(1.2); }
+.foot-actions button:hover { filter: brightness(1.25); box-shadow: 0 0 14px rgba(168,85,247,.22); }
 .foot-actions button.quit { color: #f87171; }
-.foot-actions button.on { color: #34d399; border-color: #14532d; }
+.foot-actions button.on { color: #34d399; border-color: #14532d; box-shadow: 0 0 12px rgba(52,211,153,.25); }
 .row-actions { display: flex; gap: 8px; -webkit-app-region: no-drag; }
 .row-actions .btn { padding: 10px; }
 .keep-row { margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12.5px; color: #8a8f9c; -webkit-app-region: no-drag; cursor: pointer; }
-.keep-row input { width: 15px; height: 15px; accent-color: #f5c244; cursor: pointer; margin: 0; }
+.keep-row input { width: 15px; height: 15px; accent-color: #ff6a8a; cursor: pointer; margin: 0; }
 #renewBox { display: none; margin-top: 10px; text-align: center; -webkit-app-region: no-drag; }
+.spark {
+  position: absolute; border-radius: 50%; z-index: 1; pointer-events: none;
+  background: radial-gradient(circle, rgba(255,154,192,.9), rgba(168,85,247,.15) 60%, transparent);
+  filter: blur(1px);
+}
+.spark:nth-child(1) { width: 5px; height: 5px; top: 12%; left: 12%; animation: float 7s ease-in-out infinite; }
+.spark:nth-child(2) { width: 3px; height: 3px; top: 24%; right: 14%; animation: float 9s ease-in-out infinite 1.2s; }
+.spark:nth-child(3) { width: 4px; height: 4px; bottom: 26%; left: 18%; animation: float 8s ease-in-out infinite 2.1s; }
+.spark:nth-child(4) { width: 6px; height: 6px; bottom: 16%; right: 20%; animation: float 10s ease-in-out infinite 3s; }
+.spark:nth-child(5) { width: 3px; height: 3px; top: 48%; right: 8%; animation: float 11s ease-in-out infinite .6s; }
+.spark:nth-child(6) { width: 4px; height: 4px; top: 8%; left: 42%; animation: float 9.5s ease-in-out infinite 1.8s; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+@keyframes shimmer { to { background-position: -220% center; } }
+@keyframes shine { to { left: 130%; } }
+@keyframes float { 0%, 100% { transform: translateY(0); opacity: .25; } 50% { transform: translateY(-16px); opacity: .9; } }
+@keyframes logoGlow { 0%, 100% { filter: drop-shadow(0 6px 16px rgba(232,67,126,.45)); } 50% { filter: drop-shadow(0 6px 26px rgba(168,85,247,.7)); } }
+@keyframes halo { 0%, 100% { opacity: .55; transform: scale(.95); } 50% { opacity: 1; transform: scale(1.08); } }
 </style>
 </head>
 <body>
+  <div class="spark"></div>
+  <div class="spark"></div>
+  <div class="spark"></div>
+  <div class="spark"></div>
+  <div class="spark"></div>
+  <div class="spark"></div>
   <div class="wrap">
-    <div class="logo"><svg viewBox="0 0 48 48"><defs><linearGradient id="pl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9dc0"/><stop offset=".5" stop-color="#ff6a8a"/><stop offset="1" stop-color="#e8437e"/></linearGradient><linearGradient id="pd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#160a12" stop-opacity="0"/><stop offset="1" stop-color="#0a0307" stop-opacity=".85"/></linearGradient><clipPath id="pt"><rect x="8" y="9" width="32" height="9"/></clipPath><clipPath id="pb"><rect x="8" y="32" width="32" height="9"/></clipPath></defs><rect x="1.5" y="1.5" width="45" height="45" rx="13" fill="#0d1018" stroke="#2a1a26" stroke-width="1"/><path d="M24 9l13.5 15.5h-8V39h-11V24.5h-8L24 9z" fill="url(#pl)"/><path d="M24 9l13.5 15.5h-8V39h-11V24.5h-8L24 9z" fill="#fff" opacity=".4" clip-path="url(#pt)"/><path d="M24 9l13.5 15.5h-8V39h-11V24.5h-8L24 9z" fill="url(#pd)" clip-path="url(#pb)"/><path d="M24 9l13.5 15.5h-8V39h-11V24.5h-8L24 9z" fill="none" stroke="#ffd3e2" stroke-width="1.1" opacity=".45"/></svg></div>
-    <div class="title">BoostPilot</div>
-    <p class="lead" id="leadText">Ingres&aacute; tu llave de acceso &uacute;nica para activar tu suscripci&oacute;n.</p>
-    <input id="keyInput" type="text" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false">
-    <div class="row-actions">
-      <button id="enterBtn" class="btn primary">Entrar</button>
+    <div class="card">
+      <div class="logo"><svg viewBox="0 0 48 48"><defs><linearGradient id="pl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9dc0"/><stop offset=".5" stop-color="#ff6a8a"/><stop offset="1" stop-color="#e8437e"/></linearGradient><linearGradient id="pd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#160a12" stop-opacity="0"/><stop offset="1" stop-color="#0a0307" stop-opacity=".85"/></linearGradient><clipPath id="pt"><rect x="8" y="9" width="32" height="9"/></clipPath><clipPath id="pb"><rect x="8" y="32" width="32" height="9"/></clipPath></defs><rect x="1.5" y="1.5" width="45" height="45" rx="13" fill="#0d1018" stroke="#2a1a26" stroke-width="1"/><path d="M24 9l13.5 15.5h-8V39h-11V24.5h-8L24 9z" fill="url(#pl)"/><path d="M24 9l13.5 15.5h-8V39h-11V24.5h-8L24 9z" fill="#fff" opacity=".4" clip-path="url(#pt)"/><path d="M24 9l13.5 15.5h-8V39h-11V24.5h-8L24 9z" fill="url(#pd)" clip-path="url(#pb)"/><path d="M24 9l13.5 15.5h-8V39h-11V24.5h-8L24 9z" fill="none" stroke="#ffd3e2" stroke-width="1.1" opacity=".45"/></svg></div>
+      <div class="title">BoostPilot</div>
+      <p class="lead" id="leadText">Enter your unique access key to activate your subscription.</p>
+      <input id="keyInput" type="text" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false">
+      <div class="row-actions">
+        <button id="enterBtn" class="btn primary">Enter</button>
+      </div>
+      <div id="status" class="status"></div>
+      <div id="welcomeMsg" class="welcome" style="display:none"></div>
+      <div id="renewBox">
+        <div id="renewHint" class="lead" style="margin:0 0 8px"></div>
+        <button id="renewBtn" class="btn renew">Renew subscription</button>
+      </div>
+      <label class="keep-row"><input type="checkbox" id="keepChk"> Keep session signed in</label>
     </div>
-    <div id="status" class="status"></div>
-    <div id="welcomeMsg" class="welcome" style="display:none"></div>
-    <div id="renewBox">
-      <div id="renewHint" class="lead" style="margin:0 0 8px"></div>
-      <button id="renewBtn" class="btn renew">Renovar suscripci&oacute;n</button>
-    </div>
-    <label class="keep-row"><input type="checkbox" id="keepChk"> Mantener sesi&oacute;n iniciada</label>
   </div>
   <div class="footer">
-    <div class="foot-left"><span class="dot" id="botDot"></span><span id="botStatusText">Iniciando...</span></div>
+    <div class="foot-left"><span class="dot" id="botDot"></span><span id="botStatusText">Starting...</span></div>
     <div class="foot-actions">
-      <button id="restartBtn" title="Reiniciar el bot">Reiniciar</button>
-      <button id="autoBtn" title="Iniciar con Windows">Autostart</button>
-      <button id="quitBtn" class="quit">Salir</button>
+      <button id="updateBtn" title="A new version is available" style="display:none;color:#ffd166;border-color:#7a5a12">Update</button>
+      <button id="restartBtn" title="Restart the bot">Restart</button>
+      <button id="autoBtn" title="Start with Windows">Autostart</button>
+      <button id="quitBtn" class="quit">Quit</button>
     </div>
   </div>
 <script>
@@ -102,12 +181,14 @@ var expiredNow = false;
 
 function showStatus(msg, cls) { statusEl.textContent = msg || ''; statusEl.className = 'status' + (cls ? ' ' + cls : ''); }
 function errText(code) {
-  if (code === 'revoked') return 'Esta llave fue revocada.';
-  if (code === 'expired') return 'Tu suscripci\u00f3n venci\u00f3.';
-  if (code === 'unpaid') return 'Tu pago est\u00e1 pendiente de confirmaci\u00f3n.';
-  if (code === 'device_limit') return 'Esta llave ya est\u00e1 en uso en el m\u00e1ximo de dispositivos permitidos.';
-  if (code === 'bot_down') return 'No se pudo iniciar el bot.';
-  return 'Llave inv\u00e1lida.';
+  if (code === 'revoked') return 'This key was revoked by the seller. Contact them if you think this is a mistake.';
+  if (code === 'invalid') return 'Invalid key.';
+  if (code === 'expired') return 'Your subscription has expired.';
+  if (code === 'unpaid') return 'Your payment is pending confirmation.';
+  if (code === 'device_used' || code === 'device_limit') return 'This key is already in use on another device. Contact your seller to unlock it.';
+  if (code === 'bot_down') return 'The bot could not be started.';
+  if (code === 'reset') return 'Your session was reset by the seller. Enter your key to log in again.';
+  return 'Invalid key.';
 }
 function showWelcome(text) {
   var el = document.getElementById('welcomeMsg');
@@ -120,15 +201,15 @@ function hideWelcome() {
 }
 function showRenew() {
   document.getElementById('renewHint').textContent = expiredNow
-    ? 'Tu suscripci\u00f3n venci\u00f3. Renoval\u00e1 para volver a activar el bot.'
-    : 'Renoval\u00e1 o compr\u00e1 un plan para seguir usando el bot.';
+    ? 'Your subscription has expired. Renew it to activate the bot again.'
+    : 'Renew or buy a plan to keep using the bot.';
   document.getElementById('renewBox').style.display = 'block';
 }
 function hideRenew() {
   document.getElementById('renewBox').style.display = 'none';
 }
 function goToPanel() {
-  window.launcher.openPanel().then(function (r) { if (!r.ok) showStatus('No se pudo abrir el panel.', 'err'); });
+  window.launcher.openPanel().then(function (r) { if (!r.ok) showStatus('Could not open the panel.', 'err'); });
 }
 function formatKey(k) {
   var v = String(k || '').toUpperCase().replace(/[^A-F0-9]/g, '');
@@ -158,23 +239,51 @@ input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(
 document.getElementById('enterBtn').addEventListener('click', doLogin);
 document.getElementById('renewBtn').addEventListener('click', function () {
   window.launcher.openStore().then(function (r) {
-    if (!r.ok) showStatus('No se pudo abrir la tienda.', 'err');
+    if (!r.ok) showStatus('Could not open the store.', 'err');
   });
 });
 document.getElementById('restartBtn').addEventListener('click', function () {
-  showStatus('Reiniciando el bot...');
+  showStatus('Restarting the bot...');
   window.launcher.restartBot().then(function () {
     setTimeout(refreshStatus, 1500);
   });
 });
 document.getElementById('quitBtn').addEventListener('click', function () { window.launcher.quit(); });
+var updateBtn = document.getElementById('updateBtn');
+updateBtn.addEventListener('click', function () {
+  updateBtn.disabled = true;
+  updateBtn.textContent = 'Downloading...';
+  window.launcher.applyUpdate().then(function (r) {
+    if (!r.ok) {
+      updateBtn.disabled = false;
+      updateBtn.textContent = 'Update';
+      showStatus(r.error === 'no_update' ? '' : 'Update failed. Open the #downloads channel for the installer.', 'err');
+    }
+  }).catch(function () {
+    updateBtn.disabled = false;
+    updateBtn.textContent = 'Update';
+  });
+});
+var updateCheckPending = false;
+function checkUpdates() {
+  if (updateCheckPending) return;
+  updateCheckPending = true;
+  window.launcher.checkUpdate().then(function (r) {
+    if (r && r.ok && r.available) {
+      updateBtn.style.display = '';
+      updateBtn.title = 'New version v' + r.latest + ' available';
+    } else {
+      updateBtn.style.display = 'none';
+    }
+  }).catch(function () {}).then(function () { updateCheckPending = false; });
+}
 document.getElementById('autoBtn').addEventListener('click', function () {
   var btn = this;
   window.launcher.getStatus().then(function (s) {
     var next = !s.autostart;
     return window.launcher.setAutostart(next).then(function () {
       btn.className = next ? 'on' : '';
-      showStatus(next ? 'Se iniciar\u00e1 con Windows.' : 'Autostart desactivado.', 'ok');
+      showStatus(next ? 'It will start with Windows.' : 'Autostart disabled.', 'ok');
     });
   });
 });
@@ -184,18 +293,18 @@ document.getElementById('keepChk').addEventListener('change', function () {
 
 function doLogin() {
   var key = input.value.trim();
-  if (!key) { showStatus('Ingres\u00e1 tu llave de acceso.', 'err'); return; }
+  if (!key) { showStatus('Enter your access key.', 'err'); return; }
   var btn = document.getElementById('enterBtn');
-  btn.disabled = true; btn.textContent = 'Verificando...';
-  showStatus('Iniciando el bot...');
+  btn.disabled = true; btn.textContent = 'Verifying...';
+  showStatus('Starting the bot...');
   window.launcher.login(key, keepChk.checked).then(function (r) {
-    btn.disabled = false; btn.textContent = 'Entrar';
+    btn.disabled = false; btn.textContent = 'Enter';
     if (r.ok) {
       loggedIn = true;
       expiredNow = false;
       hideRenew();
       showStatus('');
-      showWelcome('\u00a1Bienvenido' + (r.subscription.owner ? ', ' + r.subscription.owner : '') + '!');
+      showWelcome('Welcome' + (r.subscription.owner ? ', ' + r.subscription.owner : '') + '!');
       setTimeout(function () {
         goToPanel();
         resetLogin();
@@ -215,8 +324,8 @@ function refreshStatus() {
     var txt = document.getElementById('botStatusText');
     dot.className = 'dot ' + (s.online ? 'on' : 'off');
     txt.textContent = s.online
-      ? 'Bot activo' + (s.botVersion ? ' v' + s.botVersion : '')
-      : 'Bot apagado';
+      ? 'Bot active' + (s.botVersion ? ' v' + s.botVersion : '')
+      : 'Bot is off';
     var ab = document.getElementById('autoBtn');
     ab.className = s.autostart ? 'on' : '';
     var kk = document.getElementById('keepChk');
@@ -225,27 +334,25 @@ function refreshStatus() {
 }
 
 setInterval(refreshStatus, 8000);
+setInterval(checkUpdates, 5 * 60 * 1000);
 
 setInterval(function () {
   if (!loggedIn) return;
   window.launcher.refresh().then(function (r) {
     if (r.ok) { showStatus(''); hideRenew(); }
-    else if (r.error === 'expired') {
-      expiredNow = true;
-      showStatus('Tu suscripci\u00f3n venci\u00f3. Contact\u00e1 a tu vendedor para renovar.', 'err');
-      showRenew();
+    else if (r.error) {
+      loggedIn = false;
+      hideRenew();
+      showStatus(errText(r.error), 'err');
+      if (r.error === 'expired') { expiredNow = true; showRenew(); }
     }
   });
 }, 60000);
 
-showStatus('Iniciando el bot...');
+showStatus('Starting the bot...');
 refreshStatus();
 refreshPrefill();
-window.launcher.refresh().then(function (r) {
-  if (r.ok) { showStatus(''); }
-  else if (r.error === 'no_key') { showStatus(''); input.focus(); }
-  else { showStatus(errText(r.error)); if (r.error === 'expired') { expiredNow = true; showRenew(); } }
-});
+checkUpdates();
 </script>
 </body>
 </html>

@@ -1,12 +1,13 @@
 import http from 'node:http';
 import { randomBytes } from 'crypto';
-import { readFileSync } from 'fs';
+import { readFileSync, createReadStream } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { ETA_OPTIONS, ETA_MAP } from './rules.js';
 import { sendDiscord, embed } from './webhook.mjs';
-import { validateLogin, getSubscription, listKeys, generateKeys, extendKey, revokeKey, deleteKey, markPaid, aggregateMetrics, keyEvents, updateDevices, setKeyVip } from './keys.mjs';
+import { validateLogin, getSubscription, listKeys, findKey, generateKeys, extendKey, revokeKey, deleteKey, markPaid, aggregateMetrics, keyEvents, updateDevices, setKeyVip, mergeRemoteKey } from './keys.mjs';
 import { setSessionGameRestriction, clearSessionGameRestriction } from './session.mjs';
+import { sha256 as hashKey } from './license.js';
 
 const GAME_NAMES = {
   fc26: 'EA Sports FC',
@@ -16,20 +17,62 @@ const GAME_NAMES = {
   league_of_legends: 'League of Legends',
   rocket_league: 'Rocket League',
   fortnite: 'Fortnite',
-  osrs: 'OSRS',
   r6_siege: 'R6 Siege',
   marvel_rivals: 'Marvel Rivals',
   apex_legends: 'Apex Legends',
   call_of_duty: 'Call of Duty',
 };
 
-const panelHtml = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'panel.html'), 'utf8').replace('__GAME_NAMES__', JSON.stringify(GAME_NAMES));
+let panelHtml = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'panel.html'), 'utf8');
+if (panelHtml.charCodeAt(0) === 0xFEFF) panelHtml = panelHtml.slice(1);
+panelHtml = panelHtml.replace('__GAME_NAMES__', JSON.stringify(GAME_NAMES));
+
+// Incrustar SVGs de juegos como data URIs para carga instantánea en Precios.
+const ASSETS_DIR = join(dirname(fileURLToPath(import.meta.url)), 'assets', 'games');
+const GAME_SVGS = {};
+for (const gk of Object.keys(GAME_NAMES)) {
+  try {
+    let svg = readFileSync(join(ASSETS_DIR, gk + '.svg'), 'utf8');
+    GAME_SVGS[gk] = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  } catch (e) { /* sin svg */ }
+}
+panelHtml = panelHtml.replace('__GAME_SVGS__', JSON.stringify(GAME_SVGS));
+
+let APP_VERSION = '1.7.14';
+try {
+  APP_VERSION = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'package.json'), 'utf8')).version || APP_VERSION;
+} catch (e) { /* keep default */ }
 
 export function startDashboardServer(opts, port = 3000) {
-  const { getData, getConfig, saveConfig } = opts;
+  const { getData, getConfig, saveConfig, applyProfile, license } = opts;
   const sessions = new Map();
+  const sessionDevices = new Map();
+  const sessionKick = new Map();
   const adminSessions = new Map();
   const loginFails = new Map();
+
+  const MAX_BODY = 1024 * 1024;
+  function readBody(req) {
+    return new Promise((resolve, reject) => {
+      let body = '';
+      let overflow = false;
+      req.on('data', (c) => {
+        body += c;
+        if (body.length > MAX_BODY) { overflow = true; req.destroy(); }
+      });
+      req.on('end', () => { if (overflow) reject(new Error('Payload too large')); else resolve(body); });
+      req.on('error', reject);
+    });
+  }
+
+  setInterval(() => {
+    const now = Date.now();
+    for (const [tok, id] of sessions) {
+      if (now - (sessionKick.get(tok) || 0) > 3600000 && !sessionDevices.has(tok)) {
+        sessions.delete(tok); sessionDevices.delete(tok); sessionKick.delete(tok);
+      }
+    }
+  }, 300000);
 
   function loginLocked(ip) {
     const r = loginFails.get(ip);
@@ -69,8 +112,28 @@ export function startDashboardServer(opts, port = 3000) {
     const rec = listKeys().find((r) => r.id === keyId);
     if (!rec || !rec.active) {
       sessions.delete(token);
+      sessionDevices.delete(token);
+      sessionKick.delete(token);
       clearSessionGameRestriction();
       return null;
+    }
+    if (license && license.getIndexEntry && license.indexSynced) {
+      const entry = license.getIndexEntry(rec.key);
+      const want = sessionKick.get(token);
+      if (entry && typeof want === 'number' && (parseInt(entry.kickEpoch, 10) || 0) !== want) {
+        sessions.delete(token);
+        sessionDevices.delete(token);
+        sessionKick.delete(token);
+        clearSessionGameRestriction();
+        return null;
+      }
+      if (!entry && license.indexSynced()) {
+        sessions.delete(token);
+        sessionDevices.delete(token);
+        sessionKick.delete(token);
+        clearSessionGameRestriction();
+        return null;
+      }
     }
     return { token, sub: getSubscription(rec) };
   }
@@ -80,31 +143,99 @@ export function startDashboardServer(opts, port = 3000) {
     res.end(JSON.stringify(obj));
   }
 
+  async function publishAllNow() {
+    if (!license || !license.publishAll) return { published: false, skipped: true };
+    try {
+      return await license.publishAll();
+    } catch (e) {
+      return { published: false, error: String(e.message || e) };
+    }
+  }
+
   const server = http.createServer((req, res) => {
     if (req.url === '/' || req.url === '/index.html') {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
       res.end(panelHtml);
       return;
     }
+    if (req.url && req.url.startsWith('/assets/')) {
+      const rel = (req.url.split('?')[0]).slice('/assets/'.length);
+      if (!rel || rel.includes('..') || rel.includes(':') || rel.startsWith('/') || rel.startsWith('\\')) {
+        res.writeHead(403, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: false }));
+        return;
+      }
+      const ext = rel.split('.').pop().toLowerCase();
+      const types = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', svg: 'image/svg+xml', webp: 'image/webp', gif: 'image/gif' };
+      const file = join(dirname(fileURLToPath(import.meta.url)), 'assets', rel);
+      const rs = createReadStream(file);
+      rs.on('error', () => { res.writeHead(404, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ ok: false })); });
+      rs.on('open', () => { res.writeHead(200, { 'Content-Type': types[ext] || 'application/octet-stream', 'Cache-Control': 'public, max-age=3600' }); rs.pipe(res); });
+      return;
+    }
     if (req.url && req.url.startsWith('/api/')) {
       if (req.url === '/api/login' && req.method === 'POST') {
         let body = '';
-        req.on('data', (c) => { body += c; });
-        req.on('end', () => {
+        req.on('data', (c) => { body += c; if (body.length > 1048576) { req.destroy(); body = ''; } });
+        req.on('end', async () => {
           try {
             const data = JSON.parse(body || '{}');
-            const out = validateLogin(data.key, data.device || null);
+            let remoteEntry = null;
+            if (license && license.ensureIndex && license.getIndexEntry) {
+              try {
+                await license.ensureIndex();
+                remoteEntry = license.getIndexEntry(data.key);
+              } catch (e) {
+                console.log('[license] Error al consultar el índice remoto en login: ' + String(e.message || e));
+              }
+            }
+            const out = validateLogin(data.key, data.device || null, remoteEntry);
             if (!out.ok) {
               json(res, 401, { ok: false, error: out.error, maxDevices: out.maxDevices, subscription: out.subscription });
               return;
             }
+            if (license && license.checkAsync) {
+              try {
+                const lc = await license.checkAsync(data.key);
+                if (lc.blocked) {
+                  json(res, 401, { ok: false, error: 'revoked', subscription: out.subscription });
+                  return;
+                }
+              } catch (e) {
+                console.log('[license] Error al validar blacklist en login: ' + String(e.message || e));
+              }
+            }
+            if (license && license.indexSynced && license.indexSynced() && !remoteEntry) {
+              const localRec = findKey(data.key);
+              if (localRec && localRec.remote) {
+                json(res, 401, { ok: false, error: 'revoked', subscription: out.subscription });
+                return;
+              }
+            }
+            if (data.device && license && license.claimDevice) {
+              try {
+                const dc = await license.claimDevice(data.key, data.device);
+                if (dc.error === 'device_used') {
+                  json(res, 401, { ok: false, error: 'device_used', subscription: out.subscription });
+                  return;
+                }
+                if (dc.error && dc.error !== 'no_token') {
+                  console.log('[license] Claim de dispositivo no disponible (se permite login): ' + dc.error + (dc.detail ? ' ' + dc.detail : ''));
+                }
+              } catch (e) {
+                console.log('[license] Error en claim de dispositivo: ' + String(e.message || e));
+              }
+            }
+            if (applyProfile) await applyProfile(out.subscription.id);
             const token = randomBytes(24).toString('hex');
             sessions.set(token, out.subscription.id);
-            if (out.subscription.game) setSessionGameRestriction([out.subscription.game]);
+            if (data.device) sessionDevices.set(token, String(data.device));
+            sessionKick.set(token, parseInt(out.subscription.kickEpoch, 10) || 0);
+            if (out.subscription.game && !out.subscription.trial) setSessionGameRestriction([out.subscription.game]);
             else clearSessionGameRestriction();
             res.writeHead(200, {
               'Content-Type': 'application/json; charset=utf-8',
-              'Set-Cookie': 'elbot_session=' + token + '; HttpOnly; Path=/; SameSite=Lax; Max-Age=2592000',
+              'Set-Cookie': 'elbot_session=' + token + '; HttpOnly; Path=/; SameSite=Lax',
             });
             res.end(JSON.stringify({ ok: true, subscription: out.subscription }));
           } catch (e) {
@@ -130,7 +261,7 @@ export function startDashboardServer(opts, port = 3000) {
       }
       if (req.url === '/api/logout' && req.method === 'POST') {
         const token = getCookie(req, 'elbot_session');
-        if (token) sessions.delete(token);
+        if (token) { sessions.delete(token); sessionDevices.delete(token); sessionKick.delete(token); }
         clearSessionGameRestriction();
         res.writeHead(200, {
           'Content-Type': 'application/json; charset=utf-8',
@@ -159,7 +290,7 @@ export function startDashboardServer(opts, port = 3000) {
     }
     if (req.url === '/api/eldo/session' && req.method === 'POST') {
       let body = '';
-      req.on('data', (c) => { body += c; });
+      req.on('data', (c) => { body += c; if (body.length > 1048576) { req.destroy(); body = ''; } });
       req.on('end', () => {
         try {
           const data = JSON.parse(body || '{}');
@@ -183,7 +314,7 @@ export function startDashboardServer(opts, port = 3000) {
     }
     if (req.url === '/api/admin/login' && req.method === 'POST') {
       let body = '';
-      req.on('data', (c) => { body += c; });
+      req.on('data', (c) => { body += c; if (body.length > 1048576) { req.destroy(); body = ''; } });
       req.on('end', () => {
         try {
           const data = JSON.parse(body || '{}');
@@ -253,15 +384,18 @@ export function startDashboardServer(opts, port = 3000) {
     if (req.url === '/api/admin/keys/generate' && req.method === 'POST') {
       if (!adminAuthed(req)) { json(res, 401, { ok: false, error: 'admin_required' }); return; }
       let body = '';
-      req.on('data', (c) => { body += c; });
-      req.on('end', () => {
+      req.on('data', (c) => { body += c; if (body.length > 1048576) { req.destroy(); body = ''; } });
+      req.on('end', async () => {
         try {
           const d = JSON.parse(body || '{}');
-          const days = Math.max(1, parseInt(d.days, 10) || 30);
+          const days = Math.max(0, parseInt(d.days, 10) || 30);
+          const hours = Math.max(0, parseInt(d.hours, 10) || 0);
           const count = Math.min(50, Math.max(1, parseInt(d.count, 10) || 1));
           const created = generateKeys({
             owner: String(d.owner || 'Cliente').trim(),
             days,
+            hours,
+            game: String(d.game || '').trim() || null,
             plan: String(d.plan || '').trim(),
             count,
             note: String(d.note || '').trim(),
@@ -271,7 +405,8 @@ export function startDashboardServer(opts, port = 3000) {
             vip: !!d.vip,
             maxDevices: parseInt(d.maxDevices, 10) || undefined,
           });
-          json(res, 200, { ok: true, keys: created });
+          const online = await publishAllNow();
+          json(res, 200, { ok: true, keys: created, online });
         } catch (e) {
           json(res, 400, { ok: false, error: String(e.message || e) });
         }
@@ -281,13 +416,14 @@ export function startDashboardServer(opts, port = 3000) {
     if (req.url === '/api/admin/keys/extend' && req.method === 'POST') {
       if (!adminAuthed(req)) { json(res, 401, { ok: false, error: 'admin_required' }); return; }
       let body = '';
-      req.on('data', (c) => { body += c; });
-      req.on('end', () => {
+      req.on('data', (c) => { body += c; if (body.length > 1048576) { req.destroy(); body = ''; } });
+      req.on('end', async () => {
         try {
           const d = JSON.parse(body || '{}');
           const days = Math.max(1, parseInt(d.days, 10) || 30);
           const out = extendKey(d.key, days);
-          json(res, out.ok ? 200 : 400, out);
+          const online = out.ok ? await publishAllNow() : null;
+          json(res, out.ok ? 200 : 400, { ...out, online });
         } catch (e) {
           json(res, 400, { ok: false, error: String(e.message || e) });
         }
@@ -297,11 +433,21 @@ export function startDashboardServer(opts, port = 3000) {
     if (req.url === '/api/admin/keys/revoke' && req.method === 'POST') {
       if (!adminAuthed(req)) { json(res, 401, { ok: false, error: 'admin_required' }); return; }
       let body = '';
-      req.on('data', (c) => { body += c; });
-      req.on('end', () => {
+      req.on('data', (c) => { body += c; if (body.length > 1048576) { req.destroy(); body = ''; } });
+      req.on('end', async () => {
         try {
           const d = JSON.parse(body || '{}');
+          const rec = findKey(d.key);
           const out = revokeKey(d.key);
+          if (out.ok && rec) {
+            for (const [tok, id] of sessions) {
+              if (id === rec.id) { sessions.delete(tok); sessionDevices.delete(tok); }
+            }
+            clearSessionGameRestriction();
+            const online = await publishAllNow();
+            json(res, 200, { ...out, online });
+            return;
+          }
           json(res, out.ok ? 200 : 400, out);
         } catch (e) {
           json(res, 400, { ok: false, error: String(e.message || e) });
@@ -312,12 +458,13 @@ export function startDashboardServer(opts, port = 3000) {
     if (req.url === '/api/admin/keys/delete' && req.method === 'POST') {
       if (!adminAuthed(req)) { json(res, 401, { ok: false, error: 'admin_required' }); return; }
       let body = '';
-      req.on('data', (c) => { body += c; });
-      req.on('end', () => {
+      req.on('data', (c) => { body += c; if (body.length > 1048576) { req.destroy(); body = ''; } });
+      req.on('end', async () => {
         try {
           const d = JSON.parse(body || '{}');
           const out = deleteKey(d.key);
-          json(res, out.ok ? 200 : 400, out);
+          const online = out.ok ? await publishAllNow() : null;
+          json(res, out.ok ? 200 : 400, { ...out, online });
         } catch (e) {
           json(res, 400, { ok: false, error: String(e.message || e) });
         }
@@ -327,12 +474,13 @@ export function startDashboardServer(opts, port = 3000) {
     if (req.url === '/api/admin/keys/markpaid' && req.method === 'POST') {
       if (!adminAuthed(req)) { json(res, 401, { ok: false, error: 'admin_required' }); return; }
       let body = '';
-      req.on('data', (c) => { body += c; });
-      req.on('end', () => {
+      req.on('data', (c) => { body += c; if (body.length > 1048576) { req.destroy(); body = ''; } });
+      req.on('end', async () => {
         try {
           const d = JSON.parse(body || '{}');
           const out = markPaid(d.key);
-          json(res, out.ok ? 200 : 400, out);
+          const online = out.ok ? await publishAllNow() : null;
+          json(res, out.ok ? 200 : 400, { ...out, online });
         } catch (e) {
           json(res, 400, { ok: false, error: String(e.message || e) });
         }
@@ -357,8 +505,8 @@ export function startDashboardServer(opts, port = 3000) {
     if (req.url === '/api/admin/keys/update' && req.method === 'POST') {
       if (!adminAuthed(req)) { json(res, 401, { ok: false, error: 'admin_required' }); return; }
       let body = '';
-      req.on('data', (c) => { body += c; });
-      req.on('end', () => {
+      req.on('data', (c) => { body += c; if (body.length > 1048576) { req.destroy(); body = ''; } });
+      req.on('end', async () => {
         try {
           const d = JSON.parse(body || '{}');
           const out = updateDevices(d.key, {
@@ -366,7 +514,8 @@ export function startDashboardServer(opts, port = 3000) {
             clearDevices: !!d.clearDevices,
             reactivate: typeof d.reactivate === 'boolean' ? d.reactivate : undefined,
           });
-          json(res, out.ok ? 200 : 400, out);
+          const online = out.ok ? await publishAllNow() : null;
+          json(res, out.ok ? 200 : 400, { ...out, online });
         } catch (e) {
           json(res, 400, { ok: false, error: String(e.message || e) });
         }
@@ -376,12 +525,31 @@ export function startDashboardServer(opts, port = 3000) {
     if (req.url === '/api/admin/keys/vip' && req.method === 'POST') {
       if (!adminAuthed(req)) { json(res, 401, { ok: false, error: 'admin_required' }); return; }
       let body = '';
-      req.on('data', (c) => { body += c; });
-      req.on('end', () => {
+      req.on('data', (c) => { body += c; if (body.length > 1048576) { req.destroy(); body = ''; } });
+      req.on('end', async () => {
         try {
           const d = JSON.parse(body || '{}');
           const out = setKeyVip(d.key, !!d.vip);
-          json(res, out.ok ? 200 : 400, out);
+          const online = out.ok ? await publishAllNow() : null;
+          json(res, out.ok ? 200 : 400, { ...out, online });
+        } catch (e) {
+          json(res, 400, { ok: false, error: String(e.message || e) });
+        }
+      });
+      return;
+    }
+    if (req.url === '/api/admin/license' && req.method === 'GET') {
+      if (!adminAuthed(req)) { json(res, 401, { ok: false, error: 'admin_required' }); return; }
+      json(res, 200, { ok: true, license: license && license.diagnostics ? license.diagnostics() : { onlineCheck: false, pushConfigured: false } });
+      return;
+    }
+    if (req.url === '/api/admin/license/push' && req.method === 'POST') {
+      if (!adminAuthed(req)) { json(res, 401, { ok: false, error: 'admin_required' }); return; }
+      req.on('end', async () => {
+        try {
+          if (!license || !license.publishAll) throw new Error('licencia no disponible');
+          const out = await publishAllNow();
+          json(res, out.published ? 200 : 400, { ok: !!out.published, ...out });
         } catch (e) {
           json(res, 400, { ok: false, error: String(e.message || e) });
         }
@@ -420,9 +588,8 @@ export function startDashboardServer(opts, port = 3000) {
       return;
     }
     if (req.url === '/api/version') {
-      const v = (getConfig() || {}).store?.payment || null;
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-      res.end(JSON.stringify({ ok: true, version: '1.5.0', name: 'BoostPilot' }));
+      res.end(JSON.stringify({ ok: true, version: APP_VERSION, name: 'BoostPilot' }));
       return;
     }
     if (req.url === '/api/plans' && req.method === 'GET') {
@@ -469,7 +636,7 @@ export function startDashboardServer(opts, port = 3000) {
     }
     if (req.url === '/api/orders' && req.method === 'POST') {
       let body = '';
-      req.on('data', (c) => { body += c; });
+      req.on('data', (c) => { body += c; if (body.length > 1048576) { req.destroy(); body = ''; } });
       req.on('end', async () => {
         try {
           const data = JSON.parse(body);
@@ -484,9 +651,45 @@ export function startDashboardServer(opts, port = 3000) {
       });
       return;
     }
+    if (req.url === '/api/orders/delivered' && req.method === 'POST') {
+      let body = '';
+      req.on('data', (c) => { body += c; if (body.length > 1048576) { req.destroy(); body = ''; } });
+      req.on('end', async () => {
+        try {
+          const data = JSON.parse(body);
+          if (!data.id) throw new Error('Se requiere id del pedido');
+          if (!opts.sendDeliveredById) throw new Error('sendDeliveredById no disponible');
+          const out = await opts.sendDeliveredById(data.id);
+          res.writeHead(out && out.ok ? 200 : 400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ ok: !!(out && out.ok), ...out }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ ok: false, error: String(e.message || e) }));
+        }
+      });
+      return;
+    }
+    if (req.url === '/api/orders/received' && req.method === 'POST') {
+      let body = '';
+      req.on('data', (c) => { body += c; if (body.length > 1048576) { req.destroy(); body = ''; } });
+      req.on('end', async () => {
+        try {
+          const data = JSON.parse(body);
+          if (!data.id) throw new Error('Se requiere id del pedido');
+          if (!opts.sendOrderReceivedById) throw new Error('sendOrderReceivedById no disponible');
+          const out = await opts.sendOrderReceivedById(data.id);
+          res.writeHead(out && out.ok ? 200 : 400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ ok: !!(out && out.ok), ...out }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ ok: false, error: String(e.message || e) }));
+        }
+      });
+      return;
+    }
     if (req.url === '/api/webhook/test' && req.method === 'POST') {
       let body = '';
-      req.on('data', (c) => { body += c; });
+      req.on('data', (c) => { body += c; if (body.length > 1048576) { req.destroy(); body = ''; } });
       req.on('end', async () => {
         try {
           const data = JSON.parse(body || '{}');
@@ -562,7 +765,7 @@ export function startDashboardServer(opts, port = 3000) {
     }
     if (req.url === '/api/confirm' && req.method === 'POST') {
       let body = '';
-      req.on('data', (c) => { body += c; });
+      req.on('data', (c) => { body += c; if (body.length > 1048576) { req.destroy(); body = ''; } });
       req.on('end', async () => {
         try {
           const data = JSON.parse(body);
@@ -590,7 +793,7 @@ export function startDashboardServer(opts, port = 3000) {
     }
     if (req.url === '/api/remind' && req.method === 'POST') {
       let body = '';
-      req.on('data', (c) => { body += c; });
+      req.on('data', (c) => { body += c; if (body.length > 1048576) { req.destroy(); body = ''; } });
       req.on('end', async () => {
         try {
           const data = JSON.parse(body);
@@ -629,12 +832,13 @@ export function startDashboardServer(opts, port = 3000) {
     }
     if (req.url === '/api/settings' && req.method === 'POST') {
       let body = '';
-      req.on('data', (c) => { body += c; });
+      req.on('data', (c) => { body += c; if (body.length > 1048576) { req.destroy(); body = ''; } });
       req.on('end', async () => {
         try {
           const data = JSON.parse(body);
           if (!opts.saveSettings) throw new Error('saveSettings no disponible');
-          const out = await opts.saveSettings(data);
+          const sess = currentSession(req);
+          const out = await opts.saveSettings(data, sess ? sess.sub.id : null);
           res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
           res.end(JSON.stringify({ ok: true, ...out }));
         } catch (e) {
@@ -646,12 +850,13 @@ export function startDashboardServer(opts, port = 3000) {
     }
     if (req.url === '/api/config' && req.method === 'POST') {
       let body = '';
-      req.on('data', (c) => { body += c; });
+      req.on('data', (c) => { body += c; if (body.length > 1048576) { req.destroy(); body = ''; } });
       req.on('end', async () => {
         try {
           const data = JSON.parse(body);
           if (!data.games || typeof data.games !== 'object') throw new Error('games requerido');
-          await saveConfig(data.games);
+          const sess = currentSession(req);
+          await saveConfig(data.games, sess ? sess.sub.id : null);
           res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
           res.end(JSON.stringify({ ok: true }));
         } catch (e) {
@@ -671,5 +876,83 @@ export function startDashboardServer(opts, port = 3000) {
   server.listen(port, '127.0.0.1', () => {
     console.log(`[panel] Abre el panel en: http://localhost:${port}`);
   });
+
+  if (license && license.refresh && license.check) {
+    const kickTimer = setInterval(async () => {
+      try {
+        await license.refresh();
+        if (license.refreshIndex) await license.refreshIndex();
+        let devicesMap = null;
+        if (license.refreshDevices) {
+          try {
+            const dres = await license.refreshDevices();
+            if (dres && dres.configured && !dres.error && dres.map) devicesMap = dres.map;
+          } catch (e) { devicesMap = null; }
+        }
+        for (const [tok, id] of sessions) {
+          const rec = listKeys().find((r) => r.id === id);
+          if (!rec) { sessions.delete(tok); sessionDevices.delete(tok); sessionKick.delete(tok); continue; }
+          if (license.check(rec.key).blocked) {
+            sessions.delete(tok);
+            sessionDevices.delete(tok);
+            sessionKick.delete(tok);
+            clearSessionGameRestriction();
+            console.log(`[license] Sesión expulsada por revocación a distancia: ${rec.key}`);
+            continue;
+          }
+            if (devicesMap && sessionDevices.has(tok)) {
+              const dev = sessionDevices.get(tok);
+              const entry = devicesMap[hashKey(rec.key).toLowerCase()];
+              if (!entry || !entry.device || entry.device !== dev || entry.released) {
+              sessions.delete(tok);
+              sessionDevices.delete(tok);
+              sessionKick.delete(tok);
+              clearSessionGameRestriction();
+              console.log(`[license] Sesión expulsada: HWID liberado o reasignado para ${rec.key}`);
+              continue;
+            }
+          }
+          if (license.getIndexEntry && license.indexSynced) {
+            const entry = license.getIndexEntry(rec.key);
+            const want = sessionKick.get(tok);
+            if (entry && typeof want === 'number' && (parseInt(entry.kickEpoch, 10) || 0) !== want) {
+              sessions.delete(tok);
+              sessionDevices.delete(tok);
+              sessionKick.delete(tok);
+              clearSessionGameRestriction();
+              console.log(`[license] Sesión expulsada: señal de reset para ${rec.key}`);
+              continue;
+            }
+            if (entry) {
+              try {
+                mergeRemoteKey(rec.key, entry);
+                const fresh = listKeys().find((r) => r.id === id);
+                const sub = fresh ? getSubscription(fresh) : null;
+                if (!fresh || fresh.active === false || (fresh.paid === false && !fresh.trial) || (sub && sub.expired)) {
+                  sessions.delete(tok);
+                  sessionDevices.delete(tok);
+                  sessionKick.delete(tok);
+                  clearSessionGameRestriction();
+                  console.log(`[license] Sesión cerrada por estado remoto: ${fresh ? fresh.key : id}`);
+                }
+              } catch (e) {
+                console.log('[license] Error al sincronizar estado remoto: ' + String(e.message || e));
+              }
+            } else if (license.indexSynced()) {
+              sessions.delete(tok);
+              sessionDevices.delete(tok);
+              sessionKick.delete(tok);
+              clearSessionGameRestriction();
+              console.log(`[license] Sesión expulsada: key remota eliminada para ${rec.key}`);
+            }
+          }
+        }
+      } catch (e) {
+        console.log('[license] Fallo en chequeo periódico: ' + String(e.message || e));
+      }
+    }, Math.max(30000, (license.pollMs ? license.pollMs() : 300000)));
+    if (kickTimer.unref) kickTimer.unref();
+  }
+
   return server;
 }

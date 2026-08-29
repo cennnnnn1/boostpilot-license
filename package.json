@@ -1,15 +1,24 @@
 {
   "name": "eldorado-bot",
-  "version": "1.5.0",
+  "version": "1.7.22",
   "description": "Bot semi-auto para boosters de Eldorado.gg - detecta requests y pre-rellena ofertas",
   "type": "module",
   "scripts": {
     "login": "node src/login.js",
     "bot": "node src/bot.js",
+    "admin": "node tools/remote-admin.mjs",
     "discord:setup": "node tools/discord-setup.mjs",
-    "discord:bot": "node tools/discord-ticket-bot.mjs"
+    "discord:bot": "node tools/discord-ticket-bot.mjs",
+    "test": "node tools/run-tests.mjs",
+    "backup": "node tools/backup-state.mjs",
+    "health": "node tools/health-check.mjs"
   },
   "dependencies": {
-    "playwright": "^1.62.0"
+    "playwright": "^1.62.0",
+    "undici": "^8.10.0"
+  },
+  "devDependencies": {
+    "pptxgenjs": "^4.0.1"
   }
 }
+

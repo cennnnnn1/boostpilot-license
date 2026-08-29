@@ -2,8 +2,10 @@ const { app, BrowserWindow, ipcMain, session, shell, globalShortcut } = require(
 const { spawn, execSync } = require('child_process');
 const { randomBytes } = require('crypto');
 const http = require('http');
+const https = require('https');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 
 const BOT_DIR = app.isPackaged ? path.join(process.resourcesPath, 'bot') : path.resolve(__dirname, '..');
 const BOT_MAIN = 'src/bot.js';
@@ -14,7 +16,9 @@ const PANEL_HOST = '127.0.0.1';
 const START_PORT = 3000;
 const MAX_PORT = 3005;
 const CONFIG_FILE = path.join(app.getPath('userData'), 'launcher.json');
-const VERSION = '1.5.0';
+const VERSION = '1.7.22';
+const UPDATE_REPO = 'cennnnnn1/boostpilot-license';
+const UPDATE_API = 'https://api.github.com/repos/' + UPDATE_REPO + '/releases/latest';
 
 let botChild = null;
 let botStartedByUs = false;
@@ -54,7 +58,7 @@ function httpJson(url, opts) {
       });
     });
     req.on('error', reject);
-    req.setTimeout(4000, () => { req.destroy(new Error('timeout')); });
+    req.setTimeout(1500, () => { req.destroy(new Error('timeout')); });
     if (opts && opts.body) req.write(JSON.stringify(opts.body));
     req.end();
   });
@@ -65,8 +69,11 @@ function isUp(port) {
 }
 
 async function findPort() {
-  for (let p = START_PORT; p <= MAX_PORT; p++) {
-    if (await isUp(p)) return p;
+  const ports = [];
+  for (let p = START_PORT; p <= MAX_PORT; p++) ports.push(p);
+  const results = await Promise.allSettled(ports.map((p) => isUp(p)));
+  for (let i = 0; i < results.length; i++) {
+    if (results[i].status === 'fulfilled' && results[i].value) return ports[i];
   }
   return null;
 }
@@ -134,8 +141,8 @@ async function ensureBot() {
   panelPort = await findPort();
   if (panelPort != null) return panelPort;
   startBot();
-  for (let i = 0; i < 50; i++) {
-    await new Promise((r) => setTimeout(r, 400));
+  for (let i = 0; i < 30; i++) {
+    await new Promise((r) => setTimeout(r, 500));
     panelPort = await findPort();
     if (panelPort != null) return panelPort;
   }
@@ -176,6 +183,103 @@ function httpGet(u) {
 function cdpReady() {
   return httpGet('http://127.0.0.1:' + CDP_PORT + '/json/version').then(() => true).catch(() => false);
 }
+
+function httpsJsonGet(url) {
+  return new Promise((resolve, reject) => {
+    const req = https.get(url, { headers: { 'User-Agent': 'BoostPilot/' + VERSION, 'Accept': 'application/vnd.github+json' } }, (res) => {
+      let body = '';
+      res.on('data', (c) => { body += c; });
+      res.on('end', () => {
+        let data = {};
+        try { data = JSON.parse(body); } catch (e) {}
+        resolve({ status: res.statusCode, data });
+      });
+    });
+    req.on('error', reject);
+    req.setTimeout(10000, () => { req.destroy(new Error('timeout')); });
+  });
+}
+
+function versionGt(a, b) {
+  const pa = String(a || '').replace(/^v/, '').split('.').map((n) => parseInt(n, 10) || 0);
+  const pb = String(b || '').replace(/^v/, '').split('.').map((n) => parseInt(n, 10) || 0);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const x = pa[i] || 0, y = pb[i] || 0;
+    if (x !== y) return x > y;
+  }
+  return false;
+}
+
+async function checkUpdate() {
+  try {
+    const { status, data } = await httpsJsonGet(UPDATE_API);
+    if (status !== 200 || !data.tag_name) return { ok: false, error: 'fetch_failed' };
+    const latest = data.tag_name.replace(/^v/, '');
+    const asset = (data.assets || []).find((a) => /\.exe$/i.test(a.name)) || null;
+    return {
+      ok: true,
+      available: versionGt(latest, VERSION),
+      current: VERSION,
+      latest,
+      notes: data.body || '',
+      url: asset ? asset.browser_download_url : (data.html_url || ''),
+      size: asset ? asset.size : 0,
+    };
+  } catch (e) {
+    return { ok: false, error: 'network' };
+  }
+}
+
+function downloadFile(url, dest) {
+  return new Promise((resolve, reject) => {
+    const ac = new AbortController();
+    const timer = setTimeout(() => ac.abort(), 600000);
+    fetch(url, { headers: { 'User-Agent': 'BoostPilot/' + VERSION }, redirect: 'follow', signal: ac.signal })
+      .then(async (res) => {
+        if (!res.ok) throw new Error('http_' + res.status);
+        const total = Number(res.headers.get('content-length') || 0);
+        const reader = res.body.getReader();
+        const file = fs.createWriteStream(dest);
+        let bytes = 0;
+        try {
+          for (;;) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            bytes += value.length;
+            if (!file.write(value)) await new Promise((r) => file.once('drain', r));
+          }
+          file.end();
+          await new Promise((r) => file.once('close', r));
+          if (total > 0 && bytes !== total) throw new Error('size_mismatch ' + bytes + '/' + total);
+          resolve(dest);
+        } catch (e) {
+          file.destroy();
+          reject(e);
+        }
+      })
+      .catch((e) => { try { fs.unlinkSync(dest); } catch {} reject(e); })
+      .finally(() => clearTimeout(timer));
+  });
+}
+
+async function doUpdate() {
+  try {
+    const info = await checkUpdate();
+    if (!info.ok || !info.available || !info.url) return { ok: false, error: info.error || 'no_update' };
+    const dest = path.join(os.tmpdir(), 'BoostPilot.Setup.' + info.latest + '.exe');
+    await downloadFile(info.url, dest);
+    const child = spawn(dest, ['/S', '/currentuser'], { detached: true, stdio: 'ignore', windowsHide: true });
+    child.unref();
+    setTimeout(() => { quitting = true; try { if (botChild) botChild.kill(); } catch (e) {} app.exit(0); }, 1200);
+    return { ok: true, path: dest };
+  } catch (e) {
+    return { ok: false, error: String(e.message || e) };
+  }
+}
+
+ipcMain.handle('check-update', checkUpdate);
+ipcMain.handle('apply-update', doUpdate);
+
 
 let loginRunning = false;
 
@@ -221,8 +325,9 @@ async function runLogin() {
       botChild = null;
       clearTimeout(respawnTimer);
       startBot();
+      wipeLauncherChrome();
     }
-    return ok ? { ok: true, message: 'Sesión de Eldorado guardada. El bot la está usando.' } : { ok: false, error: 'login_failed' };
+    return ok ? { ok: true, message: 'SesiÃ³n de Eldorado guardada. El bot la estÃ¡ usando.' } : { ok: false, error: 'login_failed' };
   } catch (e) {
     return { ok: false, error: String(e.message || e) };
   } finally {
@@ -230,12 +335,33 @@ async function runLogin() {
   }
 }
 
+function wipeLauncherChrome() {
+  const profileDir = path.join(app.getPath('userData'), 'chrome-profile');
+  try {
+    const script = `
+Get-CimInstance Win32_Process -Filter "Name='chrome.exe'" |
+  Where-Object { $_.CommandLine -like '*${profileDir}*' } |
+  ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
+`;
+    execSync('powershell -NoProfile -Command "' + script.replace(/"/g, '\\"').replace(/\n/g, ' ') + '"', { windowsHide: true, timeout: 15000 });
+  } catch (e) {}
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  (async () => {
+    for (let i = 0; i < 6; i++) {
+      try {
+        fs.rmSync(profileDir, { recursive: true, force: true });
+        if (!fs.existsSync(profileDir)) break;
+      } catch (e) {}
+      await sleep(1200);
+    }
+  })();
+}
+
 async function injectSession(port, token) {
   try {
     await session.defaultSession.cookies.set({
       url: 'http://' + PANEL_HOST + ':' + port + '/',
       name: 'elbot_session', value: token, httpOnly: true, sameSite: 'lax',
-      expirationDate: Math.floor(Date.now() / 1000) + 2592000,
     });
   } catch (e) {}
 }
@@ -249,6 +375,7 @@ async function doLogin(key, keepSession) {
     if (token) await injectSession(port, token);
     const cfg = readConfig();
     cfg.port = port;
+    cfg.kickEpoch = (r.data.subscription && r.data.subscription.kickEpoch) || 0;
     if (keepSession) { cfg.key = key.toUpperCase(); cfg.keepSession = true; }
     else { delete cfg.key; cfg.keepSession = false; }
     writeConfig(cfg);
@@ -279,7 +406,25 @@ ipcMain.handle('refresh', async () => {
   if (port == null) return { ok: false, error: 'bot_down' };
   const cfg = readConfig();
   if (!cfg.key) return { ok: false, error: 'no_key' };
-  return doLogin(cfg.key, !!cfg.keepSession);
+  const r = await httpJson('http://' + PANEL_HOST + ':' + port + '/api/login', { method: 'POST', body: { key: cfg.key, device: getDeviceId() } });
+  if (r.data && r.data.ok && r.data.subscription) {
+    const sub = r.data.subscription;
+    const prevKick = cfg.kickEpoch;
+    if (typeof prevKick === 'number' && (sub.kickEpoch || 0) !== prevKick) {
+      delete cfg.key;
+      cfg.keepSession = false;
+      writeConfig(cfg);
+      closePanelWindow();
+      return { ok: false, error: 'reset' };
+    }
+    const token = extractSession(r.setCookie);
+    if (token) await injectSession(port, token);
+    cfg.port = port;
+    cfg.kickEpoch = sub.kickEpoch || 0;
+    writeConfig(cfg);
+    return { ok: true, subscription: sub };
+  }
+  return { ok: false, error: (r.data && r.data.error) || 'invalid', maxDevices: r.data && r.data.maxDevices };
 });
 
 ipcMain.handle('open-panel', async () => {
@@ -415,6 +560,15 @@ function openPanelWindow(port) {
   if (launcherWin && !launcherWin.isDestroyed()) launcherWin.hide();
 }
 
+function closePanelWindow() {
+  if (panelWin && !panelWin.isDestroyed()) {
+    panelWin.destroy();
+    panelWin = null;
+    setPanelActive(false);
+    if (launcherWin && !launcherWin.isDestroyed()) launcherWin.show();
+  }
+}
+
 function createLauncherWindow() {
   launcherWin = new BrowserWindow({
     width: 420, height: 560, resizable: false, frame: false, backgroundColor: '#000',
@@ -462,3 +616,4 @@ if (!gotLock) {
     app.quit();
   });
 }
+

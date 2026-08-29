@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -218,10 +218,9 @@
   select:focus { border-color: rgba(255,106,138,.5); }
 
   main { padding: 26px 28px 60px; max-width: 1280px; margin: 0 auto; }
-  .tab { display: none; animation: fade .25s ease; }
+  .tab { display: none; animation: fade .18s ease; }
   .tab.active { display: block; }
-  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-  .tab { content-visibility: auto; contain-intrinsic-size: auto 480px; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
   }
@@ -277,8 +276,10 @@
   .hrow .hb i { display: block; height: 100%; background: linear-gradient(90deg, #ff6a8a, #e8437e); border-radius: 4px; }
   .hrow .hv { width: 34px; text-align: right; color: var(--text); font-weight: 700; }
   .hist-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
-  .hist-filters select, .hist-filters input { background: var(--panel2); border: 1px solid var(--line); color: var(--text); border-radius: 10px; padding: 8px 12px; font-size: 13px; font-family: inherit; }
-  .hist-filters input[type=text] { flex: 1; min-width: 200px; }
+.hist-filters select, .hist-filters input { background: var(--panel2); border: 1px solid var(--line); color: var(--text); border-radius: 10px; padding: 8px 12px; font-size: 13px; font-family: inherit; }
+.hist-filters input[type=text] { flex: 1; min-width: 200px; }
+.hist-search { flex: 1; min-width: 200px; }
+.hist-count { align-self: center; color: var(--dim); font-size: 12px; white-space: nowrap; }
   .kloglist { max-height: 260px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; padding: 6px; }
   .klogrow { display: flex; gap: 10px; padding: 6px 8px; border-radius: 8px; font-size: 12.5px; border-bottom: 1px solid rgba(36,48,79,.5); }
   .klogrow .t { color: var(--muted); white-space: nowrap; }
@@ -317,6 +318,10 @@
   .card.st-seen { border-left: 4px solid var(--muted); }
   .card.st-pending { border-left: 4px solid var(--blue); }
   .card.st-canceled { border-left: 4px solid var(--red); opacity: .75; }
+  .card.urgency-high { border-left: 4px solid #e74c3c !important; animation: pulse-urgent 2s ease-in-out infinite; }
+  .card.urgency-medium { border-left: 4px solid #f39c12 !important; }
+  .card.urgency-low { border-left: 4px solid #27ae60 !important; }
+  @keyframes pulse-urgent { 0%, 100% { box-shadow: 0 6px 20px rgba(231,76,60,.28); } 50% { box-shadow: 0 6px 30px rgba(231,76,60,.55); } }
   .card.st-canceled .ltext { color: var(--muted); text-decoration: line-through; }
   .card.fadein { animation: cardFadeIn .45s ease; }
   .card.removing { animation: cardFadeOut .55s ease forwards; }
@@ -514,6 +519,7 @@
   .health .h-dot b { color: var(--text); font-weight: 800; }
   .health .h-dot.on { border-color: rgba(52,211,153,.45); background: rgba(52,211,153,.1); color: var(--green); }
   .health .h-dot.semi { border-color: rgba(96,165,250,.45); background: rgba(96,165,250,.1); color: var(--blue); }
+  .health-sub-clock { font-family: 'Consolas', 'Menlo', monospace; font-size: 11px; font-weight: 800; color: var(--blue); letter-spacing: .5px; }
   .health .h-dot.warn { border-color: rgba(232,67,126,.45); background: rgba(232,67,126,.1); color: var(--amber); }
   .health .h-dot.bad { border-color: rgba(248,113,113,.45); background: rgba(248,113,113,.1); color: var(--red); }
   .health .h-dot.ts { font-family: Consolas, monospace; color: var(--dim); }
@@ -564,19 +570,20 @@
   .pr-cat-card { display: none; }
   .pr-cat-card.active { display: block; }
 
-  .pr-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+  .pr-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
   .pr-tile {
     position: relative; display: flex; align-items: flex-end; overflow: hidden;
-    height: 150px; padding: 14px 16px; text-align: left; cursor: pointer;
-    border: 1px solid var(--line); border-radius: 16px; color: var(--text);
+    height: 180px; padding: 16px 18px; text-align: left; cursor: pointer;
+    border: 1px solid var(--line); border-radius: 18px; color: var(--text);
     background: var(--bg2);
-    background: linear-gradient(150deg, color-mix(in srgb, var(--tile) 34%, var(--bg2)) 0%, var(--bg2) 70%);
-    transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+    background: linear-gradient(150deg, color-mix(in srgb, var(--tile) 40%, var(--bg2)) 0%, var(--bg2) 70%);
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
   }
-  .pr-tile:hover { transform: translateY(-2px); border-color: var(--tile); box-shadow: 0 10px 26px rgba(0,0,0,.28); }
-  .pr-tile-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
-  .pr-tile-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,10,16,0) 30%, rgba(8,10,16,.78) 100%); }
-  .pr-tile-name { position: relative; z-index: 1; font-size: 16px; font-weight: 800; letter-spacing: .2px; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+  .pr-tile:hover { transform: translateY(-4px); border-color: var(--tile); box-shadow: 0 14px 32px rgba(0,0,0,.35); }
+  .pr-tile-img { position: absolute; inset: -10%; width: 120%; height: 120%; object-fit: contain; opacity: .85; transition: transform .3s ease, opacity .2s ease; }
+  .pr-tile:hover .pr-tile-img { transform: scale(1.05); opacity: 1; }
+  .pr-tile-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,10,16,0) 20%, rgba(8,10,16,.82) 100%); }
+  .pr-tile-name { position: relative; z-index: 1; font-size: 17px; font-weight: 800; letter-spacing: .2px; text-shadow: 0 2px 8px rgba(0,0,0,.7); }
   .pr-game-panel { display: none; }
   .pr-panel-head {
     display: flex; align-items: center; gap: 14px; margin: 0 0 12px; flex-wrap: wrap;
@@ -587,6 +594,11 @@
   .pr-game-region { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--text); cursor: pointer; user-select: none; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg1); }
   .pr-game-region input { accent-color: var(--gold); width: 14px; height: 14px; cursor: pointer; }
   .pr-game-region input:not(:checked) + span { color: var(--muted); text-decoration: line-through; }
+  .pr-game-opts { display: flex; align-items: center; gap: 12px; margin-left: auto; flex-wrap: wrap; justify-content: flex-end; }
+  .pr-game-filters { display: flex; align-items: center; gap: 8px; }
+  .pr-game-filter { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--text); cursor: pointer; user-select: none; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg1); }
+  .pr-game-filter input { accent-color: var(--gold); width: 14px; height: 14px; cursor: pointer; }
+  .pr-game-filter input:not(:checked) + span { color: var(--muted); text-decoration: line-through; }
   .pr-back { white-space: nowrap; }
   .pr-regions { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); }
   .pr-region {
@@ -609,6 +621,43 @@
     header.topbar { padding: 12px 16px; }
     main { padding: 18px 16px 50px; }
   }
+  .btn-mark-all {
+    background: linear-gradient(135deg, #60a5fa, #3b82f6); color: #fff;
+    font-weight: 800; padding: 8px 18px; border-radius: 11px; border: none; cursor: pointer;
+    font-size: 13px; display: inline-flex; align-items: center; gap: 7px;
+    transition: all .18s ease; box-shadow: 0 2px 10px rgba(59,130,246,.3);
+  }
+  .btn-mark-all:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(59,130,246,.45); filter: saturate(1.1); }
+  .btn-mark-all:disabled { opacity: .55; cursor: default; }
+  .filter-pills { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .filter-pills button {
+    padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 700;
+    border: 1px solid var(--line); background: var(--bg2); color: var(--muted); cursor: pointer;
+    transition: all .18s ease; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .filter-pills button:hover { color: var(--text); border-color: rgba(255,106,138,.35); }
+  .filter-pills button.active {
+    color: var(--gold2); border-color: rgba(255,106,138,.5);
+    background: rgba(255,106,138,.12); box-shadow: 0 0 0 1px rgba(255,106,138,.15) inset;
+  }
+  .filter-pills .fp-count {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px;
+    font-size: 10.5px; font-weight: 800; line-height: 1;
+    background: rgba(255,255,255,.08); color: var(--muted);
+  }
+  .filter-pills button.active .fp-count { background: rgba(255,106,138,.2); color: var(--gold2); }
+
+  .card .ltext { white-space: pre-wrap; word-break: break-word; }
+
+  .section-header {
+    display: flex; align-items: center; gap: 10px; margin: 18px 0 10px; padding: 0 4px;
+  }
+  .section-header .sh-line { flex: 1; height: 1px; background: var(--line); }
+  .section-header .sh-label { font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; color: var(--dim); white-space: nowrap; }
+  .tab-badge.pulse { animation: badgePulse 1.2s ease-in-out infinite; }
+  @keyframes badgePulse { 0%,100% { box-shadow: 0 2px 10px rgba(255,106,138,.45); } 50% { box-shadow: 0 2px 20px rgba(255,106,138,.8); } }
+
 </style>
 </head>
 <body>
@@ -668,7 +717,16 @@
 <main>
     <div id="tab-conf" class="tab active">
       <div id="healthPanel" class="health"></div>
-      <div class="stats" id="stats"></div>
+
+      <div class="filter-pills" id="filterPills">
+        <button class="active" data-filter="all"><span data-i18n="fp_all"></span><span class="fp-count" id="fp-all-c">0</span></button>
+        <button data-filter="pending"><span data-i18n="stat_pending"></span><span class="fp-count" id="fp-pending-c">0</span></button>
+        <button data-filter="placed"><span data-i18n="stat_placed"></span><span class="fp-count" id="fp-placed-c">0</span></button>
+        <button data-filter="opened"><span data-i18n="stat_opened"></span><span class="fp-count" id="fp-opened-c">0</span></button>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+        <button class="btn-mark-all" id="btnMarkAll" style="display:none"><span data-i18n="btn_mark_all"></span></button>
+      </div>
       <div id="confHint" class="hint-box"></div>
       <div id="confirmList"></div>
       <div id="confirmEmpty" class="empty" style="display:none">
@@ -750,8 +808,6 @@
     <div class="set-box">
       <h3 data-i18n="st_filters"></h3>
       <div class="set-row"><label class="check"><input type="checkbox" id="f-enabled"><span data-i18n="st_enable"></span></label></div>
-      <div class="set-row"><label class="check"><input type="checkbox" id="f-skipDuo"><span data-i18n="st_skipduo"></span></label></div>
-      <div class="set-row"><label class="check"><input type="checkbox" id="f-skipSquad"><span data-i18n="st_skipsquad"></span></label></div>
       <div class="set-row"><label class="col" data-i18n="st_skipcats"></label><textarea id="f-skipCategories" data-i18n-ph="st_skipcats_ph"></textarea></div>
       <div class="set-row"><label class="col" data-i18n="st_skipkw"></label><textarea id="f-skipKeywords" data-i18n-ph="st_skipkw_ph"></textarea></div>
     </div>
@@ -770,10 +826,6 @@
       <div class="set-row"><label class="col" data-i18n="st_chat_custom_msg"></label><textarea id="c-customMsg"></textarea></div>
       <div class="set-row"><label class="col" data-i18n="st_chat_image_path"></label><input type="text" id="c-customImg" placeholder="state/proof/proof.png"></div>
       <div class="set-row"><label class="col" data-i18n="st_chat_delay_sec"></label><input type="number" id="c-customDelay" min="0" step="1" value="5"></div>
-      <div class="set-row"><label class="check"><input type="checkbox" id="c-accepted"><span data-i18n="st_chat_accepted"></span></label></div>
-      <div class="set-row"><label class="col" data-i18n="st_chat_accepted_msg"></label><textarea id="c-acceptedMsg"></textarea></div>
-      <div class="set-row"><label class="col" data-i18n="st_chat_image_path"></label><input type="text" id="c-acceptedImg" placeholder="state/proof/proof.png"></div>
-      <div class="set-row"><label class="col" data-i18n="st_chat_delay_sec"></label><input type="number" id="c-acceptedDelay" min="0" step="1" value="5"></div>
       <div class="set-row"><label class="check"><input type="checkbox" id="c-follow"><span data-i18n="st_chat_follow"></span></label></div>
       <div class="set-row"><label class="col" data-i18n="st_chat_follow_msg"></label><textarea id="c-followMsg"></textarea></div>
       <div class="set-row"><label class="col" data-i18n="st_chat_image_path"></label><input type="text" id="c-followImg" placeholder="state/proof/proof.png"></div>
@@ -797,7 +849,7 @@
     <div class="set-box">
       <h3 data-i18n="tab_pricing"></h3>
       <div class="hint" data-i18n="pr_hint"></div>
-      <div class="set-row"><label class="check"><input type="checkbox" id="pr-enabled"><span data-i18n="st_pricing_enable"></span></label></div>
+
     </div>
     <div id="pr-tiles"></div>
     <div id="pr-panels"></div>
@@ -857,8 +909,10 @@
     <div class="set-box">
       <h3 data-i18n="hist_table"></h3>
       <div class="hist-filters">
+        <input type="search" id="histSearch" placeholder="&#128269;" class="hist-search">
         <select id="histGame"></select>
         <select id="histStatus"></select>
+        <span id="histCount" class="hist-count"></span>
       </div>
       <div class="hscroll" id="histTable"></div>
     </div>
@@ -891,7 +945,11 @@
           <label class="col" data-i18n="k_plan"></label><select id="adminPlan"></select>
         </div>
         <div class="set-row">
-          <label class="col" data-i18n="k_days"></label><input type="number" id="adminDays" value="30" min="1">
+          <label class="col" data-i18n="k_days"></label><input type="number" id="adminDays" value="30" min="0">
+          <label class="col">Horas</label><input type="number" id="adminHours" value="0" min="0" max="8760">
+        </div>
+        <div class="set-row">
+          <label class="col">Juego</label><select id="adminGame"><option value="">Todos</option></select>
           <label class="col" data-i18n="k_price"></label><input type="number" id="adminPrice" value="0" min="0" step="0.01">
         </div>
         <div class="set-row">
@@ -947,8 +1005,53 @@
 </div>
 <script>
 const GAME_NAMES = __GAME_NAMES__;
+const GAME_SVGS = __GAME_SVGS__ || {};
 let etas = [], etaMap = [], baseConfig = null;
 var edits = {};
+
+var CAT_I18N = {
+  es: {
+    'Trophy Boost': 'Boost de Trofeos', 'Rank Boost': 'Boost de Rango', 'Path of Legends': 'Sendero de Leyendas',
+    'Wins Boost': 'Boost de Victorias', 'Net Wins': 'Victorias Netas', 'Placement Matches': 'Partidas de Colocaci\u00f3n',
+    'Placements': 'Colocaciones', 'Games': 'Partidas', 'Ranked Play': 'Partidas Clasificatorias',
+    'Division Rivals': 'Rivales de Divisi\u00f3n', 'Champions Finals': 'Finales de Campeones',
+    'Battle Royale Rank Boost': 'Boost de Rango Battle Royale', 'Reload Rank Boost': 'Boost de Rango Reload',
+    'Custom Request': 'Solicitud Personalizada'
+  },
+  en: {},
+  fr: {
+    'Trophy Boost': 'Boost de troph\u00e9es', 'Rank Boost': 'Boost de rang', 'Path of Legends': 'Sentier des l\u00e9gendes',
+    'Wins Boost': 'Boost de victoires', 'Net Wins': 'Victoires nettes', 'Placement Matches': 'Matchs de classement',
+    'Placements': 'Classements', 'Games': 'Parties', 'Ranked Play': 'Classement comp\u00e9titif',
+    'Division Rivals': 'Rivaux de division', 'Champions Finals': 'Finales des champions',
+    'Battle Royale Rank Boost': 'Boost de rang Battle Royale', 'Reload Rank Boost': 'Boost de rang Reload',
+    'Custom Request': 'Demande personnalis\u00e9e'
+  },
+  pt: {
+    'Trophy Boost': 'Boost de Trof\u00e9us', 'Rank Boost': 'Boost de Ranque', 'Path of Legends': 'Caminho das Lendas',
+    'Wins Boost': 'Boost de Vit\u00f3rias', 'Net Wins': 'Vit\u00f3rias L\u00edquidas', 'Placement Matches': 'Partidas de Posicionamento',
+    'Placements': 'Posicionamentos', 'Games': 'Partidas', 'Ranked Play': 'Ranqueadas',
+    'Division Rivals': 'Rivais de Divis\u00e3o', 'Champions Finals': 'Finais de Campe\u00f5es',
+    'Battle Royale Rank Boost': 'Boost de Ranque Battle Royale', 'Reload Rank Boost': 'Boost de Ranque Reload',
+    'Custom Request': 'Solicita\u00e7\u00e3o Personalizada'
+  },
+  de: {
+    'Trophy Boost': 'Troph\u00e4en-Boost', 'Rank Boost': 'Rang-Boost', 'Path of Legends': 'Pfad der Legenden',
+    'Wins Boost': 'Siege-Boost', 'Net Wins': 'Netto-Siege', 'Placement Matches': 'Platzierungsspiele',
+    'Placements': 'Platzierungen', 'Games': 'Spiele', 'Ranked Play': 'Ranglistenmodus',
+    'Division Rivals': 'Divisions-Rivalen', 'Champions Finals': 'Champions-Finale',
+    'Battle Royale Rank Boost': 'Battle-Royale-Rang-Boost', 'Reload Rank Boost': 'Reload-Rang-Boost',
+    'Custom Request': 'Individuelle Anfrage'
+  },
+  it: {
+    'Trophy Boost': 'Boost Trof\u00e9i', 'Rank Boost': 'Boost Rank', 'Path of Legends': 'Percorso delle Leggende',
+    'Wins Boost': 'Boost Vittorie', 'Net Wins': 'Vittorie nette', 'Placement Matches': 'Partite di Piazzamento',
+    'Placements': 'Piazzamenti', 'Games': 'Partite', 'Ranked Play': 'Classifiche competitive',
+    'Division Rivals': 'Rivali di Divisione', 'Champions Finals': 'Finali dei Campioni',
+    'Battle Royale Rank Boost': 'Boost Rank Battle Royale', 'Reload Rank Boost': 'Boost Rank Reload',
+    'Custom Request': 'Richiesta Personalizzata'
+  }
+};
 
 const LANGS = ['es', 'en', 'fr', 'pt', 'de', 'it'];
 const LOCALE = { es: 'es', en: 'en-US', fr: 'fr-FR', pt: 'pt-BR', de: 'de-DE', it: 'it-IT' };
@@ -996,9 +1099,10 @@ const I18N = {
     auto_on_auto: '<b>Modo autom\u00e1tico ACTIVADO</b> \u2014 se env\u00edan ofertas autom\u00e1ticamente en cuanto hay un request que coincide.',
     auto_start: 'Iniciar modo autom\u00e1tico', auto_stop: 'Detener modo autom\u00e1tico', auto_banner_on: 'Modo autom\u00e1tico ACTIVADO', auto_banner_confirm: 'Modo semi-autom\u00e1tico \u2014 las solicitudes quedan en Confirmar',
     auto_off: '<b>Modo autom\u00e1tico DESACTIVADO</b> \u2014 solo detecta y avisa. Elige un modo en Ajustes.',
-    btn_place: 'Confirmar y crear oferta', btn_discard: 'Descartar', btn_msg_only: 'Enviar solo mensaje', btn_placing: 'Enviando...', btn_discarding: 'Descartando...', btn_msging: 'Enviando mensaje...',
+    btn_place: 'Confirmar y crear oferta', btn_discard: 'Descartar', btn_msg_only: 'Enviar solo mensaje', btn_placing: 'Enviando...', btn_discarding: 'Descartando...', btn_msging: 'Enviando mensaje...', btn_mark_all: 'Marcar todo como leido',
     msg_ph: 'Mensaje al comprador (se env\u00eda despu\u00e9s de crear la oferta)',
     st_pending: 'Por confirmar', st_placed: 'Oferta enviada', st_opened: 'Abierto', st_skipped: 'Saltado', st_rejected: 'Rechazado', st_unresolved: 'Pendiente', st_seen: 'Visto', st_ready: 'Listo', st_messaged: 'Mensaje enviado', st_failed: 'Error', st_canceled: 'Cancelado',
+    fp_all: 'Todos', btn_mark_seen: 'Visto', desc_more: 'Ver m\u00e1s', desc_less: 'Ver menos',
     f_game: 'Juego', f_category: 'Categor\u00eda', f_buyer: 'Comprador',
     l_price: 'Precio (USD)', l_delivery: 'Entrega',
     dlv_Automated: 'Autom\u00e1tico', dlv_Instant: 'Instant\u00e1neo', dlv_Minute20: '20 min', dlv_Hour1: '1 h', dlv_Hour2: '2 h', dlv_Hour3: '3 h', dlv_Hour5: '5 h', dlv_Hour8: '8 h', dlv_Hour12: '12 h', dlv_Day1: '1 d\u00eda', dlv_Day2: '2 d\u00edas', dlv_Day3: '3 d\u00edas', dlv_Day7: '7 d\u00edas', dlv_Day14: '14 d\u00edas', dlv_Day28: '28 d\u00edas', dlv_Day45: '45 d\u00edas', dlv_Day60: '60 d\u00edas', dlv_NotApplicable: 'No aplica',
@@ -1055,9 +1159,10 @@ const I18N = {
     auto_on_auto: '<b>Automatic mode ON</b> \u2014 offers are sent automatically as soon as a request matches.',
     auto_start: 'Start automatic mode', auto_stop: 'Stop automatic mode', auto_banner_on: 'Automatic mode ACTIVATED', auto_banner_confirm: 'Semi-automatic mode \u2014 requests land in Confirm',
     auto_off: '<b>Automatic mode OFF</b> \u2014 detection only. Pick a mode in Settings.',
-    btn_place: 'Confirm &amp; create offer', btn_discard: 'Discard', btn_msg_only: 'Send message only', btn_placing: 'Sending...', btn_discarding: 'Discarding...', btn_msging: 'Sending message...',
+    btn_place: 'Confirm &amp; create offer', btn_discard: 'Discard', btn_msg_only: 'Send message only', btn_placing: 'Sending...', btn_discarding: 'Discarding...', btn_msging: 'Sending message...', btn_mark_all: 'Mark all as read',
     msg_ph: 'Message to buyer (sent after the offer is created)',
     st_pending: 'To confirm', st_placed: 'Offer sent', st_opened: 'Opened', st_skipped: 'Skipped', st_rejected: 'Rejected', st_unresolved: 'Pending', st_seen: 'Seen', st_ready: 'Ready', st_messaged: 'Message sent', st_failed: 'Error', st_canceled: 'Canceled',
+    fp_all: 'All', btn_mark_seen: 'Seen', desc_more: 'Show more', desc_less: 'Show less',
     f_game: 'Game', f_category: 'Category', f_buyer: 'Buyer',
     l_price: 'Price (USD)', l_delivery: 'Delivery',
     dlv_Automated: 'Automated', dlv_Instant: 'Instant', dlv_Minute20: '20 min', dlv_Hour1: '1 h', dlv_Hour2: '2 h', dlv_Hour3: '3 h', dlv_Hour5: '5 h', dlv_Hour8: '8 h', dlv_Hour12: '12 h', dlv_Day1: '1 day', dlv_Day2: '2 days', dlv_Day3: '3 days', dlv_Day7: '7 days', dlv_Day14: '14 days', dlv_Day28: '28 days', dlv_Day45: '45 days', dlv_Day60: '60 days', dlv_NotApplicable: 'N/A',
@@ -1114,9 +1219,10 @@ const I18N = {
     auto_on_auto: '<b>Mode automatique ACTIF</b> \u2014 les offres sont envoy\u00e9es automatiquement.',
     auto_start: 'D\u00e9marrer le mode automatique', auto_stop: 'Arr\u00eater le mode automatique', auto_banner_on: 'Mode automatique ACTIV\u00c9', auto_banner_confirm: 'Mode semi-automatique \u2014 les demandes vont dans Confirmer',
     auto_off: '<b>Mode automatique D\u00c9SACTIV\u00c9</b> \u2014 d\u00e9tection uniquement. Choisissez un mode dans R\u00e9glages.',
-    btn_place: 'Confirmer et cr\u00e9er l\u2019offre', btn_discard: 'Ignorer', btn_msg_only: 'Envoyer uniquement le message', btn_placing: 'Envoi...', btn_discarding: 'Ignor\u00e9...', btn_msging: 'Envoi du message...',
+    btn_place: 'Confirmer et cr\u00e9er l\u2019offre', btn_discard: 'Ignorer', btn_msg_only: 'Envoyer uniquement le message', btn_placing: 'Envoi...', btn_discarding: 'Ignor\u00e9...', btn_msging: 'Envoi du message...', btn_mark_all: 'Tout marquer comme lu',
     msg_ph: 'Message \u00e0 l\u2019acheteur (envoy\u00e9 apr\u00e8s la cr\u00e9ation de l\u2019offre)',
     st_pending: '\u00c0 confirmer', st_placed: 'Offre envoy\u00e9e', st_opened: 'Ouvert', st_skipped: 'Ignor\u00e9', st_rejected: 'Rejet\u00e9', st_unresolved: 'En attente', st_seen: 'Vu', st_ready: 'Pr\u00eat', st_messaged: 'Message envoy\u00e9', st_failed: 'Erreur', st_canceled: 'Annul\u00e9',
+    fp_all: 'Tous', btn_mark_seen: 'Vu', desc_more: 'Voir plus', desc_less: 'Voir moins',
     f_game: 'Jeu', f_category: 'Cat\u00e9gorie', f_buyer: 'Acheteur',
     dlv_Automated: 'Automatique', dlv_Instant: 'Instant', dlv_Minute20: '20 min', dlv_Hour1: '1 h', dlv_Hour2: '2 h', dlv_Hour3: '3 h', dlv_Hour5: '5 h', dlv_Hour8: '8 h', dlv_Hour12: '12 h', dlv_Day1: '1 jour', dlv_Day2: '2 jours', dlv_Day3: '3 jours', dlv_Day7: '7 jours', dlv_Day14: '14 jours', dlv_Day28: '28 jours', dlv_Day45: '45 jours', dlv_Day60: '60 jours', dlv_NotApplicable: 'N/A',
     learn_hint: 'Ces demandes ne correspondaient \u00e0 aucune r\u00e8gle. Indiquez au bot le prix et la livraison \u00e0 utiliser (mots-cl\u00e9s optionnels pour reconna\u00eetre les autres).',
@@ -1173,9 +1279,10 @@ const I18N = {
     auto_on_auto: '<b>Modo autom\u00e1tico ATIVADO</b> \u2014 ofertas s\u00e3o enviadas automaticamente.',
     auto_start: 'Iniciar modo autom\u00e1tico', auto_stop: 'Parar modo autom\u00e1tico', auto_banner_on: 'Modo autom\u00e1tico ATIVADO', auto_banner_confirm: 'Modo semiautom\u00e1tico \u2014 as solicita\u00e7\u00f5es ficam em Confirmar',
     auto_off: '<b>Modo autom\u00e1tico DESATIVADO</b> \u2014 s\u00f3 detecta. Escolha um modo em Ajustes.',
-    btn_place: 'Confirmar e criar oferta', btn_discard: 'Descartar', btn_msg_only: 'Enviar somente mensagem', btn_placing: 'Enviando...', btn_discarding: 'Descartando...', btn_msging: 'Enviando mensagem...',
+    btn_place: 'Confirmar e criar oferta', btn_discard: 'Descartar', btn_msg_only: 'Enviar somente mensagem', btn_placing: 'Enviando...', btn_discarding: 'Descartando...', btn_msging: 'Enviando mensagem...', btn_mark_all: 'Marcar tudo como lido',
     msg_ph: 'Mensagem ao comprador (enviada ap\u00f3s criar a oferta)',
     st_pending: 'Por confirmar', st_placed: 'Oferta enviada', st_opened: 'Aberto', st_skipped: 'Ignorado', st_rejected: 'Rejeitado', st_unresolved: 'Pendente', st_seen: 'Visto', st_ready: 'Pronto', st_messaged: 'Mensagem enviada', st_failed: 'Erro', st_canceled: 'Cancelado',
+    fp_all: 'Todos', btn_mark_seen: 'Visto', desc_more: 'Ver mais', desc_less: 'Ver menos',
     f_game: 'Jogo', f_category: 'Categoria', f_buyer: 'Comprador',
     dlv_Automated: 'Autom\u00e1tico', dlv_Instant: 'Instant\u00e2neo', dlv_Minute20: '20 min', dlv_Hour1: '1 h', dlv_Hour2: '2 h', dlv_Hour3: '3 h', dlv_Hour5: '5 h', dlv_Hour8: '8 h', dlv_Hour12: '12 h', dlv_Day1: '1 dia', dlv_Day2: '2 dias', dlv_Day3: '3 dias', dlv_Day7: '7 dias', dlv_Day14: '14 dias', dlv_Day28: '28 dias', dlv_Day45: '45 dias', dlv_Day60: '60 dias', dlv_NotApplicable: 'N/A',
     learn_hint: 'Estas solicita\u00e7\u00f5es n\u00e3o corresponderam a nenhuma regra. Diga ao bot o pre\u00e7o e a entrega a usar (palavras-chave opcionais).',
@@ -1232,9 +1339,10 @@ const I18N = {
     auto_on_auto: '<b>Automatischer Modus AN</b> \u2014 Angebote werden automatisch gesendet.',
     auto_start: 'Automatischen Modus starten', auto_stop: 'Automatischen Modus stoppen', auto_banner_on: 'Automatischer Modus AKTIVIERT', auto_banner_confirm: 'Halbautomatischer Modus \u2014 Anfragen landen in Best\u00e4tigen',
     auto_off: '<b>Automatischer Modus AUS</b> \u2014 nur erkennen. W\u00e4hlen Sie einen Modus.',
-    btn_place: 'Best\u00e4tigen &amp; Angebot erstellen', btn_discard: 'Verwerfen', btn_msg_only: 'Nur Nachricht senden', btn_placing: 'Sende...', btn_discarding: 'Verwerfen...', btn_msging: 'Sende Nachricht...',
+    btn_place: 'Best\u00e4tigen &amp; Angebot erstellen', btn_discard: 'Verwerfen', btn_msg_only: 'Nur Nachricht senden', btn_placing: 'Sende...', btn_discarding: 'Verwerfen...', btn_msging: 'Sende Nachricht...', btn_mark_all: 'Alle als gelesen markieren',
     msg_ph: 'Nachricht an K\u00e4ufer (wird nach Erstellung des Angebots gesendet)',
     st_pending: 'Zu best\u00e4tigen', st_placed: 'Angebot gesendet', st_opened: 'Ge\u00f6ffnet', st_skipped: '\u00dcbersprungen', st_rejected: 'Abgelehnt', st_unresolved: 'Offen', st_seen: 'Gesehen', st_ready: 'Bereit', st_messaged: 'Nachricht gesendet', st_failed: 'Fehler', st_canceled: 'Storniert',
+    fp_all: 'Alle', btn_mark_seen: 'Gesehen', desc_more: 'Mehr anzeigen', desc_less: 'Weniger anzeigen',
     f_game: 'Spiel', f_category: 'Kategorie', f_buyer: 'K\u00e4ufer',
     dlv_Automated: 'Automatisch', dlv_Instant: 'Sofort', dlv_Minute20: '20 min', dlv_Hour1: '1 Std', dlv_Hour2: '2 Std', dlv_Hour3: '3 Std', dlv_Hour5: '5 Std', dlv_Hour8: '8 Std', dlv_Hour12: '12 Std', dlv_Day1: '1 Tag', dlv_Day2: '2 Tage', dlv_Day3: '3 Tage', dlv_Day7: '7 Tage', dlv_Day14: '14 Tage', dlv_Day28: '28 Tage', dlv_Day45: '45 Tage', dlv_Day60: '60 Tage', dlv_NotApplicable: 'N/A',
     learn_hint: 'Diese Anfragen passten auf keine Regel. Sagen Sie dem Bot Preis und Lieferzeit (optionale Schl\u00fcsselw\u00f6rter).',
@@ -1291,9 +1399,10 @@ const I18N = {
     auto_on_auto: '<b>Modalit\u00e0 automatica ATTIVA</b> \u2014 le offerte vengono inviate automaticamente.',
     auto_start: 'Avvia modalit\u00e0 automatica', auto_stop: 'Ferma modalit\u00e0 automatica', auto_banner_on: 'Modalit\u00e0 automatica ATTIVATA', auto_banner_confirm: 'Modalit\u00e0 semi-automatica \u2014 le richieste finiscono in Conferma',
     auto_off: '<b>Modalit\u00e0 automatica DISATTIVATA</b> \u2014 solo rilevamento. Scegli una modalit\u00e0.',
-    btn_place: 'Conferma e crea offerta', btn_discard: 'Scarta', btn_msg_only: 'Invia solo messaggio', btn_placing: 'Invio...', btn_discarding: 'Scarto...', btn_msging: 'Invio messaggio...',
+    btn_place: 'Conferma e crea offerta', btn_discard: 'Scarta', btn_msg_only: 'Invia solo messaggio', btn_placing: 'Invio...', btn_discarding: 'Scarto...', btn_msging: 'Invio messaggio...', btn_mark_all: 'Segna tutto come letto',
     msg_ph: 'Messaggio all\u2019acquirente (inviato dopo la creazione dell\u2019offerta)',
     st_pending: 'Da confermare', st_placed: 'Offerta inviata', st_opened: 'Aperto', st_skipped: 'Saltato', st_rejected: 'Rifiutato', st_unresolved: 'In attesa', st_seen: 'Visto', st_ready: 'Pronto', st_messaged: 'Messaggio inviato', st_failed: 'Errore', st_canceled: 'Annullato',
+    fp_all: 'Tutti', btn_mark_seen: 'Visto', desc_more: 'Mostra di pi\u00f9', desc_less: 'Mostra meno',
     f_game: 'Gioco', f_category: 'Categoria', f_buyer: 'Acquirente',
     dlv_Automated: 'Automatico', dlv_Instant: 'Istantaneo', dlv_Minute20: '20 min', dlv_Hour1: '1 h', dlv_Hour2: '2 h', dlv_Hour3: '3 h', dlv_Hour5: '5 h', dlv_Hour8: '8 h', dlv_Hour12: '12 h', dlv_Day1: '1 giorno', dlv_Day2: '2 giorni', dlv_Day3: '3 giorni', dlv_Day7: '7 giorni', dlv_Day14: '14 giorni', dlv_Day28: '28 giorni', dlv_Day45: '45 giorni', dlv_Day60: '60 giorni', dlv_NotApplicable: 'N/D',
     learn_hint: 'Queste richieste non corrispondevano a nessuna regola. D\u00ec al bot quale prezzo e consegna usare (parole chiave opzionali).',
@@ -1315,7 +1424,7 @@ const I18N_EXT = {
     tab_pricing: 'Precios',
     st_pricing_tab_hint: 'Configura los precios sugeridos en la pesta\u00f1a Precios (juegos, tramos y multiplicadores).',
     pr_hint: 'Ajusta el precio sugerido por juego y categor\u00eda. Semi-autom\u00e1tico: se precarga y queda en Confirmar. Autom\u00e1tico: se env\u00eda directo. Los pedidos sin precio siempre quedan en Confirmar.',
-    pr_pace: 'Trofeos por d\u00eda (ritmo)', pr_save: 'Guardar precios', pr_none: 'Todav\u00eda no hay juegos configurados.',     pr_nosupport: 'Tipo de precio no soportado en el editor.', pr_mult: 'Multiplicadores', pr_addrow: '+ A\u00f1adir fila', pr_delrow: 'Eliminar fila', pr_enable: 'Activar ofertas de esta categor\u00eda', pr_notify: 'Notificar esta categor\u00eda', pr_noprice: 'Sin precios configurados.', pr_back: 'Volver a juegos', pr_regions: 'Regiones', pr_region_enable: 'Habilitar esta regi\u00f3n', pr_rank_prices: 'Precio por rango',
+    pr_pace: 'Trofeos por d\u00eda (ritmo)', pr_pace_hours: 'Trofeos por hora (ritmo)', pr_save: 'Guardar precios', pr_none: 'Todav\u00eda no hay juegos configurados.',     pr_nosupport: 'Tipo de precio no soportado en el editor.', pr_mult: 'Multiplicadores', pr_addrow: '+ A\u00f1adir fila', pr_delrow: 'Eliminar fila', pr_enable: 'Activar ofertas de esta categor\u00eda', pr_notify: 'Notificar esta categor\u00eda', pr_noprice: 'Sin precios configurados.', pr_back: 'Volver a juegos', pr_regions: 'Regiones', pr_region_enable: 'Habilitar esta regi\u00f3n', pr_rank_prices: 'Precio por rango',
     pr_rank: 'Rango', pr_from: 'Desde', pr_to: 'Hasta', pr_per: 'Cada', pr_price: 'Precio', pr_hours: 'Horas', pr_divs: 'Divisiones',
     st_webhook_save: 'Guardar webhook',
     w_step1: 'Abre el canal de Discord y ve a <b>Ajustes del canal &rarr; Integraciones &rarr; Webhooks</b>.',
@@ -1343,7 +1452,7 @@ const I18N_EXT = {
     tab_pricing: 'Pricing',
     st_pricing_tab_hint: 'Configure suggested prices in the Pricing tab (games, brackets and multipliers).',
     pr_hint: 'Set the suggested price per game and category. Semi-automatic: pre-filled and left in Confirm. Automatic: placed directly. Orders without a price always stay in Confirm.',
-    pr_pace: 'Trophies per day (pace)', pr_save: 'Save prices', pr_none: 'No games configured yet.',     pr_nosupport: 'Pricing type not supported by the editor.', pr_mult: 'Multipliers', pr_addrow: '+ Add row', pr_delrow: 'Delete row', pr_enable: 'Enable offers for this category', pr_notify: 'Notify for this category', pr_noprice: 'No prices configured.', pr_back: 'Back to games', pr_regions: 'Regions', pr_region_enable: 'Enable this region', pr_rank_prices: 'Price per rank',
+    pr_pace: 'Trophies per day (pace)', pr_pace_hours: 'Trophies per hour (pace)', pr_save: 'Save prices', pr_none: 'No games configured yet.',     pr_nosupport: 'Pricing type not supported by the editor.', pr_mult: 'Multipliers', pr_addrow: '+ Add row', pr_delrow: 'Delete row', pr_enable: 'Enable offers for this category', pr_notify: 'Notify for this category', pr_noprice: 'No prices configured.', pr_back: 'Back to games', pr_regions: 'Regions', pr_region_enable: 'Enable this region', pr_rank_prices: 'Price per rank',
     pr_rank: 'Rank', pr_from: 'From', pr_to: 'To', pr_per: 'Every', pr_price: 'Price', pr_hours: 'Hours', pr_divs: 'Divisions',
     st_webhook_save: 'Save webhook',
     w_step1: 'Open your Discord channel and go to <b>Channel settings &rarr; Integrations &rarr; Webhooks</b>.',
@@ -1371,7 +1480,7 @@ const I18N_EXT = {
     tab_pricing: 'Tarifs',
     st_pricing_tab_hint: 'Configurez les prix sugg\u00e9r\u00e9s dans l\u2019onglet Tarifs (jeux, paliers et multiplicateurs).',
     pr_hint: 'R\u00e9glez le prix sugg\u00e9r\u00e9 par jeu et cat\u00e9gorie. Semi-automatique : pr\u00e9-rempli et laiss\u00e9 \u00e0 confirmer. Automatique : plac\u00e9 directement. Sans prix, la demande reste \u00e0 confirmer.',
-    pr_pace: 'Troph\u00e9es par jour (rythme)', pr_save: 'Enregistrer les prix', pr_none: 'Aucun jeu configur\u00e9 pour l\u2019instant.',     pr_nosupport: 'Type de prix non pris en charge par l\u2019\u00e9diteur.', pr_mult: 'Multiplicateurs', pr_addrow: '+ Ajouter une ligne', pr_delrow: 'Supprimer la ligne', pr_enable: 'Activer les offres pour cette cat\u00e9gorie', pr_notify: 'Notifier pour cette cat\u00e9gorie', pr_noprice: 'Aucun prix configur\u00e9.', pr_back: 'Retour aux jeux', pr_regions: 'R\u00e9gions',     pr_region_enable: 'Activer cette r\u00e9gion', pr_rank_prices: 'Prix par rang',
+    pr_pace: 'Troph\u00e9es par jour (rythme)', pr_pace_hours: 'Troph\u00e9es par heure (rythme)', pr_save: 'Enregistrer les prix', pr_none: 'Aucun jeu configur\u00e9 pour l\u2019instant.',     pr_nosupport: 'Type de prix non pris en charge par l\u2019\u00e9diteur.', pr_mult: 'Multiplicateurs', pr_addrow: '+ Ajouter une ligne', pr_delrow: 'Supprimer la ligne', pr_enable: 'Activer les offres pour cette cat\u00e9gorie', pr_notify: 'Notifier pour cette cat\u00e9gorie', pr_noprice: 'Aucun prix configur\u00e9.', pr_back: 'Retour aux jeux', pr_regions: 'R\u00e9gions',     pr_region_enable: 'Activer cette r\u00e9gion', pr_rank_prices: 'Prix par rang',
     pr_rank: 'Rang', pr_from: 'De', pr_to: '\u00c0', pr_per: 'Chaque', pr_price: 'Prix', pr_hours: 'Heures', pr_divs: 'Divisions',
     st_webhook_save: 'Enregistrer le webhook',
     w_step1: 'Ouvrez votre canal Discord et allez dans <b>Param\u00e8tres du canal &rarr; Int\u00e9grations &rarr; Webhooks</b>.',
@@ -1395,7 +1504,7 @@ const I18N_EXT = {
     tab_pricing: 'Pre\u00e7os',
     st_pricing_tab_hint: 'Configure os pre\u00e7os sugeridos na aba Pre\u00e7os (jogos, faixas e multiplicadores).',
     pr_hint: 'Ajuste o pre\u00e7o sugerido por jogo e categoria. Semi-autom\u00e1tico: pr\u00e9-preenchido e fica em Confirmar. Autom\u00e1tico: enviado direto. Pedidos sem pre\u00e7o ficam sempre em Confirmar.',
-    pr_pace: 'Trof\u00e9us por dia (ritmo)', pr_save: 'Salvar pre\u00e7os', pr_none: 'Nenhum jogo configurado ainda.',     pr_nosupport: 'Tipo de pre\u00e7o n\u00e3o suportado no editor.', pr_mult: 'Multiplicadores', pr_addrow: '+ Adicionar linha', pr_delrow: 'Remover linha', pr_enable: 'Ativar ofertas desta categoria', pr_notify: 'Notificar esta categoria', pr_noprice: 'Nenhum pre\u00e7o configurado.', pr_back: 'Voltar aos jogos', pr_regions: 'Regi\u00f5es',     pr_region_enable: 'Habilitar esta regi\u00e3o', pr_rank_prices: 'Pre\u00e7o por rank',
+    pr_pace: 'Trof\u00e9us por dia (ritmo)', pr_pace_hours: 'Trof\u00e9us por hora (ritmo)', pr_save: 'Salvar pre\u00e7os', pr_none: 'Nenhum jogo configurado ainda.',     pr_nosupport: 'Tipo de pre\u00e7o n\u00e3o suportado no editor.', pr_mult: 'Multiplicadores', pr_addrow: '+ Adicionar linha', pr_delrow: 'Remover linha', pr_enable: 'Ativar ofertas desta categoria', pr_notify: 'Notificar esta categoria', pr_noprice: 'Nenhum pre\u00e7o configurado.', pr_back: 'Voltar aos jogos', pr_regions: 'Regi\u00f5es',     pr_region_enable: 'Habilitar esta regi\u00e3o', pr_rank_prices: 'Pre\u00e7o por rank',
     pr_rank: 'Rank', pr_from: 'De', pr_to: 'At\u00e9', pr_per: 'Cada', pr_price: 'Pre\u00e7o', pr_hours: 'Horas', pr_divs: 'Divis\u00f5es',
     st_webhook_save: 'Salvar webhook',
     w_step1: 'Abra seu canal do Discord e v\u00e1 em <b>Configura\u00e7\u00f5es do canal &rarr; Integra\u00e7\u00f5es &rarr; Webhooks</b>.',
@@ -1419,7 +1528,7 @@ const I18N_EXT = {
     tab_pricing: 'Preise',
     st_pricing_tab_hint: 'Konfigurieren Sie die vorgeschlagenen Preise im Tab Preise (Spiele, Bereiche und Multiplikatoren).',
     pr_hint: 'Legen Sie den vorgeschlagenen Preis pro Spiel und Kategorie fest. Halbautomatisch: vorausgef\u00fcllt und bleibt in Best\u00e4tigen. Automatisch: direkt platzieren. Ohne Preis bleibt der Auftrag immer in Best\u00e4tigen.',
-    pr_pace: 'Troph\u00e4en pro Tag (Tempo)', pr_save: 'Preise speichern', pr_none: 'Noch keine Spiele konfiguriert.',     pr_nosupport: 'Preistyp vom Editor nicht unterst\u00fctzt.', pr_mult: 'Multiplikatoren', pr_addrow: '+ Zeile hinzuf\u00fcgen', pr_delrow: 'Zeile l\u00f6schen', pr_enable: 'Angebote f\u00fcr diese Kategorie aktivieren', pr_notify: 'F\u00fcr diese Kategorie benachrichtigen', pr_noprice: 'Keine Preise konfiguriert.', pr_back: 'Zur\u00fcck zu Spielen', pr_regions: 'Regionen',     pr_region_enable: 'Diese Region aktivieren', pr_rank_prices: 'Preis pro Rang',
+    pr_pace: 'Troph\u00e4en pro Tag (Tempo)', pr_pace_hours: 'Troph\u00e4en pro Stunde (Tempo)', pr_save: 'Preise speichern', pr_none: 'Noch keine Spiele konfiguriert.',     pr_nosupport: 'Preistyp vom Editor nicht unterst\u00fctzt.', pr_mult: 'Multiplikatoren', pr_addrow: '+ Zeile hinzuf\u00fcgen', pr_delrow: 'Zeile l\u00f6schen', pr_enable: 'Angebote f\u00fcr diese Kategorie aktivieren', pr_notify: 'F\u00fcr diese Kategorie benachrichtigen', pr_noprice: 'Keine Preise konfiguriert.', pr_back: 'Zur\u00fcck zu Spielen', pr_regions: 'Regionen',     pr_region_enable: 'Diese Region aktivieren', pr_rank_prices: 'Preis pro Rang',
     pr_rank: 'Rang', pr_from: 'Von', pr_to: 'Bis', pr_per: 'Alle', pr_price: 'Preis', pr_hours: 'Stunden', pr_divs: 'Divisionen',
     st_webhook_save: 'Webhook speichern',
     w_step1: '\u00d6ffnen Sie Ihren Discord-Kanal und gehen Sie zu <b>Kanaleinstellungen &rarr; Integrationen &rarr; Webhooks</b>.',
@@ -1443,7 +1552,7 @@ const I18N_EXT = {
     tab_pricing: 'Prezzi',
     st_pricing_tab_hint: 'Configura i prezzi suggeriti nella scheda Prezzi (giochi, fasce e moltiplicatori).',
     pr_hint: 'Imposta il prezzo suggerito per gioco e categoria. Semi-automatico: precompilato e resta in Conferma. Automatico: inviato subito. Senza prezzo la richiesta resta sempre in Conferma.',
-    pr_pace: 'Trofei al giorno (ritmo)', pr_save: 'Salva prezzi', pr_none: 'Nessun gioco configurato.',     pr_nosupport: 'Tipo di prezzo non supportato dall\u2019editor.', pr_mult: 'Moltiplicatori', pr_addrow: '+ Aggiungi riga', pr_delrow: 'Elimina riga', pr_enable: 'Attiva offerte per questa categoria', pr_notify: 'Notifica per questa categoria', pr_noprice: 'Nessun prezzo configurato.', pr_back: 'Torna ai giochi', pr_regions: 'Regioni',     pr_region_enable: 'Abilita questa regione', pr_rank_prices: 'Prezzo per rango',
+    pr_pace: 'Trofei al giorno (ritmo)', pr_pace_hours: 'Trofei per ora (ritmo)', pr_save: 'Salva prezzi', pr_none: 'Nessun gioco configurato.',     pr_nosupport: 'Tipo di prezzo non supportato dall\u2019editor.', pr_mult: 'Moltiplicatori', pr_addrow: '+ Aggiungi riga', pr_delrow: 'Elimina riga', pr_enable: 'Attiva offerte per questa categoria', pr_notify: 'Notifica per questa categoria', pr_noprice: 'Nessun prezzo configurato.', pr_back: 'Torna ai giochi', pr_regions: 'Regioni',     pr_region_enable: 'Abilita questa regione', pr_rank_prices: 'Prezzo per rango',
     pr_rank: 'Rango', pr_from: 'Da', pr_to: 'A', pr_per: 'Ogni', pr_price: 'Prezzo', pr_hours: 'Ore', pr_divs: 'Divisioni',
     st_webhook_save: 'Salva webhook',
     w_step1: 'Apri il tuo canale Discord e vai su <b>Impostazioni canale &rarr; Integrazioni &rarr; Webhooks</b>.',
@@ -1477,6 +1586,13 @@ function t(k) {
   if (m[k] !== undefined) return m[k];
   if (I18N.es[k] !== undefined) return I18N.es[k];
   return k;
+}
+function catLabel(cat) {
+  if (!cat) return cat;
+  var m = CAT_I18N[LANG] || {};
+  if (m[cat] !== undefined) return m[cat];
+  if (CAT_I18N.es[cat] !== undefined) return CAT_I18N.es[cat];
+  return cat;
 }
 function fmtDate(ts) {
   if (!ts) return '';
@@ -1563,19 +1679,7 @@ function timeCard() {
     '<div class="sub-bar"><i id="subBarFill"></i></div>' +
   '</div>';
 }
-function refreshStats() {
-  fetch('/api/stats')
-    .then(function (res) { return res.json(); })
-    .then(function (data) {
-      var s = data.stats || {};
-      document.getElementById('stats').innerHTML =
-        timeCard() +
-        statCard('placed', 'stat_placed', s.placed, 'send') +
-        statCard('skipped', 'stat_skipped', s.skipped, 'skip');
-      tickSub();
-    })
-    .catch(function () {});
-}
+function refreshStats() {}
 
 function renderCharts(rows) {
   var placed = rows.filter(function (r) { return r.status === 'placed'; });
@@ -1607,7 +1711,7 @@ function renderCharts(rows) {
   }).join('') : '<div style="color:var(--dim);font-size:12px">\u2014</div>';
 }
 
-var HIST_STATUSES = ['placed', 'pending', 'opened', 'skipped', 'rejected', 'unresolved', 'canceled', 'seen'];
+var HIST_STATUSES = ['placed', 'pending', 'opened', 'messaged', 'skipped', 'rejected', 'unresolved', 'ready', 'failed', 'canceled', 'seen'];
 function renderHistory() {
   var table = document.getElementById('histTable');
   if (!table) return;
@@ -1625,12 +1729,20 @@ function renderHistory() {
   }
   var fGame = gameSel ? gameSel.value : 'all';
   var fStatus = stSel ? stSel.value : 'all';
+  var searchEl = document.getElementById('histSearch');
+  var fSearch = (searchEl ? searchEl.value : '').trim().toLowerCase();
   var list = allRows.filter(function (r) {
     if (fGame !== 'all' && r.game !== fGame) return false;
     if (fStatus !== 'all' && r.status !== fStatus) return false;
+    if (fSearch) {
+      var hay = ((r.description || '') + ' ' + (r.buyer || '') + ' ' + (r.category || '')).toLowerCase();
+      if (hay.indexOf(fSearch) === -1) return false;
+    }
     return true;
   });
   renderCharts(allRows);
+  var countEl = document.getElementById('histCount');
+  if (countEl) countEl.textContent = list.length;
   if (!list.length) {
     table.innerHTML = '<div class="empty" style="display:block"><div>' + esc(t('hist_none')) + '</div></div>';
     return;
@@ -1674,6 +1786,8 @@ var histGameSel = document.getElementById('histGame');
 if (histGameSel) histGameSel.onchange = renderHistory;
 var histStSel = document.getElementById('histStatus');
 if (histStSel) histStSel.onchange = renderHistory;
+var histSearchEl = document.getElementById('histSearch');
+if (histSearchEl) histSearchEl.oninput = renderHistory;
 var histTableEl = document.getElementById('histTable');
 if (histTableEl) histTableEl.addEventListener('click', function (e) {
   var b = e.target.closest('.histOpen');
@@ -1732,8 +1846,6 @@ function fillSettings(cfg) {
     if (el) el.checked = ce[k] !== undefined ? !!ce[k] : catDef[k];
   });
   document.getElementById('f-enabled').checked = !!f.enabled;
-  document.getElementById('f-skipDuo').checked = !!f.skipDuo;
-  document.getElementById('f-skipSquad').checked = !!f.skipSquad;
   document.getElementById('f-skipCategories').value = (f.skipCategories || []).join(', ');
   document.getElementById('f-skipKeywords').value = (f.skipKeywords || []).join(', ');
   document.getElementById('c-enabled').checked = !!c.enabled;
@@ -1749,10 +1861,6 @@ function fillSettings(cfg) {
   document.getElementById('c-customMsg').value = c.customRequestMessage || '';
   document.getElementById('c-customImg').value = c.customRequestImage || '';
   document.getElementById('c-customDelay').value = Math.round((c.customRequestDelayMs != null ? c.customRequestDelayMs : (c.messageDelayMs || 5000)) / 1000);
-  document.getElementById('c-accepted').checked = c.orderAcceptedEnabled !== false;
-  document.getElementById('c-acceptedMsg').value = c.orderAcceptedMessage || '';
-  document.getElementById('c-acceptedImg').value = c.orderAcceptedImage || '';
-  document.getElementById('c-acceptedDelay').value = Math.round((c.orderAcceptedDelayMs != null ? c.orderAcceptedDelayMs : (c.messageDelayMs || 5000)) / 1000);
   document.getElementById('c-follow').checked = c.followUpEnabled !== false;
   document.getElementById('c-followMsg').value = c.followUpMessage || '';
   document.getElementById('c-followImg').value = c.followUpImage || '';
@@ -1786,8 +1894,6 @@ function readSettings() {
   var payload = {
     filters: {
       enabled: chk('f-enabled'),
-      skipDuo: chk('f-skipDuo'),
-      skipSquad: chk('f-skipSquad'),
       skipCategories: split(document.getElementById('f-skipCategories')),
       skipKeywords: split(document.getElementById('f-skipKeywords')),
     },
@@ -1805,10 +1911,6 @@ function readSettings() {
       customRequestMessage: document.getElementById('c-customMsg').value,
       customRequestImage: document.getElementById('c-customImg').value.trim(),
       customRequestDelayMs: Math.max(0, Math.round(parseFloat(document.getElementById('c-customDelay').value) || 0) * 1000),
-      orderAcceptedEnabled: chk('c-accepted'),
-      orderAcceptedMessage: document.getElementById('c-acceptedMsg').value,
-      orderAcceptedImage: document.getElementById('c-acceptedImg').value.trim(),
-      orderAcceptedDelayMs: Math.max(0, Math.round(parseFloat(document.getElementById('c-acceptedDelay').value) || 0) * 1000),
       followUpEnabled: chk('c-follow'),
       followUpMessage: document.getElementById('c-followMsg').value,
       followUpImage: document.getElementById('c-followImg').value.trim(),
@@ -1963,11 +2065,13 @@ function prDelCell(gk, cat, kind) {
 }
 function prRenderSegments(gk, cat, c) {
   var paceVal = c.pacePerDay != null ? c.pacePerDay : '';
-  var h = '<div class="pr-field"><label>' + esc(t('pr_pace')) + '</label><input type="number" step="1" min="1"' + prAttr(gk, cat, 'segments', null, 'pacePerDay') + ' value="' + esc(paceVal) + '"></div>';
+  var pr = prBase();
+  var gameData = (pr && pr.games && pr.games[gk]) || {};
+  var isHourly = gameData.hoursOnly || gk === 'clash_royale';
+  var paceLabel = isHourly ? t('pr_pace_hours') : t('pr_pace');
+  var h = (c.useSegmentHours ? '' : '<div class="pr-field"><label>' + esc(paceLabel) + '</label><input type="number" step="1" min="1"' + prAttr(gk, cat, 'segments', null, 'pacePerDay') + ' value="' + esc(paceVal) + '"></div>');
   h += '<div class="pr-table"><div class="pr-row pr-head">' + prHead('pr_from') + prHead('pr_to') + prHead('pr_per') + prHead('pr_price') +
     (c.useSegmentHours ? prHead('pr_hours') : '') +
-    (c.useSegmentHours ? prHead('pr_minprice') : '') +
-    (c.useSegmentHours ? prHead('pr_minhours') : '') +
     '<div class="pr-del-cell"></div></div>';
   var rows = (c.segments || []).map(function (s, i) {
     return '<div class="pr-row" data-kind="segments">' +
@@ -1976,8 +2080,6 @@ function prRenderSegments(gk, cat, c) {
       prField(gk, cat, 'segments', i, 'per', s.per, 'pr_per') +
       prMoneyField(gk, cat, 'segments', i, 'price', s.price, 'pr_price') +
       (c.useSegmentHours ? prField(gk, cat, 'segments', i, 'hours', s.hours, 'pr_hours') : '') +
-      (c.useSegmentHours ? prMoneyField(gk, cat, 'segments', i, 'minPrice', s.minPrice, 'pr_minprice') : '') +
-      (c.useSegmentHours ? prField(gk, cat, 'segments', i, 'minHours', s.minHours, 'pr_minhours') : '') +
       prDelCell(gk, cat, 'segments') +
       '</div>';
   }).join('');
@@ -2024,27 +2126,37 @@ function prRenderUnits(gk, cat, c) {
   return h;
 }
 var PR_CUR_GAME = null;
+var PR_RENDERED = {};
+var PR_INITIALIZED = false;
 var PR_TILE_COLORS = ['#7c5cff', '#ff6b6b', '#4ecdc4', '#f9c74f', '#90be6d', '#f9844a', '#577590', '#e56b6f', '#43aa8b', '#f94144', '#9b5de5', '#00b4d8'];
 function prTileColor(i) { return PR_TILE_COLORS[i % PR_TILE_COLORS.length]; }
-function prGameImg(gk) { return '/assets/games/' + gk + '.svg?v=2'; }
+function prGameImg(gk) { return GAME_SVGS[gk] || ('/assets/games/' + gk + '.svg?v=2'); }
 function prOpenGame(gk) {
+  if (PR_CUR_GAME && PR_CUR_GAME !== gk) {
+    var prev = document.querySelector('#pr-panels .pr-game-panel[data-gk="' + PR_CUR_GAME + '"]');
+    if (prev) prev.style.display = 'none';
+  }
   PR_CUR_GAME = gk;
   document.getElementById('pr-tiles').style.display = gk ? 'none' : 'grid';
+  if (gk && !PR_RENDERED[gk]) prRenderGamePanel(gk);
   Array.prototype.forEach.call(document.querySelectorAll('#pr-panels .pr-game-panel'), function (p) {
     p.style.display = p.getAttribute('data-gk') === gk ? 'block' : 'none';
   });
   var back = document.querySelector('#pr-panel-head');
-  if (back) back.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (back) back.scrollIntoView({ behavior: 'auto', block: 'start' });
 }
 function prCloseGame() { prOpenGame(null); }
-function renderPricing() {
+function renderPricing(force) {
+  if (PR_INITIALIZED && !force) {
+    if (PR_CUR_GAME) prOpenGame(PR_CUR_GAME);
+    else prOpenGame(null);
+    return;
+  }
   var pr = prBase();
   var games = pr.games || {};
-  document.getElementById('pr-enabled').checked = !!pr.enabled;
   var known = (baseConfig && baseConfig.games) ? Object.keys(baseConfig.games) : [];
   var gks = known.slice();
   Object.keys(games).forEach(function (g) { if (gks.indexOf(g) < 0) gks.push(g); });
-  var GAME_META = ['regionLocked', 'skipConsole', 'regions'];
   var tiles = '';
   if (!gks.length) {
     tiles = '<div class="set-box"><div class="hint">' + esc(t('pr_none')) + '</div></div>';
@@ -2052,7 +2164,7 @@ function renderPricing() {
     tiles += '<div class="pr-tiles">';
     gks.forEach(function (gk, i) {
       tiles += '<button type="button" class="pr-tile" data-gk="' + esc(gk) + '" style="--tile:' + prTileColor(i) + '">' +
-        '<img class="pr-tile-img" src="' + esc(prGameImg(gk)) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">' +
+        '<img class="pr-tile-img" src="' + esc(prGameImg(gk)) + '" alt="" onerror="this.style.display=\'none\'">' +
         '<span class="pr-tile-shade"></span>' +
         '<span class="pr-tile-name">' + esc(prGameName(gk)) + '</span>' +
         '</button>';
@@ -2060,55 +2172,70 @@ function renderPricing() {
     tiles += '</div>';
   }
   document.getElementById('pr-tiles').innerHTML = tiles;
-  var panels = '';
-  gks.forEach(function (gk) {
-    var allCats = Object.keys(games[gk] || {});
-    var cats = allCats.filter(function (k) { return GAME_META.indexOf(k) < 0; });
-    var gData = games[gk] || {};
-    panels += '<div class="pr-game-panel" data-gk="' + esc(gk) + '">';
-    panels += '<div class="pr-panel-head" id="pr-panel-head"><button type="button" class="btn btn-secondary btn-sm pr-back" data-gk="' + esc(gk) + '">&larr; ' + esc(t('pr_back')) + '</button><h4>' + esc(prGameName(gk)) + '</h4>';
-    if (gData.regionLocked && gData.regions) {
-      panels += '<div class="pr-game-regions">';
-      Object.keys(gData.regions).forEach(function (rk) {
-        var r = gData.regions[rk] || {};
-        var en = r.enabled !== false;
-        panels += '<label class="pr-game-region" title="' + esc(t('pr_region_enable')) + '"><input type="checkbox" class="pr-game-region-en" data-rk="' + esc(rk) + '"' + (en ? ' checked' : '') + '><span>' + esc(rk) + '</span></label>';
-      });
-      panels += '</div>';
-    }
-    panels += '</div>';
-    if (!cats.length) {
-      panels += '<div class="hint pr-empty">' + esc(t('pr_noprice')) + '</div></div>';
-      return;
-    }
-    panels += '<div class="pr-gen">';
-    cats.forEach(function (cat, i) {
-      panels += '<button type="button" class="pr-cat-pill' + (i === 0 ? ' active' : '') + '" data-gk="' + esc(gk) + '" data-cat="' + esc(cat) + '">' + esc(cat) + '</button>';
+  var existing = document.getElementById('pr-panels');
+  if (existing) existing.innerHTML = '';
+  PR_RENDERED = {};
+  PR_INITIALIZED = true;
+  prOpenGame(null);
+}
+function prRenderGamePanel(gk) {
+  var pr = prBase();
+  var games = pr.games || {};
+  var GAME_META = ['regionLocked', 'skipConsole', 'skipDuo', 'skipSquad', 'regions', 'hoursOnly'];
+  var allCats = Object.keys(games[gk] || {});
+  var cats = allCats.filter(function (k) { return GAME_META.indexOf(k) < 0; });
+  var gData = games[gk] || {};
+  var panels = document.getElementById('pr-panels');
+  var el = document.createElement('div');
+  el.className = 'pr-game-panel';
+  el.setAttribute('data-gk', gk);
+  var html = '<div class="pr-panel-head" id="pr-panel-head"><button type="button" class="btn btn-secondary btn-sm pr-back" data-gk="' + esc(gk) + '">&larr; ' + esc(t('pr_back')) + '</button><h4>' + esc(prGameName(gk)) + '</h4>';
+  html += '<div class="pr-game-opts">';
+  html += '<div class="pr-game-filters">';
+  html += '<label class="pr-game-filter"><input type="checkbox" class="pr-game-filter-en" data-gk="' + esc(gk) + '" data-filter="skipDuo"' + (gData.skipDuo !== false ? ' checked' : '') + '><span>Skip Duo</span></label>';
+  html += '<label class="pr-game-filter"><input type="checkbox" class="pr-game-filter-en" data-gk="' + esc(gk) + '" data-filter="skipSquad"' + (gData.skipSquad !== false ? ' checked' : '') + '><span>Skip Squad</span></label>';
+  html += '<label class="pr-game-filter"><input type="checkbox" class="pr-game-filter-en" data-gk="' + esc(gk) + '" data-filter="skipConsole"' + (gData.skipConsole !== false ? ' checked' : '') + '><span>Skip Console</span></label>';
+  html += '</div>';
+  if (gData.regionLocked && gData.regions) {
+    html += '<div class="pr-game-regions">';
+    Object.keys(gData.regions).forEach(function (rk) {
+      var r = gData.regions[rk] || {};
+      var en = r.enabled !== false;
+      html += '<label class="pr-game-region" title="' + esc(t('pr_region_enable')) + '"><input type="checkbox" class="pr-game-region-en" data-rk="' + esc(rk) + '"' + (en ? ' checked' : '') + '><span>' + esc(rk) + '</span></label>';
     });
-    panels += '</div>';
+    html += '</div>';
+  }
+  html += '</div>';
+  html += '</div>';
+  if (!cats.length) {
+    html += '<div class="hint pr-empty">' + esc(t('pr_noprice')) + '</div></div>';
+  } else {
+    html += '<div class="pr-gen">';
+    cats.forEach(function (cat, i) {
+      html += '<button type="button" class="pr-cat-pill' + (i === 0 ? ' active' : '') + '" data-gk="' + esc(gk) + '" data-cat="' + esc(cat) + '">' + esc(catLabel(cat)) + '</button>';
+    });
+    html += '</div>';
     cats.forEach(function (cat, i) {
       var c = games[gk][cat] || {};
-      panels += '<div class="pr-cat-card' + (i === 0 ? ' active' : '') + '" data-gk="' + esc(gk) + '" data-cat="' + esc(cat) + '" data-mode="' + esc(c.mode) + '"' + (c.useSegmentHours ? ' data-hours="1"' : '') + (c.divisionOrder ? ' data-dorder="' + esc(c.divisionOrder) + '"' : '') + (c.mode === 'units' ? ' data-unitlabel="' + esc(c.unitLabel || 'unit') + '"' : '') + '>';
-      panels += '<div class="pr-cat-head"><h5>' + esc(cat) + '</h5><span class="pr-type">' + esc(c.mode) + (c.useSegmentHours ? ' &middot; ' + esc(t('pr_seg_hours')) : '') + '</span></div>';
-      if (c.mode === 'segments') panels += prRenderSegments(gk, cat, c);
-      else if (c.mode === 'tiers') panels += prRenderTiers(gk, cat, c);
-      else if (c.mode === 'units') panels += prRenderUnits(gk, cat, c);
-      else panels += '<div class="hint">' + esc(t('pr_nosupport')) + '</div>';
-      panels += '<div class="savebar-inline" style="margin-top:16px"><button type="button" class="btn btn-primary pr-save-game" data-gk="' + esc(gk) + '">' + esc(t('pr_save')) + '</button><span class="msg pr-save-msg" data-gk="' + esc(gk) + '"></span></div>';
-      panels += '</div>';
+      html += '<div class="pr-cat-card' + (i === 0 ? ' active' : '') + '" data-gk="' + esc(gk) + '" data-cat="' + esc(cat) + '" data-mode="' + esc(c.mode) + '"' + (c.useSegmentHours ? ' data-hours="1"' : '') + (c.divisionOrder ? ' data-dorder="' + esc(c.divisionOrder) + '"' : '') + (c.mode === 'units' ? ' data-unitlabel="' + esc(c.unitLabel || 'unit') + '"' : '') + '>';
+      html += '<div class="pr-cat-head"><h5>' + esc(catLabel(cat)) + '</h5><span class="pr-type">' + esc(c.mode) + (c.useSegmentHours ? ' &middot; ' + esc(t('pr_seg_hours')) : '') + '</span></div>';
+      if (c.mode === 'segments') html += prRenderSegments(gk, cat, c);
+      else if (c.mode === 'tiers') html += prRenderTiers(gk, cat, c);
+      else if (c.mode === 'units') html += prRenderUnits(gk, cat, c);
+      else html += '<div class="hint">' + esc(t('pr_nosupport')) + '</div>';
+      html += '<div class="savebar-inline" style="margin-top:16px"><button type="button" class="btn btn-primary pr-save-game" data-gk="' + esc(gk) + '">' + esc(t('pr_save')) + '</button><span class="msg pr-save-msg" data-gk="' + esc(gk) + '"></span></div>';
+      html += '</div>';
     });
-    panels += '</div>';
-  });
-  document.getElementById('pr-panels').innerHTML = panels;
-  prOpenGame(null);
+  }
+  el.innerHTML = html;
+  panels.appendChild(el);
+  PR_RENDERED[gk] = true;
 }
 function prSegFromRow(row, withHours) {
   var num = function (k) { var el = row.querySelector('[data-key="' + k + '"]'); var n = el ? parseFloat(el.value) : NaN; return isNaN(n) ? 0 : n; };
   var seg = { from: num('from'), to: num('to'), per: num('per'), price: num('price') };
   if (withHours) {
     seg.hours = num('hours');
-    seg.minPrice = num('minPrice');
-    seg.minHours = num('minHours');
   }
   return seg;
 }
@@ -2124,7 +2251,7 @@ function prTierFromRow(row) {
 }
 function prCollectCards() {
   var games = {};
-  var GAME_META = ['regionLocked', 'skipConsole', 'regions'];
+  var GAME_META = ['regionLocked', 'skipConsole', 'skipDuo', 'skipSquad', 'regions', 'hoursOnly'];
   Array.prototype.forEach.call(document.querySelectorAll('#pr-panels .pr-game-panel'), function (panel) {
     var gk = panel.getAttribute('data-gk');
     var regs = {};
@@ -2137,6 +2264,13 @@ function prCollectCards() {
       var g = games[gk] || (games[gk] = {});
       g._regions = regs;
     }
+    Array.prototype.forEach.call(panel.querySelectorAll('.pr-game-filter-en'), function (el) {
+      var fk = el.getAttribute('data-filter');
+      if (fk) {
+        var g = games[gk] || (games[gk] = {});
+        g[fk] = el.checked;
+      }
+    });
   });
   Array.prototype.forEach.call(document.querySelectorAll('#pr-panels .pr-cat-card'), function (card) {
     var gk = card.getAttribute('data-gk');
@@ -2198,16 +2332,16 @@ function prCollectCards() {
 function serializePricing() {
   var games = prCollectCards();
   var prev = prBase().games || {};
-  var GAME_META = ['regionLocked', 'skipConsole'];
+  var GAME_META = ['regionLocked', 'skipConsole', 'skipDuo', 'skipSquad', 'hoursOnly'];
   Object.keys(prev).forEach(function (gk) {
-    if (!games[gk]) games[gk] = {};
+    if (!games[gk]) { games[gk] = prev[gk]; return; }
     GAME_META.forEach(function (mk) {
       if (prev[gk][mk] != null && games[gk][mk] == null) games[gk][mk] = prev[gk][mk];
     });
   });
   return {
     pricing: {
-      enabled: document.getElementById('pr-enabled').checked,
+      enabled: true,
       games: games,
     },
   };
@@ -2228,8 +2362,6 @@ function prAddRow(btn) {
       prField(gk, cat, 'segments', null, 'per', '', 'pr_per') +
       prMoneyField(gk, cat, 'segments', null, 'price', '', 'pr_price') +
       (c.useSegmentHours ? prField(gk, cat, 'segments', null, 'hours', '', 'pr_hours') : '') +
-      (c.useSegmentHours ? prMoneyField(gk, cat, 'segments', null, 'minPrice', '', 'pr_minprice') : '') +
-      (c.useSegmentHours ? prField(gk, cat, 'segments', null, 'minHours', '', 'pr_minhours') : '') +
       prDelCell(gk, cat, 'segments');
   } else if (kind === 'tiers') {
     row.setAttribute('data-kind', 'tiers');
@@ -2417,19 +2549,18 @@ function refreshHealth() {
       var running = !!f.running;
       var noSession = !!f.noSession;
       var lastPoll = f.lastPoll;
-      var pending = Number(f.pending || 0);
       if (noSession) alerts.push(t('hp_nolink'));
-      dots.push('<span class="h-dot ' + (noSession ? 'bad' : 'on') + '">' + esc(t('hp_session')) + ': <b>' + esc(noSession ? t('hp_nolink') : t('hp_linked')) + '</b></span>');
+      dots.push('<span class="h-dot ' + (noSession ? 'bad' : 'on') + '">' + esc(t('hp_session')) + ': <b>' + esc(noSession ? t('hp_nolink') : t('hp_linked')) + '</b><span id="healthSubClock" class="health-sub-clock"></span></span>');
       dots.push('<span class="h-dot ' + (paused ? 'warn' : 'on') + '">' + esc(t('hp_mode')) + ': <b>' + esc(paused ? t('hp_paused') : (running ? t('st_active') : t('st_mode_off'))) + '</b></span>');
       var age = lastPoll ? (Date.now() - new Date(lastPoll).getTime()) : null;
       var ageTxt = age == null ? t('hp_never') : fmtAgo(age);
       dots.push('<span class="h-dot ' + (age == null || age > 180000 ? 'warn' : 'on') + ' ts">' + esc(t('hp_lastscan')) + ': <b>' + esc(ageTxt) + '</b></span>');
-      dots.push('<span class="h-dot ' + (pending > 0 ? 'semi' : 'on') + '">' + esc(t('hp_pending')) + ': <b>' + pending + '</b></span>');
       var msg = alerts.length ? t('hp_alert') : t('hp_ok');
       panel.className = 'health' + (alerts.length ? ' bad' : '');
       panel.innerHTML = '<span class="h-ico">' + (alerts.length ? '\u26a0' : '\u2714') + '</span>' +
         '<span class="h-msg"><b>' + esc(msg) + '</b>' + (alerts.length ? ' (' + esc(alerts.join(', ')) + ')' : '') + '</span>' +
         '<span class="h-dots">' + dots.join('') + '</span>';
+      tickSub();
     })
     .catch(function () {
       panel.className = 'health bad';
@@ -2620,6 +2751,15 @@ function itemHtml(e) {
   var dateStr = fmtDate(e.createdAt || e.seenAt);
   var note = e.note ? '<div class="hint-note">' + esc(e.note) + '</div>' : '';
   var cls = e._editable ? 'editable' : ('st-' + (e.status || 'seen'));
+  if (!e._editable && (e.status === 'pending' || e.status === 'placed') && e.createdAt && e.deliveryTime) {
+    var deliveryHours = { Minute20: 0.34, Hour1: 1, Hour2: 2, Hour3: 3, Hour5: 5, Hour8: 8, Hour12: 12, Day1: 24, Day2: 48, Day3: 72, Day7: 168, Day14: 336, Day28: 672, Day45: 1080 }[e.deliveryTime] || 72;
+    var elapsed = (Date.now() - new Date(e.createdAt).getTime()) / 3600000;
+    var pct = elapsed / deliveryHours;
+    if (pct > 0.7) cls += ' urgency-high';
+    else if (pct > 0.4) cls += ' urgency-medium';
+  }
+  var desc = e.description || '';
+  var descHtml = '<p class="ltext">' + esc(desc) + '</p>';
   var body;
   if (e._editable) {
     var defMsg = defaultMsgFor(e);
@@ -2651,16 +2791,15 @@ function itemHtml(e) {
       (e.reason ? '<span class="hint-note">' + esc(e.reason) + '</span>' : '') +
       '</div>' + note;
   }
-  return '<div class="card ' + cls + '" data-id="' + esc(e.id) + '">' +
+  return '<div class="card ' + cls + '" data-id="' + esc(e.id) + '" data-status="' + esc(e.status || '') + '">' +
     '<div class="ltag">' + statusBadge(e.status) +
       '<span class="tag"><b>' + t('f_game') + ':</b> ' + esc(e.game || '') + '</span>' +
-      '<span class="tag"><b>' + t('f_category') + ':</b> ' + esc(e.category || '') + '</span>' +
+      '<span class="tag"><b>' + t('f_category') + ':</b> ' + esc(catLabel(e.category || '')) + '</span>' +
       '<span class="tag"><b>' + t('f_buyer') + ':</b> ' + esc(e.buyer || '') + '</span>' +
       (e.etaLabel ? '<span class="tag eta">' + esc(e.etaLabel) + '</span>' : '') +
       (dateStr ? '<span class="tag">' + esc(dateStr) + '</span>' : '') +
     '</div>' +
-    '<p class="ltext">' + esc(e.description || '') + '</p>' +
-    body + '</div>';
+    descHtml + body + '</div>';
 }
 
 var allRows = [];
@@ -2730,6 +2869,7 @@ function refreshConfirm() {
   var badge = document.getElementById('confirmBadge');
   var box = document.getElementById('confirmList');
   var empty = document.getElementById('confirmEmpty');
+  var btnMarkAll = document.getElementById('btnMarkAll');
   Promise.all([
     fetch('/api/dashboard').then(function (r) { return r.json(); }),
     fetch('/api/pending').then(function (r) { return r.json(); }),
@@ -2743,35 +2883,43 @@ function refreshConfirm() {
       (results[2].orders || []).forEach(function (o) { orderInfoMap[o.id] = o; });
       if (!baseConfig || !baseConfig.chat) return;
       var n = pending.length;
+      var placedCount = Object.keys(orderInfoMap).length;
+      var openedCount = 0;
+      Object.keys(orderInfoMap).forEach(function (k) { if (orderInfoMap[k].status === 'opened') openedCount++; });
       if (badge) {
         var val = n ? String(n) : '';
         if (val !== lastBadgeVal) {
           lastBadgeVal = val;
           badge.textContent = val;
-          badge.classList.remove('bump');
+          badge.classList.remove('bump', 'pulse');
           void badge.offsetWidth;
-          if (val) badge.classList.add('bump');
+          if (val) { badge.classList.add('bump'); badge.classList.add('pulse'); }
         }
       }
-      var emptyVisible = !pending.length && !Object.keys(orderInfoMap).length;
+      if (btnMarkAll) btnMarkAll.style.display = n > 0 ? 'inline-flex' : 'none';
+      var fpAll = document.getElementById('fp-all-c'); if (fpAll) fpAll.textContent = n + placedCount;
+      var fpP = document.getElementById('fp-pending-c'); if (fpP) fpP.textContent = n;
+      var fpPL = document.getElementById('fp-placed-c'); if (fpPL) fpPL.textContent = placedCount;
+      var fpO = document.getElementById('fp-opened-c'); if (fpO) fpO.textContent = openedCount;
+      var emptyVisible = !n && !placedCount;
       if (emptyVisible) empty.style.display = 'block';
       else empty.style.display = 'none';
       var ae = document.activeElement;
       var editing = ae && (ae.tagName === 'INPUT' || ae.tagName === 'SELECT' || ae.tagName === 'TEXTAREA') && box.contains(ae);
       if (editing) return;
-      var seen = {};
+      var seenMap = {};
       var merged = [];
       pending.forEach(function (p) {
         p._editable = true;
         p.status = 'pending';
         p.deliveryTime = p.deliveryTime || 'Day3';
-        seen[p.id] = true;
+        seenMap[p.id] = true;
         merged.push(p);
       });
       Object.keys(orderInfoMap).forEach(function (id) {
-        if (seen[id]) return;
+        if (seenMap[id]) return;
         var o = orderInfoMap[id];
-        seen[id] = true;
+        seenMap[id] = true;
         merged.push({
           id: o.id,
           href: o.href,
@@ -3028,24 +3176,15 @@ function fmtRemaining(ms) {
   return t('sub_expires_in') + ' ' + t('sub_count').replace('{d}', d).replace('{h}', h).replace('{m}', m).replace('{s}', s);
 }
 function tickSub() {
-  var card = document.getElementById('timeCard');
-  if (!card) return;
-  if (!subActive) { card.style.display = 'none'; return; }
-  card.style.display = 'block';
-  var big = document.getElementById('subBig');
-  var clock = document.getElementById('subClock');
-  var fill = document.getElementById('subBarFill');
+  var hClock = document.getElementById('healthSubClock');
+  if (!subActive) { if (hClock) hClock.textContent = ''; return; }
   if (!subUntil) {
-    if (big) big.textContent = t('sub_lifetime');
-    if (clock) clock.textContent = '';
-    if (fill) fill.style.width = '100%';
+    if (hClock) hClock.textContent = ' \u2022 \u221e';
     return;
   }
   var ms = subUntil - Date.now();
   if (ms <= 0) {
-    if (big) big.textContent = t('sub_expired');
-    if (clock) clock.textContent = '';
-    if (fill) fill.style.width = '0%';
+    if (hClock) hClock.textContent = ' \u2022 ' + t('sub_expired');
     return;
   }
   var d = Math.floor(ms / 86400000);
@@ -3053,21 +3192,11 @@ function tickSub() {
   var m = Math.floor((ms % 3600000) / 60000);
   var s = Math.floor((ms % 60000) / 1000);
   var lbl = '';
-  if (d > 0) {
-    lbl = t('k_days_fmt').replace('{n}', d);
-    if (clock) clock.textContent = h + 'h ' + m + 'm ' + s + 's';
-  } else if (h > 0) {
-    lbl = t('sub_hours').replace('{n}', h);
-    if (clock) clock.textContent = m + 'm ' + s + 's';
-  } else if (m > 0) {
-    lbl = t('sub_minutes').replace('{n}', m);
-    if (clock) clock.textContent = s + 's';
-  } else {
-    lbl = t('sub_seconds').replace('{n}', s);
-    if (clock) clock.textContent = '';
-  }
-  if (big) big.textContent = lbl;
-  if (fill && subTotal > 0) fill.style.width = Math.max(0, Math.min(100, ms / subTotal * 100)) + '%';
+  if (d > 0) lbl = d + 'd ' + h + 'h ' + m + 'm';
+  else if (h > 0) lbl = h + 'h ' + m + 'm ' + s + 's';
+  else if (m > 0) lbl = m + 'm ' + s + 's';
+  else lbl = s + 's';
+  if (hClock) hClock.textContent = ' \u2022 ' + lbl;
 }
 function applySub(session) {
   var out = document.getElementById('btnLogout');
@@ -3311,6 +3440,8 @@ function adminGenerate() {
   var body = {
     owner: document.getElementById('adminOwner').value.trim(),
     days: document.getElementById('adminDays').value,
+    hours: document.getElementById('adminHours').value,
+    game: document.getElementById('adminGame').value || null,
     plan: document.getElementById('adminPlan').value,
     price: document.getElementById('adminPrice').value,
     seller: document.getElementById('adminSeller').value.trim(),
@@ -3389,6 +3520,38 @@ function enterDashboard(sub) {
     document.getElementById('confirmList').addEventListener('click', confirmAction);
     document.getElementById('confirmList').addEventListener('click', priceEditClick);
     document.getElementById('confirmList').addEventListener('input', saveEdit);
+    document.getElementById('btnMarkAll').addEventListener('click', function () {
+      var btn = this;
+      if (btn.disabled) return;
+      btn.disabled = true;
+      var orig = btn.textContent;
+      btn.textContent = t('btn_placing');
+      fetch('/api/pending').then(function (r) { return r.json(); })
+        .then(function (d) {
+          var pending = d.pending || [];
+          if (!pending.length) { btn.disabled = false; btn.textContent = orig; return; }
+          var chain = Promise.resolve();
+          pending.forEach(function (p) {
+            chain = chain.then(function () {
+              return fetch('/api/confirm', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: p.id, action: 'discard' }) });
+            });
+          });
+          return chain;
+        })
+        .then(function () { btn.disabled = false; btn.textContent = orig; refreshConfirm(); refreshStats(); })
+        .catch(function () { btn.disabled = false; btn.textContent = orig; });
+    });
+    document.getElementById('filterPills').addEventListener('click', function (e) {
+      var btn = e.target.closest('button');
+      if (!btn) return;
+      var filter = btn.getAttribute('data-filter');
+      this.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      document.querySelectorAll('#confirmList .card').forEach(function (card) {
+        if (filter === 'all') { card.style.display = ''; return; }
+        card.style.display = card.getAttribute('data-status') === filter ? '' : 'none';
+      });
+    });
   }
   fetch('/api/config')
     .then(function (res) { return res.json(); })

@@ -38,6 +38,7 @@ Funciones: autostart, sesión persistente (keep-session), login con llave ligada
 | `src/pricing.mjs` | Cálculo de precios sugeridos por juego/categoría |
 | `src/dashboard.js` + `panel.html` | Panel local con cola de pedidos, stats y gestión de llaves |
 | `src/keys.mjs` | Sistema de llaves de licencia (dispositivos, expiración, planes) |
+| `src/license.js` | Chequeo online de llaves (lista negra en GitHub, hashes SHA-256) |
 | `src/store.js` + `landing.html` + `admin.html` | Tienda online (planes, pagos, `/api/buy` → genera key) |
 | `src/login.js` | Captura de sesión de Eldorado vía Chrome DevTools (CDP) |
 | `config/rules.json` | Reglas/filtros, webhook de Discord, planes y métodos de pago |
@@ -52,12 +53,41 @@ Funciones: autostart, sesión persistente (keep-session), login con llave ligada
 - Keys de prueba: gratis, 4 horas, limitadas a un juego y un dispositivo.
 - La key se activa la primera vez que el cliente inicia sesión; expira según el plan.
 
+## Revocación a distancia (lista negra en GitHub)
+
+Sin servidor propio: la revocación viaja por un **repo público de GitHub**. Los launchers de los clientes consultan un archivo de hashes; si la key está, bloquean el login y expulsan la sesión activa en unos minutos.
+
+### Configuración (una vez)
+
+1. Creá un repo público (ej. `boostpilot-license`) y un Personal Access Token con scope `repo` ([GitHub → Settings → Developer settings](https://github.com/settings/tokens)).
+2. Configurá todo con una sola línea (guarda el token en `state/github.json` y la URL en `config/license.json`):
+
+```bash
+node tools/setup-license.mjs --token=ghp_XXXX --repo=tuusuario/boostpilot-license
+```
+
+3. Recompilá el launcher para tus clientes (el archivo `config/license.json` viaja en el build; el token **no**).
+
+### Uso
+
+- **Revocar**: panel admin → Revocar (o `POST /api/keys/revoke`). Además de desactivar la key local, publica su hash en GitHub automáticamente. La respuesta incluye `online.published`.
+- **Resincronizar** toda la lista: botón *"Sincronizar revocadas a GitHub"* en `/admin` (o `POST /api/admin/license/push`).
+- **Estado**: tarjeta *Revocación online* en `/admin` (o `GET /api/admin/license`).
+
+### Seguridad
+
+- Solo se publican **hashes SHA-256** de las llaves, nunca las llaves en texto.
+- El token de GitHub vive solo en `state/github.json` (ignorado, no viaja en el build).
+- Si GitHub no responde, el launcher **deja entrar** (fail-open) para no bloquear a clientes pagos; la sesión se expulsa al restaurarse la conexión.
+- El archivo debe estar en un repo **público** para que los clientes puedan leerlo.
+
 ## Variables de entorno
 
 | Variable | Uso |
 |---|---|
 | `ELBOT_MASTER_KEY` | Llave maestra para el panel de administración (obligatoria) |
 | `ELBOT_STATE_DIR` | Carpeta de estado (por defecto `./state`) |
+| `ELBOT_LICENSE_URL` | URL de la lista negra (opcional; si está, gana sobre `config/license.json`) |
 | `CDP_PORT` | Puerto de depuración de Chrome para el login (por defecto `9222`) |
 | `BP_DISCORD_TOKEN` | Token del bot de Discord (alternativa a `state/discord.auth.json`) |
 
@@ -81,7 +111,24 @@ Flujo **manual** dentro de los tickets de Discord. Solo **USDT (red TRC20)** por
 node tools/test-panel.mjs
 node tools/test-fast-api.mjs
 node tools/test-rules.mjs
+node tools/test-dashboard.mjs
+node tools/test-license.mjs
+node tools/test-online-revoke.mjs
 node tools/e2e-test.mjs
+```
+
+### Tests en vivo (requieren el bot corriendo)
+
+```bash
+# Revocación online de punta a punta (vendedor + cliente). Usa ELBOT_MASTER_KEY
+# y lee la blacklist real de state/github.json; al final limpia todo.
+$env:ELBOT_MASTER_KEY = 'TU_KEY'
+$env:ELBOT_BLACKLIST_URL = 'https://raw.githubusercontent.com/USUARIO/boostpilot-license/main/blacklist.json'
+node tools/test-live-revoke.mjs
+
+# Tienda: planes públicos, landing, /api/buy genera key, admin y limpieza.
+$env:ELBOT_MASTER_KEY = 'TU_KEY'
+node tools/test-store-live.mjs
 ```
 
 ## Estado

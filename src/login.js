@@ -2,13 +2,22 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { mkdirSync } from 'fs';
 import fs from 'fs/promises';
+import net from 'net';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const stateDir = process.env.ELBOT_STATE_DIR || join(root, 'state');
 mkdirSync(stateDir, { recursive: true });
 const stateFile = join(stateDir, 'auth.json');
 
-const cdpPort = process.env.CDP_PORT || '9222';
+function findFreePort(start = 9222) {
+  return new Promise((resolve) => {
+    const srv = net.createServer();
+    srv.listen(start, '127.0.0.1', () => { const p = srv.address().port; srv.close(() => resolve(String(p))); });
+    srv.on('error', () => resolve(findFreePort(start + 1)));
+  });
+}
+
+const cdpPort = process.env.CDP_PORT || await findFreePort();
 const cdpBase = `http://127.0.0.1:${cdpPort}`;
 const loginTimeoutMs = Number(process.env.LOGIN_TIMEOUT || 120000);
 const cfStuckTimeoutMs = Number(process.env.CF_STUCK_TIMEOUT || 30000);

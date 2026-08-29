@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import path from 'node:path';
 import { EldoradoApi } from './eldorado-api.mjs';
 import { applyFilters, humanSummary, detectGame } from './rules.js';
-import { computePrice, interpretDescription, matchCategory } from './pricing.mjs';
+import { computePrice, interpretDescription, matchCategory, regionFromText } from './pricing.mjs';
 import { sendDiscord, embed, eventEnabled } from './webhook.mjs';
 import { getSessionGameRestriction } from './session.mjs';
 
@@ -24,7 +24,7 @@ const EVENT_COLORS = {
 };
 const EVENT_COLOR_FALLBACK = 0xf0b015;
 
-const CATEGORY_TOGGLE_KEYS = ['trophy boost', 'brawlers rank', 'prestige icon', 'rank boost', 'custom request'];
+const CATEGORY_TOGGLE_KEYS = ['trophy boost', 'brawlers rank', 'prestige icon', 'rank boost', 'net wins', 'placement matches', 'wins boost', 'custom request'];
 
 function categoryToggleKey(category) {
   const c = String(category || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
@@ -32,6 +32,9 @@ function categoryToggleKey(category) {
   if (/custom\s*request/.test(c)) return 'custom request';
   if (/prestige\s*icon/.test(c)) return 'prestige icon';
   if (/brawler/.test(c) && /rank/.test(c)) return 'brawlers rank';
+  if (/net\s*wins?/.test(c)) return 'net wins';
+  if (/placement/.test(c)) return 'placement matches';
+  if (/wins?\s*boost/.test(c)) return 'wins boost';
   if (/\branked|\brank\b|rank\s*boost/.test(c)) return 'rank boost';
   if (/troph/.test(c)) return 'trophy boost';
   return null;
@@ -185,29 +188,7 @@ export class FastMode {
 
   _pricingSkipReason(reason) {
     const r = String(reason || '');
-    return /se salta|venta\/intercambio|ya alcanzado|incluye pro/i.test(r);
-  }
-
-  _regionFromText(text) {
-    const t = String(text || '');
-    let val = (t.match(/server\s*[:]?\s*(.+?)(?=;|$)/i) || [])[1];
-    if (!val) val = (t.match(/region\s*[:]?\s*(.+?)(?=;|$)/i) || [])[1];
-    if (!val) return null;
-    const v = val.trim().toLowerCase().replace(/\s+/g, ' ').replace(/[()]/g, '');
-    const map = {
-      'north america': 'NA', 'na': 'NA', 'us': 'NA', 'usa': 'NA', 'canada': 'NA',
-      'europe': 'EU', 'eu': 'EU', 'europea': 'EU',
-      'asia': 'AP', 'apac': 'AP', 'southeast asia': 'AP', 'sea': 'AP', 'asia pacific': 'AP', 'oceania': 'AP', 'oce': 'AP', 'australia': 'AP',
-      'south america': 'LATAM', 'latam': 'LATAM', 'sudamerica': 'LATAM',
-      'brasil': 'BRASIL', 'brazil': 'BRASIL', 'br': 'BRASIL',
-      'korea': 'KR', 'korea del sur': 'KR', 'kr': 'KR', 'south korea': 'KR',
-    };
-    if (map[v]) return map[v];
-    for (const [k, c] of Object.entries(map)) {
-      if (k.length <= 2) { if (new RegExp(`\\b${k}\\b`).test(v)) return c; }
-      else if (v.includes(k)) return c;
-    }
-    return null;
+    return /se salta|venta\/intercambio|ya alcanzado|incluye pro|por debajo del mínimo|por encima del máximo/i.test(r);
   }
 
   buildText(item, details) {
@@ -273,7 +254,7 @@ export class FastMode {
 
     const gameCfg = (this.config.bot && this.config.bot.pricing && this.config.bot.pricing.games && this.config.bot.pricing.games[gameKey]) || {};
     if (gameCfg.regionLocked && gameCfg.regions) {
-      const region = this._regionFromText(text);
+      const region = regionFromText(text);
       if (region) {
         const rc = gameCfg.regions[region];
         if (!rc || rc.enabled === false) {
@@ -376,6 +357,24 @@ export class FastMode {
       return;
     }
     if (isAuto && suggested && !catDisabled) {
+      const globalMin = Number(this.cfg.minPricePerOffer);
+      const globalMax = Number(this.cfg.maxPricePerOffer);
+      if (Number.isFinite(globalMin) && globalMin > 0 && suggested.price < globalMin) {
+        console.log(`[fast][auto] OFERTA RECHAZADA: $${suggested.price} < mínimo global $${globalMin}. Queda en Confirmar.`);
+        const p = { id: item.id, href, game: label, category, description: summary, buyer: item.buyerUsername, price: suggested.price, deliveryTime: suggested.deliveryTime, etaLabel: suggested.etaLabel, note: `precio $${suggested.price} por debajo del mínimo $${globalMin}`, suggested: true, fields: details.descriptionValues || [], vip: false, createdAt: new Date().toISOString(), createdDate: item.createdDate || null };
+        this.pending.push(p);
+        this.stats.pending = this.pending.length;
+        await this.savePending();
+        return;
+      }
+      if (Number.isFinite(globalMax) && globalMax > 0 && suggested.price > globalMax) {
+        console.log(`[fast][auto] OFERTA RECHAZADA: $${suggested.price} > máximo global $${globalMax}. Queda en Confirmar.`);
+        const p = { id: item.id, href, game: label, category, description: summary, buyer: item.buyerUsername, price: suggested.price, deliveryTime: suggested.deliveryTime, etaLabel: suggested.etaLabel, note: `precio $${suggested.price} por encima del máximo $${globalMax}`, suggested: true, fields: details.descriptionValues || [], vip: false, createdAt: new Date().toISOString(), createdDate: item.createdDate || null };
+        this.pending.push(p);
+        this.stats.pending = this.pending.length;
+        await this.savePending();
+        return;
+      }
       const d0 = this.offerDetails({ fields: details.descriptionValues || [], description: summary });
       console.log(`[fast][auto] COLOCANDO OFERTA | ${label} | ${category || '-'} | ${d0.mode} | ${d0.boost} | $${suggested.price} | ${suggested.deliveryTime}`);
       const p = {
@@ -489,10 +488,15 @@ export class FastMode {
     let processed = 0;
     for (const item of items) {
       if (this.isSeen(item.id)) continue;
-      this.markSeen(item.id);
-      if (processed >= max) continue;
+      if (processed >= max) { this.markSeen(item.id); continue; }
       processed++;
-      await this.processRequest(item);
+      try {
+        await this.processRequest(item);
+        this.markSeen(item.id);
+      } catch (err) {
+        console.error(`[fast] Error procesando ${item.id.slice(0, 8)}: ${err.message}`);
+        this.stats.errors++;
+      }
     }
     const modeTag = this.cfg.autoPlace === true || this.cfg.autoPlace === 'auto' ? 'AUTO' : 'SEMI';
     if (processed === 0) {
@@ -917,11 +921,29 @@ export class FastMode {
   }
 
   async saveOrders() {
+    this._cleanOldOrders();
     try {
       const tmp = `${this.ordersFile}.${process.pid}.${Date.now()}.tmp`;
       await fs.writeFile(tmp, JSON.stringify([...this.orders.values()], null, 2));
       await fs.rename(tmp, this.ordersFile);
     } catch {}
+  }
+
+  _cleanOldOrders() {
+    const cutoff = Date.now() - 24 * 3600 * 1000;
+    for (const [id, o] of this.orders) {
+      const t = Date.parse(o.placedAt || o.createdAt || 0);
+      if (Number.isFinite(t) && t < cutoff) { this.orders.delete(id); }
+    }
+    this.stats.ordersTracked = this.orders.size;
+  }
+
+  _cleanupTracked() {
+    if (this.tracked.size < 500) return;
+    const cutoff = Date.now() - 3600 * 1000;
+    for (const [id, entry] of this.tracked) {
+      if (entry.ts && entry.ts < cutoff) this.tracked.delete(id);
+    }
   }
 
   _trackOrder(o) {
@@ -1000,6 +1022,14 @@ export class FastMode {
           createdAt: o.placedAt, seenAt: new Date().toISOString(),
         });
       } else if (state === 'Bought' || sellerState === 'OfferWon') {
+        if (!o.deliveredNotified && (sellerState === 'Delivered' || d.deliveryStatus === 'Delivered' || d.deliveryStatus === 'completed')) {
+          await this._sendDeliveredMessage(o);
+          await this.saveOrders();
+        }
+        if (!o.orderReceivedNotified && (state === 'Completed' || d.orderStatus === 'Completed' || d.buyerConfirmed === true)) {
+          await this._sendOrderReceivedMessage(o);
+          await this.saveOrders();
+        }
         if (!o.acceptedNotified) {
           if (!this._sellerUserId) {
             try {
@@ -1139,6 +1169,50 @@ export class FastMode {
     });
   }
 
+  async _sendDeliveredMessage(o) {
+    const chat = this.config.chat || {};
+    if (chat.enabled === false || chat.deliveredEnabled === false) return;
+    const text = chat.deliveredMessage || 'Your order has been delivered! Please check and confirm when ready. 🎉';
+    try {
+      await this._chatWithImage(o, text, { image: chat.deliveredImage || '', delayMs: chat.deliveredDelayMs });
+      console.log(`[chat] Mensaje de entrega enviado a ${o.buyer || '-'} por pedido ${o.id.slice(0, 8)}.`);
+    } catch (err) {
+      console.error(`[chat] No se pudo enviar mensaje de entrega: ${err.message}`);
+    }
+    o.deliveredNotified = true;
+    this._discord('delivered', {
+      title: 'Pedido ENTREGADO',
+      fields: [
+        { name: 'Pedido', value: o.id.slice(0, 8), inline: true },
+        { name: 'Juego', value: o.game || '-', inline: true },
+        { name: 'Comprador', value: o.buyer || '-', inline: true },
+        { name: 'Precio', value: o.price != null ? `$${o.price}` : '-', inline: true },
+      ],
+    });
+  }
+
+  async _sendOrderReceivedMessage(o) {
+    const chat = this.config.chat || {};
+    if (chat.enabled === false || chat.orderReceivedEnabled === false) return;
+    const text = chat.orderReceivedMessage || 'Thank you for confirming! If you enjoyed the service, a review would mean a lot. Have a great day! ⭐';
+    try {
+      await this._chatWithImage(o, text, { image: chat.orderReceivedImage || '', delayMs: chat.orderReceivedDelayMs });
+      console.log(`[chat] Mensaje de confirmación enviado a ${o.buyer || '-'} por pedido ${o.id.slice(0, 8)}.`);
+    } catch (err) {
+      console.error(`[chat] No se pudo enviar mensaje de confirmación: ${err.message}`);
+    }
+    o.orderReceivedNotified = true;
+    this._discord('orderReceived', {
+      title: 'Pedido CONFIRMADO por comprador',
+      fields: [
+        { name: 'Pedido', value: o.id.slice(0, 8), inline: true },
+        { name: 'Juego', value: o.game || '-', inline: true },
+        { name: 'Comprador', value: o.buyer || '-', inline: true },
+        { name: 'Precio', value: o.price != null ? `$${o.price}` : '-', inline: true },
+      ],
+    });
+  }
+
   async _sendFollowUp(o) {
     const chat = this.config.chat || {};
     if (chat.enabled === false || chat.followUpEnabled === false) return { ok: false, error: 'Recordatorios deshabilitados.' };
@@ -1171,6 +1245,24 @@ export class FastMode {
     o.lastFollowUpAt = new Date().toISOString();
     await this.saveOrders();
     return { ok: true, sentAt: o.lastFollowUpAt };
+  }
+
+  async sendDeliveredById(id) {
+    const o = this.orders.get(id);
+    if (!o) return { ok: false, error: 'Pedido no rastreado.' };
+    if (o.deliveredNotified) return { ok: false, error: 'Ya se envió el mensaje de entrega.' };
+    await this._sendDeliveredMessage(o);
+    await this.saveOrders();
+    return { ok: true };
+  }
+
+  async sendOrderReceivedById(id) {
+    const o = this.orders.get(id);
+    if (!o) return { ok: false, error: 'Pedido no rastreado.' };
+    if (o.orderReceivedNotified) return { ok: false, error: 'Ya se envió el mensaje de confirmación.' };
+    await this._sendOrderReceivedMessage(o);
+    await this.saveOrders();
+    return { ok: true };
   }
 
   async _runOrdersLoop(everyMs) {
@@ -1342,6 +1434,7 @@ export class FastMode {
         this._ordersLoop = this._runOrdersLoop(ordersEvery);
         console.log(`[fast] Seguimiento de pedidos (aceptados + respuesta) cada ${Math.round(ordersEvery / 1000)}s.`);
       }
+      this._startRefreshLoop();
     }
     while (this.running) {
       if (this.paused) {
@@ -1359,13 +1452,15 @@ export class FastMode {
       const nowBeat = Date.now();
       if (!this._lastBeat || nowBeat - this._lastBeat > 60000) {
         this._lastBeat = nowBeat;
+        this._cleanupTracked();
         const m = this.cfg.autoPlace === true || this.cfg.autoPlace === 'auto' ? 'AUTO' : 'SEMI';
         console.log(`[fast][${m}] vivo | polls=${this.stats.polls} encontrados=${this.stats.found} colocados=${this.stats.placed} pendientes=${this.stats.pending} errores=${this.stats.errors} ultimoPoll=${this.stats.lastPoll ? this.stats.lastPoll.slice(11, 19) : '-'}`);
       }
       } catch (err) {
-        if (err && err.code === 'ENOENT') {
+        if (err && (err.code === 'ENOENT' || (err.status === 401) || (err.status === 403))) {
           this._noSession = true;
           this._waitAuth();
+          console.log('[fast] Sesión de Eldorado perdida (HTTP ' + (err.status || err.code) + '). Esperando nueva sesión...');
           await new Promise((r) => setTimeout(r, 1000));
           continue;
         }
@@ -1377,11 +1472,30 @@ export class FastMode {
       const jitter = Math.floor(Math.random() * (this.cfg.pollJitterMs || 1500));
       let wait = base + jitter;
       if (this._consecutiveErrors > 0) {
-        const backoff = Math.min(this.cfg.maxBackoffMs || 60000, 5000 * 2 ** (this._consecutiveErrors - 1));
+        const retryMs = (err && err.retryAfter) ? err.retryAfter * 1000 : 0;
+        const backoff = Math.min(this.cfg.maxBackoffMs || 60000, Math.max(retryMs, 5000 * 2 ** (this._consecutiveErrors - 1)));
         wait = Math.max(wait, backoff);
       }
       await new Promise((r) => setTimeout(r, wait));
     }
+  }
+
+  _startRefreshLoop() {
+    if (this._refreshLoop) return;
+    const intervalMs = 10 * 60 * 1000;
+    this._refreshLoop = setInterval(async () => {
+      if (this._noSession || this.paused) return;
+      try {
+        await this.api.refresh();
+      } catch (err) {
+        if (err && (err.status === 401 || err.status === 403)) {
+          this._noSession = true;
+          this._waitAuth();
+          console.log('[fast][refresh] Sesión perdida durante keep-alive. Esperando nueva sesión...');
+        }
+      }
+    }, intervalMs);
+    if (this._refreshLoop.unref) this._refreshLoop.unref();
   }
 
   async _waitAuth() {
@@ -1404,6 +1518,7 @@ export class FastMode {
             console.log(`[fast] Seguimiento de pedidos (aceptados + respuesta) cada ${Math.round(ordersEvery / 1000)}s.`);
           }
         }
+        this._startRefreshLoop();
       } catch (err) {
         this._waitTimer = setTimeout(tryInit, 30000);
       }

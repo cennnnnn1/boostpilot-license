@@ -73,17 +73,18 @@ export function applyFilters({ text, category, game } = {}, config) {
   const f = config.filters || {};
   if (!f.enabled) return { skip: false };
   const t = String(text || '').toLowerCase();
+  const gameCfg = (game && config.bot && config.bot.pricing && config.bot.pricing.games && config.bot.pricing.games[game]) || {};
   if (/custom request/i.test(String(category || '')) && hasCustomRange(t)) {
     return { skip: true, reason: 'custom request con rango/prestigio' };
   }
 
-  if (f.skipDuo && /\bduo\b|duo queue|duos\b/i.test(t)) {
+  if (gameCfg.skipDuo !== false && /\bduo\b|duo queue|duos\b/i.test(t)) {
     return { skip: true, reason: 'duo' };
   }
-  if (f.skipSquad && /\bsquad\b|\bstack\b|5[- ]?stack\b|\btrio\b|\bparty\b|\bteams?\b|\bteammates?\b|\bequipos?\b|\bclub\b/i.test(t)) {
+  if (gameCfg.skipSquad !== false && /\bsquad\b|\bstack\b|5[- ]?stack\b|\btrio\b|\bparty\b|\bteams?\b|\bteammates?\b|\bequipos?\b|\bclub\b/i.test(t)) {
     return { skip: true, reason: 'squad' };
   }
-  if (f.skipConsole && /playstation|\bxbox\b|\bswitch\b|\bwii\b|\bnintendo\b|\bconsole\b/i.test(t)) {
+  if (gameCfg.skipConsole !== false && /playstation|\bxbox\b|\bswitch\b|\bwii\b|\bnintendo\b|\bconsole\b/i.test(t)) {
     return { skip: true, reason: 'console' };
   }
   if (Array.isArray(f.skipKeywords)) {
@@ -110,5 +111,5 @@ export function applyFilters({ text, category, game } = {}, config) {
 }
 
 export function humanSummary(text) {
-  return text.replace(/\s+/g, ' ').trim().slice(0, 220);
+  return text.replace(/\s+/g, ' ').trim().slice(0, 2000);
 }

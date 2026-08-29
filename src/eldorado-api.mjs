@@ -8,6 +8,13 @@ const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
 const STATE_ROOT = process.env.ELBOT_STATE_DIR || join(dirname(fileURLToPath(import.meta.url)), '..', 'state');
 const AUTH_PATH = join(STATE_ROOT, 'auth.json');
 
+try {
+  const undici = await import('undici');
+  const agent = new undici.Agent({ keepAliveTimeout: 30000, keepAliveMaxTimeout: 60000, connections: 4 });
+  undici.setGlobalDispatcher(agent);
+} catch {}
+
+
 export class EldoradoApiError extends Error {
   constructor(status, messages, correlationId) {
     super((messages || []).join('; ') || `HTTP ${status}`);
@@ -25,7 +32,8 @@ export class EldoradoApi {
   }
 
   async init() {
-    const auth = JSON.parse(await fs.readFile(this.authPath, 'utf8'));
+    const raw = await fs.readFile(this.authPath, 'utf8');
+    const auth = JSON.parse(raw.charCodeAt(0) === 0xFEFF ? raw.slice(1) : raw);
     const hasIdToken = (auth.cookies || []).some((c) => c.name === '__Host-EldoradoIdToken' && c.value);
     if (!hasIdToken) {
       this.cookie = '';
@@ -50,11 +58,13 @@ export class EldoradoApi {
 
   _applySetCookie(setCookies) {
     for (const sc of setCookies || []) {
-      const m = sc.match(/^([^=]+)=([^;]*)/);
-      if (!m) continue;
-      const [_, name, value] = m;
+      const eqIdx = sc.indexOf('=');
+      if (eqIdx === -1) continue;
+      const name = sc.slice(0, eqIdx);
+      const semiIdx = sc.indexOf(';');
+      const value = semiIdx === -1 ? sc.slice(eqIdx + 1) : sc.slice(eqIdx + 1, semiIdx);
       if (this.cookie.includes(name + '=')) {
-        const re = new RegExp(`(^|; )${name}=[^;]*`);
+        const re = new RegExp(`(^|; )${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}=[^;]*`);
         this.cookie = this.cookie.replace(re, `$1${name}=${value}`);
       } else {
         this.cookie += `; ${name}=${value}`;
@@ -69,15 +79,17 @@ export class EldoradoApi {
   }
 
   async persistCookies() {
-    const auth = JSON.parse(await fs.readFile(this.authPath, 'utf8'));
-    const cookieNames = new Set();
+    const raw = await fs.readFile(this.authPath, 'utf8');
+    const auth = JSON.parse(raw.charCodeAt(0) === 0xFEFF ? raw.slice(1) : raw);
     for (const pair of this.cookie.split('; ')) {
-      const [name, value] = pair.split('=');
+      const eqIdx = pair.indexOf('=');
+      if (eqIdx === -1) continue;
+      const name = pair.slice(0, eqIdx);
+      const value = pair.slice(eqIdx + 1);
       const cookie = auth.cookies.find((c) => c.name === name && c.domain.endsWith('eldorado.gg'));
       if (cookie) {
         cookie.value = value;
         cookie.expires = (Date.now() / 1000) + 30 * 24 * 3600;
-        cookieNames.add(name);
       }
     }
     await this._writeAuthJson(auth);
@@ -122,7 +134,10 @@ export class EldoradoApi {
       throw new EldoradoApiError(res.status, parsed.messages, parsed.correlationId);
     }
     if (!res.ok) {
-      throw new EldoradoApiError(res.status, [text.slice(0, 200)]);
+      const retryAfter = res.headers.get('retry-after');
+      const err = new EldoradoApiError(res.status, [text.slice(0, 200)]);
+      if (retryAfter) err.retryAfter = Number(retryAfter) || 60;
+      throw err;
     }
     return { res, body: parsed, setCookies: res.headers.getSetCookie ? res.headers.getSetCookie() : [] };
   }
@@ -157,25 +172,12 @@ export class EldoradoApi {
     });
   }
 
-  getSellerRequests({ cursorValue = null, pageSize = 50 } = {}) {
-    return this.request('GET', 'boostingOffers/me/boostingRequests', undefined, {
-      cursorValue,
-      cursorColumn: null,
-      pageSize,
-      pageDirection: 'Next',
-    });
-  }
-
   getProfile() {
     return this.request('GET', 'users/me');
   }
 
   getRequestDetails(id) {
     return this.request('GET', `boostingOffers/boostingRequests/${id}/details`);
-  }
-
-  markRequestViewed(id) {
-    return this.request('PUT', `boostingOffers/boostingRequests/${id}/viewer`);
   }
 
   placeOffer({ boostingRequestId, guaranteedDeliveryTime, amountUsd }) {

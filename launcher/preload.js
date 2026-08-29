@@ -10,5 +10,7 @@ contextBridge.exposeInMainWorld('launcher', {
   restartBot: () => ipcRenderer.invoke('restart-bot'),
   openStore: () => ipcRenderer.invoke('open-store'),
   loginEldorado: () => ipcRenderer.invoke('login-eldorado'),
+  checkUpdate: () => ipcRenderer.invoke('check-update'),
+  applyUpdate: () => ipcRenderer.invoke('apply-update'),
   quit: () => ipcRenderer.invoke('quit-app'),
 });

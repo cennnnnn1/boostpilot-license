@@ -1,12 +1,12 @@
 {
   "name": "eldorado-bot-launcher",
-  "version": "1.5.0",
+  "version": "1.7.22",
   "description": "BoostPilot - Launcher de escritorio",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "node ../tools/sanitize-config.mjs && electron-builder"
   },
   "author": "BoostPilot",
   "license": "UNLICENSED",
@@ -32,7 +32,7 @@
         ]
       },
       {
-        "from": "../config",
+        "from": "build/config",
         "to": "bot/config"
       },
       {
@@ -76,3 +76,4 @@
     "electron-winstaller@5.4.0": true
   }
 }
+

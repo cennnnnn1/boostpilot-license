@@ -25,15 +25,15 @@
     radial-gradient(900px 600px at 50% 120%,rgba(255,106,138,.08),transparent 60%),
     linear-gradient(180deg,#0a0d1a 0%,#07080f 100%);}
   header{
-    display:flex;align-items:center;gap:12px;padding:18px 24px;
-    border-bottom:1px solid var(--line);background:rgba(7,8,15,.8);position:sticky;top:0;
+    display:flex;align-items:center;gap:12px;padding:16px 24px;
+    border-bottom:1px solid var(--line);background:rgba(7,8,15,.8);position:sticky;top:0;z-index:10;
   }
   .brand{font-weight:800;font-size:17px;display:flex;align-items:center;gap:10px}
   .brand em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
   .brand .sub{font-weight:600;color:var(--muted);font-size:13px;margin-left:4px}
-  main{max-width:980px;margin:0 auto;padding:26px 20px 80px}
-  .grid{display:grid;grid-template-columns:1fr 1.4fr;gap:20px}
-  @media(max-width:860px){.grid{grid-template-columns:1fr}}
+  main{max-width:1180px;margin:0 auto;padding:24px 20px 80px}
+  .grid{display:grid;grid-template-columns:1fr 1.7fr;gap:20px;align-items:start}
+  @media(max-width:980px){.grid{grid-template-columns:1fr}}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
   .card h2{font-size:15px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
   .card h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--pink);box-shadow:0 0 10px var(--pink)}
@@ -43,11 +43,15 @@
     border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;outline:none;
   }
   input:focus,select:focus{border-color:var(--pink)}
+  input[type=checkbox]{width:auto}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .chk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);font-weight:600;cursor:pointer;margin-top:12px}
+  .chk input{accent-color:var(--pink);width:17px;height:17px}
   .btn{
     display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:10px;
     padding:10px 16px;font-size:13.5px;font-weight:700;cursor:pointer;border:1px solid transparent;
-    font-family:inherit;transition:transform .15s,filter .15s;
+    font-family:inherit;transition:transform .15s,filter .15s;white-space:nowrap;
   }
   .btn:active{transform:scale(.98)}
   .btn-grad{background:var(--grad);color:#1a0710;width:100%;margin-top:16px;box-shadow:0 6px 20px rgba(255,106,138,.25)}
@@ -58,37 +62,42 @@
   .btn-green:hover{background:rgba(52,211,153,.22)}
   .btn-red{background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.35);color:var(--red);padding:5px 10px;font-size:12px}
   .btn-red:hover{background:rgba(248,113,113,.22)}
+  .icon-btn{
+    width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;
+    border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--line2);
+    color:var(--text);cursor:pointer;font-size:14px;transition:transform .12s,border-color .12s;
+  }
+  .icon-btn:hover{border-color:var(--pink);transform:scale(1.06)}
+  .icon-btn.warn{color:var(--red)}
+  .icon-btn.ok{color:var(--green)}
   .keybox{
     display:none;margin-top:14px;background:var(--bg2);border:1px solid var(--green);
-    border-radius:12px;padding:12px;font-family:Consolas,monospace;font-size:15px;letter-spacing:.5px;
+    border-radius:12px;padding:12px;font-family:Consolas,monospace;font-size:14px;letter-spacing:.5px;
   }
   .keybox.visible{display:block}
   .keybox .copy{display:inline-flex;margin-top:8px}
   table{width:100%;border-collapse:collapse;font-size:13px}
   th{text-align:left;color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;
-     padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
-  td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+     padding:8px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+  td{padding:8px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
   tr:hover td{background:rgba(255,255,255,.02)}
-  .mono{font-family:Consolas,monospace;font-size:12.5px}
-  .badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700}
+  .mono{font-family:Consolas,monospace;font-size:12px}
+  .muted{color:var(--muted)}
+  .small{font-size:11px}
+  .badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;margin:1px 2px 1px 0}
   .b-active{background:rgba(52,211,153,.14);color:var(--green)}
   .b-unused{background:rgba(240,185,11,.14);color:var(--gold)}
   .b-expired,.b-revoked{background:rgba(248,113,113,.14);color:var(--red)}
   .b-unpaid{background:rgba(248,113,113,.10);color:#fca5a5}
-  .actions{display:flex;gap:6px;flex-wrap:wrap}
+  .b-vip{background:rgba(240,185,11,.20);color:var(--gold)}
+  .b-remote{background:rgba(255,106,138,.14);color:var(--pink3)}
+  .actions{display:flex;gap:5px;flex-wrap:wrap}
   .msg{display:none;margin-top:10px;padding:10px 12px;border-radius:10px;font-size:13px}
   .msg.ok{display:block;background:rgba(52,211,153,.10);border:1px solid rgba(52,211,153,.35);color:var(--green)}
   .msg.err{display:block;background:rgba(248,113,113,.10);border:1px solid rgba(248,113,113,.35);color:var(--red)}
   .hint{font-size:12px;color:var(--faint);margin-top:10px}
-  .trial-toggle{
-    display:flex;align-items:center;gap:10px;background:rgba(240,185,11,.06);
-    border:1px solid rgba(240,185,11,.30);border-radius:12px;padding:12px 14px;
-    font-size:13.5px;font-weight:700;cursor:pointer;color:var(--text);margin-bottom:4px;
-  }
-  .trial-toggle input{width:18px;height:18px;accent-color:var(--gold);margin:0}
-  .trial-note{font-size:12px;color:var(--gold);margin-top:6px;display:none}
-  .trial-note.visible{display:block}
-  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .toolbar .search{flex:1;min-width:170px}
   .spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--line2);border-top-color:var(--pink);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px}
   @keyframes spin{to{transform:rotate(360deg)}}
   .empty{color:var(--faint);text-align:center;padding:22px;font-size:13.5px}
@@ -96,6 +105,24 @@
   .login-card{max-width:380px;width:100%}
   .logout-btn{display:none;margin-left:auto}
   .logout-btn.visible{display:inline-flex}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:20px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .stat .v{font-size:21px;font-weight:800;line-height:1.2}
+  .stat .l{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+  .stat.s-green .v{color:var(--green)} .stat.s-gold .v{color:var(--gold)}
+  .stat.s-red .v{color:var(--red)} .stat.s-pink .v{color:var(--pink3)}
+  .toast{position:fixed;top:18px;right:18px;z-index:99;padding:12px 16px;border-radius:12px;font-size:13.5px;font-weight:600;
+    background:var(--panel);border:1px solid var(--line2);box-shadow:0 10px 30px rgba(0,0,0,.5);transition:opacity .3s;max-width:340px}
+  .toast.ok{border-color:rgba(52,211,153,.45);color:var(--green)}
+  .toast.err{border-color:rgba(248,113,113,.45);color:var(--red)}
+  .toast.out{opacity:0}
+  .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:60;align-items:flex-start;justify-content:center;padding:60px 16px}
+  .modal.visible{display:flex}
+  .modal-card{max-width:560px;width:100%;max-height:76vh;overflow:auto;background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:20px}
+  .modal-card h3{font-size:14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .modal-card .x{cursor:pointer;color:var(--muted);font-size:18px;line-height:1}
+  .modal-card .x:hover{color:var(--pink3)}
+  .dev{padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;font-size:12.5px}
 </style>
 </head>
 <body>
@@ -122,58 +149,108 @@
 </div>
 
 <main id="panelMain" style="display:none">
+  <div class="stats" id="statsRow">
+    <div class="stat"><div class="v" id="st-total">—</div><div class="l">Total</div></div>
+    <div class="stat s-green"><div class="v" id="st-active">—</div><div class="l">Activas</div></div>
+    <div class="stat s-gold"><div class="v" id="st-unused">—</div><div class="l">Sin activar</div></div>
+    <div class="stat s-red"><div class="v" id="st-expired">—</div><div class="l">Vencidas</div></div>
+    <div class="stat s-red"><div class="v" id="st-revoked">—</div><div class="l">Revocadas</div></div>
+    <div class="stat s-pink"><div class="v" id="st-unpaid">—</div><div class="l">Impagas</div></div>
+    <div class="stat s-green"><div class="v" id="st-revenue">—</div><div class="l">Cobrado</div></div>
+  </div>
+
   <div class="grid">
     <div class="card">
       <h2><span class="dot"></span> Generar key</h2>
-      <label class="trial-toggle"><input type="checkbox" id="trial"> 🎁 Key de prueba (gratis · 4 horas · 1 juego)</label>
-      <div id="normalFields">
-        <label>Plan</label>
-        <select id="plan"></select>
-      </div>
-      <div id="trialFields" style="display:none">
-        <label>Juego (solo este juego)</label>
-        <select id="game"></select>
-        <div class="hint">Key gratis de <b>4 horas</b> para <b>1 juego</b> · 1 dispositivo</div>
-      </div>
-      <label>Cliente (nombre / Discord)</label>
-      <input id="owner" placeholder="ej. cendynho" autocomplete="off">
       <div class="row2">
-        <div>
-          <label>Cantidad</label>
-          <input id="count" type="number" min="1" max="50" value="1">
+        <div><label>Plan</label>
+          <select id="plan">
+            <option value="custom">Personalizado</option>
+          </select>
         </div>
-        <div>
-          <label>Precio (USD)</label>
-          <input id="price" type="number" min="0" step="0.01" value="30">
-        </div>
+        <div><label>Días</label><input id="days" type="number" min="0" max="36500" placeholder="30"></div>
       </div>
+      <div class="row2">
+        <div><label>Horas (opcional)</label><input id="hours" type="number" min="0" max="8760" placeholder="0"></div>
+        <div></div>
+      </div>
+      <div class="row2">
+        <div><label>Cliente (nombre / Discord)</label><input id="owner" placeholder="ej. cendynho" autocomplete="off"></div>
+        <div><label>Vendedor (opcional)</label><input id="seller" placeholder="ej. cendynho" autocomplete="off"></div>
+      </div>
+      <div class="row2">
+        <div><label>Cantidad</label><input id="count" type="number" min="1" max="50" value="1"></div>
+        <div><label>Precio (USD)</label><input id="price" type="number" min="0" step="0.01" value="30"></div>
+      </div>
+      <label class="chk"><input type="checkbox" id="paid" checked> Pagada</label>
+      <label>Nota (opcional)</label>
+      <input id="note" placeholder="ej. cupón / promo / ticket #12" autocomplete="off">
       <button class="btn btn-grad" id="genBtn">Generar key</button>
       <div class="keybox" id="keybox">
         <div id="keylist"></div>
         <button class="btn btn-ghost copy" id="copyBtn">📋 Copiar</button>
       </div>
       <div class="msg" id="msg"></div>
-      <div class="hint">Genera la key DESPUÉS de confirmar el pago en tronscan.org.</div>
+      <div class="hint">Genera la key DESPUÉS de confirmar el pago en tronscan.org. Dejá "Horas" en 0 para key de días.</div>
     </div>
 
     <div class="card">
       <div class="toolbar">
         <h2 style="margin:0"><span class="dot"></span> Keys</h2>
-        <button class="btn btn-ghost" id="refreshBtn">⟳ Actualizar</button>
+        <input class="search" id="search" placeholder="🔍 Buscar llave / cliente / plan / vendedor…" autocomplete="off">
+        <select id="statusFilter" style="width:auto">
+          <option value="all">Todos</option>
+          <option value="active">Activas</option>
+          <option value="unused">Sin activar</option>
+          <option value="expired">Vencidas</option>
+          <option value="unpaid">Impagas</option>
+          <option value="revoked">Revocadas</option>
+        </select>
+        <button class="btn btn-ghost" id="exportBtn" title="Descargar CSV">⬇ CSV</button>
+        <button class="btn btn-ghost" id="refreshBtn">⟳</button>
       </div>
       <div style="overflow-x:auto">
         <table>
-          <thead><tr><th>Llave</th><th>Cliente</th><th>Plan</th><th>Juego</th><th>Estado</th><th>Restante</th><th>Vence</th><th></th></tr></thead>
+          <thead><tr><th>Llave</th><th>Cliente</th><th>Plan</th><th>Estado</th><th>Restante</th><th>Vence</th><th>Dispositivo</th><th>Acciones</th></tr></thead>
           <tbody id="rows"><tr><td colspan="8"><div class="empty">Cargando…</div></td></tr></tbody>
         </table>
       </div>
+      <div class="hint" id="rowCount"></div>
     </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <div class="toolbar">
+      <h2 style="margin:0"><span class="dot"></span> Revocación online (GitHub)</h2>
+      <button class="btn btn-ghost" id="licRefreshBtn">⟳ Estado</button>
+    </div>
+    <div id="licStatus" style="font-size:13px;color:var(--muted)">Cargando…</div>
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-green" id="licPushBtn">⬆ Sincronizar revocadas a GitHub</button>
+    </div>
+    <div class="msg" id="licMsg"></div>
+    <div class="hint" style="margin-top:10px">Cuando revocás una key, su hash se publica solo en tu repo. Los launchers de los clientes lo consultan y bloquean/expulsan la sesión. Configuración: <b>node tools/setup-license.mjs --token=… --repo=…</b></div>
   </div>
 </main>
 
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <h3><span id="modalTitle"></span><span class="x" id="modalClose">✕</span></h3>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
 <script>
 const $ = (s) => document.querySelector(s);
-let lastKeys = [];
+let allKeys = [];
+let devicesByKey = {};
+let filter = 'all';
+let search = '';
+
+async function sha256Hex(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(str || '').trim().toUpperCase()));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
 
 async function api(path, opts) {
   const r = await fetch(path, opts);
@@ -182,8 +259,140 @@ async function api(path, opts) {
   return d;
 }
 
+function toast(text, isErr) {
+  const t = document.createElement('div');
+  t.className = 'toast ' + (isErr ? 'err' : 'ok');
+  t.textContent = text;
+  document.body.appendChild(t);
+  setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 320); }, 3400);
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleString('es-PE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
+
+function keyState(k) {
+  if (!k.active) return 'revoked';
+  if (!k.paid) return 'unpaid';
+  if (k.expired) return 'expired';
+  if (k.activatedAt) return 'active';
+  return 'unused';
+}
+
+function statusBadge(k) {
+  const st = keyState(k);
+  const map = {
+    active: '<span class="badge b-active">activa</span>',
+    unused: '<span class="badge b-unused">sin activar</span>',
+    expired: '<span class="badge b-expired">vencida</span>',
+    revoked: '<span class="badge b-revoked">revocada</span>',
+    unpaid: '<span class="badge b-unpaid">sin pago</span>',
+  };
+  let b = map[st];
+  if (k.trial) b += '<span class="badge b-trial">prueba</span>';
+  if (k.remote) b += '<span class="badge b-remote">remota</span>';
+  return b;
+}
+
+function timeLeft(k) {
+  if (!k.active) return '—';
+  if (!k.activatedAt) return k.hours ? k.hours + ' h' : k.days + ' días';
+  if (k.expired) return '—';
+  return k.hours ? k.hoursLeft + ' h' : (k.daysLeft + ' días');
+}
+
+function iconBtn(icon, title, cls, onclick) {
+  return '<button class="icon-btn ' + (cls || '') + '" title="' + title + '" onclick="' + onclick + '">' + icon + '</button>';
+}
+
+function actionsCell(k) {
+  const st = keyState(k);
+  const de = devicesByKey[k.key.toUpperCase()];
+  let b = '';
+  b += iconBtn('📋', 'Copiar llave', '', `copyKey('${k.key}')`);
+  if (k.active && !k.trial) b += iconBtn('⏫', 'Sumar días', '', `extendKey('${k.key}')`);
+  if (st === 'unpaid') b += iconBtn('💵', 'Marcar como pagada', 'ok', `markPaid('${k.key}')`);
+  b += iconBtn('🔓', 'Restablecer HWID (expulsar dispositivo)', de ? 'warn' : '', `resetDevice('${k.key}')`);
+  b += iconBtn('🕘', 'Historial', '', `showHistory('${k.key}')`);
+  if (k.active) b += iconBtn('⛔', 'Revocar', 'warn', `revokeKey('${k.key}')`);
+  else b += iconBtn('✅', 'Reactivar', 'ok', `reactivateKey('${k.key}')`);
+  b += iconBtn('🗑️', 'Eliminar', 'warn', `deleteKey('${k.key}')`);
+  return '<div class="actions">' + b + '</div>';
+}
+
+function render() {
+  const q = search.toLowerCase();
+  const rows = allKeys.filter((k) => {
+    if (filter !== 'all' && keyState(k) !== filter) return false;
+    if (!q) return true;
+    return [k.key, k.owner, k.plan, k.seller, k.note, k.game].join(' ').toLowerCase().includes(q);
+  });
+  const tb = $('#rows');
+  $('#rowCount').textContent = rows.length + ' de ' + allKeys.length + ' key(s)';
+  if (!rows.length) {
+    tb.innerHTML = '<tr><td colspan="8"><div class="empty">' + (allKeys.length ? 'Sin resultados.' : 'No hay keys todavía.') + '</div></td></tr>';
+    return;
+  }
+  tb.innerHTML = rows.map((k) => `
+    <tr>
+      <td class="mono" title="${escapeHtml(k.note || '')}">${escapeHtml(k.key)}</td>
+      <td>${escapeHtml(k.owner)}${k.seller ? '<div class="muted small">por ' + escapeHtml(k.seller) + '</div>' : ''}</td>
+      <td>${escapeHtml(k.plan)}${k.hours ? ' <span class="badge">' + k.hours + 'h</span>' : ''}</td>
+      <td>${statusBadge(k)}</td>
+      <td>${timeLeft(k)}</td>
+      <td class="muted">${fmtDate(k.expiresAt)}</td>
+      <td>${deviceCell(k)}</td>
+      <td>${actionsCell(k)}</td>
+    </tr>`).join('');
+}
+
+function deviceCell(k) {
+  const de = devicesByKey[k.key.toUpperCase()];
+  if (!de) return '<span class="muted small">libre</span>';
+  if (de.released) return '<span class="badge" title="HWID liberado (Restablecer HWID) · ' + (de.at ? fmtDate(de.at) : '') + '">liberado</span>';
+  const id = String(de.device || '').slice(0, 10);
+  const at = de.at ? 'Reclamado: ' + fmtDate(de.at) : '';
+  return '<span class="badge b-active" title="' + escapeHtml((de.device || '') + (at ? ' · ' + at : '')) + '">en uso · ' + escapeHtml(id) + '…</span>';
+}
+
+async function loadStats() {
+  try {
+    const d = await api('/api/admin/metrics');
+    const s = d.stats;
+    $('#st-total').textContent = s.total;
+    $('#st-active').textContent = s.active;
+    $('#st-unused').textContent = s.unused;
+    $('#st-expired').textContent = s.expired;
+    $('#st-revoked').textContent = s.revoked;
+    $('#st-unpaid').textContent = s.unpaid;
+    $('#st-revenue').textContent = '$' + (s.revenuePaid || 0);
+  } catch (e) { toast('Error cargando métricas: ' + e.message, true); }
+}
+
+async function loadKeys() {
+  try {
+    const d = await api('/api/keys');
+    allKeys = d.keys;
+    const byHash = {};
+    let devMap = {};
+    try { devMap = (await api('/api/admin/devices')).devices || {}; } catch (e) {}
+    for (const k of allKeys) {
+      try { byHash[k.key.toUpperCase()] = devMap[await sha256Hex(k.key)] || null; }
+      catch (e) { byHash[k.key.toUpperCase()] = null; }
+    }
+    devicesByKey = byHash;
+    render();
+  } catch (e) {
+    $('#rows').innerHTML = '<tr><td colspan="8"><div class="empty">Error: ' + escapeHtml(e.message) + '</div></td></tr>';
+  }
+}
+
 function showLogin() {
-  document.querySelector('main').style.display = 'none';
   $('#panelMain').style.display = 'none';
   $('#logoutBtn').classList.remove('visible');
   $('#loginScreen').style.display = 'flex';
@@ -195,6 +404,8 @@ function showPanel() {
   $('#logoutBtn').classList.add('visible');
   loadPlans();
   loadKeys();
+  loadStats();
+  loadLicense();
 }
 
 async function checkSession() {
@@ -228,7 +439,6 @@ $('#loginBtn').onclick = async () => {
 };
 
 $('#masterKey').onkeydown = (e) => { if (e.key === 'Enter') $('#loginBtn').click(); };
-
 $('#logoutBtn').onclick = async () => {
   try { await api('/api/admin/logout', { method: 'POST' }); } catch (e) {}
   location.reload();
@@ -238,7 +448,7 @@ async function loadPlans() {
   try {
     const d = await api('/api/plans');
     const sel = $('#plan');
-    sel.innerHTML = '';
+    sel.innerHTML = '<option value="custom">Personalizado</option>';
     for (const p of d.plans) {
       const o = document.createElement('option');
       o.value = p.id;
@@ -247,21 +457,28 @@ async function loadPlans() {
     }
     if (d.plans.length) onPlanChange();
     sel.onchange = onPlanChange;
-    const gs = $('#game');
-    gs.innerHTML = '';
-    for (const g of (d.games || [])) {
-      const o = document.createElement('option');
-      o.value = g.id;
-      o.textContent = g.label;
-      gs.appendChild(o);
-    }
   } catch (e) { showMsg(e.message, true); }
 }
 
 function onPlanChange() {
   api('/api/plans').then((d) => {
-    const p = d.plans.find((x) => x.id === $('#plan').value);
-    if (p) $('#price').value = p.price;
+    const val = $('#plan').value;
+    const p = val === 'custom' ? null : d.plans.find((x) => x.id === val);
+    if (!p) {
+      // Personalizado: dejar que el staff escriba días/horas
+      $('#price').value = '';
+      $('#days').value = '';
+      $('#days').placeholder = '30';
+      $('#hours').value = '';
+      $('#hours').disabled = false;
+      return;
+    }
+    $('#price').value = p.price;
+    $('#days').value = p.days || '';
+    $('#days').placeholder = 'auto (' + (p.days || '') + ' días)';
+    // Autocompletar horas si el plan las define
+    $('#hours').value = (p.hours || p.hoursPerDay || 0) || '';
+    $('#hours').disabled = false;
   }).catch(() => {});
 }
 
@@ -272,77 +489,48 @@ function showMsg(text, isErr) {
   setTimeout(() => { m.className = 'msg'; }, 6000);
 }
 
-function statusBadge(k) {
-  if (!k.active) return '<span class="badge b-revoked">revocada</span>';
-  if (!k.paid) return '<span class="badge b-unpaid">sin pago</span>';
-  if (k.expired) return '<span class="badge b-expired">vencida</span>';
-  if (k.activatedAt) return '<span class="badge b-active">activa</span>';
-  return '<span class="badge b-unused">sin activar</span>';
-}
-
-function fmtDate(iso) {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleString('es-PE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
-}
-
-async function loadKeys() {
-  try {
-    const d = await api('/api/keys');
-    lastKeys = d.keys;
-    const tb = $('#rows');
-    if (!d.keys.length) { tb.innerHTML = '<tr><td colspan="8"><div class="empty">No hay keys todavía.</div></td></tr>'; return; }
-    tb.innerHTML = d.keys.map((k) => `
-      <tr>
-        <td class="mono">${k.key}</td>
-        <td>${escapeHtml(k.owner)}</td>
-        <td>${escapeHtml(k.plan)}${k.hours ? ' <span class="badge b-unused">' + k.hours + 'h</span>' : ''}</td>
-        <td>${k.game ? escapeHtml(k.game) : '—'}</td>
-        <td>${statusBadge(k)}</td>
-        <td>${k.active ? (k.activatedAt ? (k.hours ? k.hoursLeft + ' h' : k.daysLeft + ' días') : (k.hours ? k.hours + ' h' : k.days + ' días')) : '—'}</td>
-        <td>${fmtDate(k.expiresAt)}</td>
-        <td><div class="actions">
-          ${k.active && !k.trial ? '<button class="btn btn-green" onclick="extendKey(\'' + k.key + '\')">+7 días</button>' : ''}
-          ${k.active ? '<button class="btn btn-red" onclick="revokeKey(\'' + k.key + '\')">Revocar</button>' : '<button class="btn btn-red" onclick="deleteKey(\'' + k.key + '\')">Eliminar</button>'}
-        </div></td>
-      </tr>`).join('');
-  } catch (e) { $('#rows').innerHTML = '<tr><td colspan="8"><div class="empty">Error: ' + escapeHtml(e.message) + '</div></td></tr>'; }
-}
-
-function escapeHtml(s) {
-  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
-
-$('#trial').onchange = () => {
-  const t = $('#trial').checked;
-  $('#normalFields').style.display = t ? 'none' : '';
-  $('#trialFields').style.display = t ? '' : 'none';
-  $('#price').disabled = t;
-  if (t) $('#price').value = 0;
-};
-
 $('#genBtn').onclick = async () => {
   const btn = $('#genBtn');
-  const trial = $('#trial').checked;
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Generando…';
+  const hours = parseInt($('#hours').value, 10) || 0;
+  const days = parseInt($('#days').value, 10) || 0;
+  if (!hours && !days) {
+    showMsg('Ingresa días o horas para la key.', true);
+    btn.disabled = false;
+    btn.textContent = 'Generar key';
+    return;
+  }
   try {
+    const selVal = $('#plan').value;
+    const planField = selVal === 'custom'
+      ? (hours ? 'Personalizado ' + hours + 'h' : 'Personalizado ' + (days || 0) + ' días')
+      : selVal;
     const d = await api('/api/keys/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        plan: $('#plan').value,
-        game: $('#game').value,
-        trial,
-        hours: 4,
+        plan: planField,
+        trial: false,
+        hours,
         owner: $('#owner').value.trim() || 'Cliente',
+        seller: $('#seller').value.trim(),
         count: Math.max(1, parseInt($('#count').value, 10) || 1),
-        price: trial ? 0 : (parseFloat($('#price').value) || 0),
+        price: parseFloat($('#price').value) || 0,
+        days: days || undefined,
+        paid: $('#paid').checked,
+        note: $('#note').value.trim(),
       }),
     });
-    $('#keylist').innerHTML = d.keys.map((k) => '<div>' + k.key + ' &nbsp;[' + (k.trial ? 'Prueba ' + (k.game || '') + ' · ' + k.hours + 'h' : k.plan) + ']</div>').join('');
+    $('#keylist').innerHTML = d.keys.map((k) => {
+      const duration = k.hours ? k.hours + 'h' : k.plan;
+      const game = k.game ? ' · ' + k.game : '';
+      return '<div>' + k.key + ' &nbsp;[' + duration + game + ']</div>';
+    }).join('');
     $('#keybox').classList.add('visible');
     showMsg(d.keys.length + ' key(s) generada(s). Envíala al cliente en el ticket.');
     loadKeys();
+    loadStats();
   } catch (e) { showMsg(e.message, true); }
   btn.disabled = false;
   btn.textContent = 'Generar key';
@@ -356,47 +544,157 @@ $('#copyBtn').onclick = () => {
   });
 };
 
+async function copyKey(key) {
+  try {
+    await navigator.clipboard.writeText(key);
+    toast('Llave copiada.');
+  } catch (e) { toast('No se pudo copiar: ' + e.message, true); }
+}
+
 async function extendKey(key) {
+  const days = prompt('¿Cuántos días sumar a ' + key + '?', '7');
+  if (days == null) return;
+  const n = parseInt(days, 10);
+  if (!n || n < 1) { toast('Cantidad inválida.', true); return; }
   try {
     const d = await api('/api/keys/extend', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key, days: 7 }),
+      body: JSON.stringify({ key, days: n }),
     });
-    showMsg('Key ' + d.key + ' extendida +7 días.');
-    loadKeys();
-  } catch (e) { showMsg(e.message, true); }
+    toast('Key extendida +' + n + ' día(s).');
+    loadKeys(); loadStats();
+  } catch (e) { toast(e.message, true); }
+}
+
+async function markPaid(key) {
+  try {
+    await api('/api/keys/paid', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key }),
+    });
+    toast('Pago confirmado.');
+    loadKeys(); loadStats();
+  } catch (e) { toast(e.message, true); }
+}
+
+async function resetDevice(key) {
+  if (!confirm('¿Restablecer HWID de ' + key + '?\nSe expulsa la sesión actual del dispositivo (puede volver a entrar cuando quiera). No bloquea ni libera el uso: solo desconecta al cliente.')) return;
+  try {
+    const d = await api('/api/keys/reset-device', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key }),
+    });
+    const r = d.remote || {};
+    if (r.ok) toast('HWID restablecido: sesión expulsada, la key sigue usable.');
+    else toast('Dispositivo no desvinculado en GitHub (' + (r.error || r.detail || '?') + '). Revisá config/license.json.', true);
+    loadKeys(); loadStats();
+  } catch (e) { toast(e.message, true); }
 }
 
 async function revokeKey(key) {
-  if (!confirm('¿Revocar la key ' + key + '?\nEl cliente ya no podrá usar la app.')) return;
+  if (!confirm('¿Revocar (pausar) la key ' + key + '?\nSe expulsa al cliente y no podrá entrar hasta que la reactives. El tiempo de suscripción se CONGELA mientras esté revocada (pausa).')) return;
   try {
     const d = await api('/api/keys/revoke', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ key }),
     });
-    showMsg('Key ' + d.key + ' revocada.');
-    loadKeys();
-  } catch (e) { showMsg(e.message, true); }
+    const online = d.online ? (d.online.published ? ' Publicado en GitHub ✔' : ' (online: ' + (d.online.detail || d.online.error || d.online.status || '?') + ')') : '';
+    toast('Key revocada (pausa).' + online);
+    loadKeys(); loadStats();
+  } catch (e) { toast(e.message, true); }
+}
+
+async function reactivateKey(key) {
+  try {
+    await api('/api/keys/devices', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, reactivate: true }),
+    });
+    toast('Key reactivada.');
+    loadKeys(); loadStats();
+  } catch (e) { toast(e.message, true); }
 }
 
 async function deleteKey(key) {
-  if (!confirm('¿Eliminar definitivamente la key ' + key + '?\nEsta acción no se puede deshacer.')) return;
+  if (!confirm('¿Eliminar definitivamente la key ' + key + '?\nSe expulsa al cliente y la key dejará de funcionar para siempre. Esta acción no se puede deshacer.')) return;
   try {
-    const d = await api('/api/keys/delete', {
+    await api('/api/keys/delete', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ key }),
     });
-    showMsg('Key ' + d.key + ' eliminada.');
-    loadKeys();
-  } catch (e) { showMsg(e.message, true); }
+    toast('Key eliminada.');
+    loadKeys(); loadStats();
+  } catch (e) { toast(e.message, true); }
 }
 
+function openModal() { $('#modal').classList.add('visible'); }
+function closeModal() { $('#modal').classList.remove('visible'); }
+$('#modalClose').onclick = closeModal;
+$('#modal').onclick = (e) => { if (e.target === $('#modal')) closeModal(); };
 
+async function showHistory(key) {
+  try {
+    const d = await api('/api/keys/logs?key=' + encodeURIComponent(key));
+    const log = d.log || [];
+    $('#modalTitle').textContent = '🕘 Historial — ' + key;
+    $('#modalBody').innerHTML = log.length
+      ? log.slice().reverse().map((e) => '<div class="dev"><b>' + fmtDate(e.t) + '</b> &nbsp;' + escapeHtml(e.msg) + '</div>').join('')
+      : '<div class="empty">Sin eventos registrados.</div>';
+    openModal();
+  } catch (e) { toast(e.message, true); }
+}
 
-$('#refreshBtn').onclick = loadKeys;
+$('#search').oninput = () => { search = $('#search').value.trim(); render(); };
+$('#statusFilter').onchange = () => { filter = $('#statusFilter').value; render(); };
+$('#refreshBtn').onclick = () => { loadKeys(); loadStats(); };
+$('#exportBtn').onclick = () => { window.location.href = '/api/admin/export'; };
+
+function licLine(lic) {
+  if (!lic || !lic.onlineCheck) return 'Chequeo online NO configurado. Editá config/license.json (blacklistUrl) o usá tools/setup-license.mjs.';
+  const parts = [];
+  parts.push('Blacklist: ' + lic.url);
+  parts.push('Sincronizada: ' + (lic.synced ? 'sí (' + lic.revokedCount + ' hashes, cada ' + Math.round(lic.pollMs / 60000) + ' min)' : 'aún no'));
+  parts.push('Push a GitHub: ' + (lic.pushConfigured ? 'configurado (' + (lic.repo || '?') + ')' : 'NO (falta state/github.json)'));
+  return parts.join('<br>');
+}
+
+async function loadLicense() {
+  try {
+    const d = await api('/api/admin/license');
+    $('#licStatus').innerHTML = licLine(d.license);
+  } catch (e) {
+    $('#licStatus').textContent = 'Error: ' + e.message;
+  }
+}
+
+function licMsg(text, isErr) {
+  const el = $('#licMsg');
+  el.className = 'msg ' + (isErr ? 'err' : 'ok');
+  el.textContent = text;
+}
+
+$('#licRefreshBtn').onclick = loadLicense;
+
+$('#licPushBtn').onclick = async () => {
+  const btn = $('#licPushBtn');
+  btn.disabled = true;
+  licMsg('');
+  try {
+    const d = await api('/api/admin/license/push', { method: 'POST' });
+    licMsg(d.count != null && d.count === 0 ? 'No hay llaves revocadas que sincronizar.' : 'Sincronizado: ' + d.count + ' hash(es) en GitHub.');
+  } catch (e) {
+    licMsg(e.message, true);
+  } finally {
+    btn.disabled = false;
+    loadLicense();
+  }
+};
 
 checkSession();
 </script>

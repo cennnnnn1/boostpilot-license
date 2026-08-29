@@ -17,6 +17,7 @@ import readline from 'readline/promises';
 import { ROOT, configPath, loadConfig, saveConfig } from './discord-store.mjs';
 import {
   ROLE_ORDER, ROLE_DEFS, CATEGORIES, TICKET_BUTTONS, TICKET_MOTIVES, PINK,
+  downloadsOverwrites,
 } from './discord-structure.mjs';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -129,11 +130,38 @@ async function createStructure(guildId, roleIds, token) {
     for (const ch of cat.channels) {
       const body = { name: ch.name, type: ch.type, parent_id: c.id };
       if (ch.topic) body.topic = ch.topic;
+      if (ch.overwrites) body.permission_overwrites = ch.overwrites.map((o) =>
+        o.id === '@everyone' ? { ...o, id: guildId } : o
+      );
       const nc = await api('POST', `/guilds/${guildId}/channels`, body, token);
       ids[ch.name] = nc.id;
     }
     console.log(`  ✔ Categoría ${cat.name}`);
   }
+  if (ids['⬇️downloads']) ids['downloads'] = ids['⬇️downloads'];
+  return ids;
+}
+
+async function ensureDownloadsChannel(guildId, roleIds, ids, token) {
+  const chans = await api('GET', `/guilds/${guildId}/channels`, undefined, token);
+  const existing = chans.find((c) => c.name === '⬇️downloads');
+  if (existing) {
+    ids['downloads'] = existing.id;
+    console.log('  ✔ Canal ⬇️downloads (ya existía)');
+    return ids;
+  }
+  const cat = chans.find((c) => c.type === 4 && /INFORMATION/i.test(c.name));
+  if (!cat) {
+    console.warn('  ! No se encontró la categoría INFORMATION; no se creó ⬇️downloads');
+    return ids;
+  }
+  const nc = await api('POST', `/guilds/${guildId}/channels`, {
+    name: '⬇️downloads', type: 0, parent_id: cat.id,
+    topic: 'Latest BoostPilot version',
+    permission_overwrites: downloadsOverwrites(roleIds, guildId),
+  }, token);
+  ids['downloads'] = nc.id;
+  console.log('  ✔ Canal ⬇️downloads creado (visible: Customer+ · escritura: staff)');
   return ids;
 }
 
@@ -250,6 +278,10 @@ async function main() {
     if (!Object.keys(roleIds).length) { roleIds = await createRoles(gid, token); await setRolePositions(gid, roleIds, token); }
     if (!Object.keys(ids).length) { ids = await createStructure(gid, roleIds, token); }
     if (!existing.botUserId) botIdAssigned = await assignBotRole(gid, roleIds, token);
+  }
+
+  if (!fresh) {
+    ids = await ensureDownloadsChannel(gid, roleIds, ids, token);
   }
 
   const botUserId = existing.botUserId || botIdAssigned;

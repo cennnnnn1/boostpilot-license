@@ -49,7 +49,6 @@ export const GAMES = [
   ['clash', 'Clash Royale', '🎮'],
   ['rl', 'Rocket League', '🎮'],
   ['fortnite', 'Fortnite', '🎮'],
-  ['osrs', 'OSRS', '🎮'],
   ['r6', 'R6 Siege', '🎮'],
   ['marvel', 'Marvel Rivals', '🎮'],
   ['apex', 'Apex Legends', '🎮'],
@@ -87,6 +86,20 @@ export function staffOverwrites(roleIds, guildId) {
   return rows;
 }
 
+export function downloadsOverwrites(roleIds, guildId) {
+  const readOnly = bit(P.VIEW_CHANNEL | P.READ_MESSAGE_HISTORY | P.EMBED_LINKS | P.ADD_REACTIONS | P.USE_EXTERNAL_EMOJIS);
+  const denyWrite = bit(P.SEND_MESSAGES | P.CREATE_PUBLIC_THREADS | P.SEND_MESSAGES_IN_THREADS | P.ATTACH_FILES);
+  const rows = [{ id: guildId || '@everyone', type: 0, allow: '0', deny: EVERYONE_DENY }];
+  for (const key of ['Customer', 'VIP', 'Booster']) {
+    if (roleIds[key]) rows.push({ id: roleIds[key], type: 0, allow: readOnly, deny: denyWrite });
+  }
+  for (const key of ['Mod', 'Admin']) {
+    if (roleIds[key]) rows.push({ id: roleIds[key], type: 0, allow: STAFF_ALLOW, deny: '0' });
+  }
+  if (roleIds['BoostPilot']) rows.push({ id: roleIds['BoostPilot'], type: 0, allow: bit(P.VIEW_CHANNEL | P.READ_MESSAGE_HISTORY | P.SEND_MESSAGES | P.EMBED_LINKS | P.ATTACH_FILES), deny: '0' });
+  return rows;
+}
+
 export function ticketOverwrites(roleIds, userId, guildId) {
   return [
     { id: guildId || '@everyone', type: 0, allow: '0', deny: bit(P.VIEW_CHANNEL | P.SEND_MESSAGES | P.READ_MESSAGE_HISTORY) },
@@ -101,6 +114,7 @@ export const CATEGORIES = (roleIds) => [
     channels: [
       { name: 'announcements', type: 0 },
       { name: 'faq', type: 0 },
+      { name: '⬇️downloads', type: 0, topic: 'Latest BoostPilot version', overwrites: downloadsOverwrites(roleIds) },
     ],
   },
   {
