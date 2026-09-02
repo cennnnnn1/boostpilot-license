@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-02T18:35:38.364Z",
+  "updatedAt": "2026-09-02T18:35:42.552Z",
   "entries": {
     "cbebffe638303ac3f69d531bf465c1bf3f6d2302d0981f50ceb8c7750a2c23d8": {
       "plan": "De por vida",
@@ -11,7 +11,7 @@
       "paid": true,
       "vip": false,
       "maxDevices": 1,
-      "kickEpoch": 2,
+      "kickEpoch": 3,
       "pausedMs": 0
     }
   }
