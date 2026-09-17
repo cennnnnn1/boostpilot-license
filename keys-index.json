@@ -1,8 +1,9 @@
 {
-  "updatedAt": "2026-09-17T21:35:10.528Z",
+  "updatedAt": "2026-09-17T22:49:47.866Z",
   "entries": {
     "cbebffe638303ac3f69d531bf465c1bf3f6d2302d0981f50ceb8c7750a2c23d8": {
       "plan": "De por vida",
+      "owner": "cenn",
       "days": 36500,
       "hours": 0,
       "game": null,
@@ -16,6 +17,7 @@
     },
     "c2f308c243f5fbdee9ee27673ecfbaea072dc8c2752f786b2a1afb55d7350f3c": {
       "plan": "Mensual",
+      "owner": "fatibg_19._98247 (1366257403817099376)",
       "days": 137,
       "hours": 0,
       "game": null,
