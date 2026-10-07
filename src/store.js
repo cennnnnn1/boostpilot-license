@@ -3,7 +3,7 @@ import { readFileSync, existsSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { randomBytes } from 'node:crypto';
-import { generateKeys, trialUsed, listKeys, getSubscription, revokeKey, extendKey, deleteKey, markPaid, setKeyVip, updateDevices, keyEvents, aggregateMetrics, bumpKick } from './keys.mjs';
+import { generateKeys, trialUsed, listKeys, getSubscription, revokeKey, extendKey, deleteKey, markPaid, setKeyOwner, setKeyVip, updateDevices, keyEvents, aggregateMetrics, bumpKick } from './keys.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = dirname(fileURLToPath(import.meta.url));
@@ -236,6 +236,18 @@ export function startStoreServer(port = 8080, license = null) {
       try {
         const d = JSON.parse(await readBody(req) || '{}');
         const out = deleteKey(String(d.key || ''));
+        const online = out.ok ? await publishAllNow() : null;
+        json(res, out.ok ? 200 : 400, { ...out, online });
+      } catch (e) {
+        json(res, 400, { ok: false, error: String(e.message || e) });
+      }
+      return;
+    }
+    if (url === '/api/keys/set-owner' && req.method === 'POST') {
+      if (requireAdmin(req, res)) return;
+      try {
+        const d = JSON.parse(await readBody(req) || '{}');
+        const out = setKeyOwner(String(d.key || ''), String(d.owner || '').trim());
         const online = out.ok ? await publishAllNow() : null;
         json(res, out.ok ? 200 : 400, { ...out, online });
       } catch (e) {

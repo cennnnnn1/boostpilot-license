@@ -89,18 +89,33 @@ function matchCategory(category, gameCfg) {
 }
 
 function multipliersFromText(text, multipliers) {
-  if (!multipliers) return 1;
+  return modifiersFromText(text, multipliers).mult;
+}
+
+// Acepta por cada keyword:
+//   número            -> multiplicador (compat con rules.json actual)
+//   { mult, add, skip } -> mult por rango, add en dolares, skip = salta el request
+function modifiersFromText(text, multipliers) {
+  const out = { mult: 1, add: 0, skip: false, reasons: [] };
+  if (!multipliers) return out;
   const t = String(text || '');
-  let mult = 1;
   const sorted = Object.entries(multipliers).sort((a, b) => String(b[0]).length - String(a[0]).length);
   for (const [key, value] of sorted) {
-    const n = Number(value);
-    if (!Number.isFinite(n) || n <= 0) continue;
     const escaped = String(key).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const re = new RegExp(`\\b${escaped}\\b`, 'i');
-    if (re.test(t)) mult *= n;
+    if (!re.test(t)) continue;
+    if (value && typeof value === 'object') {
+      if (value.skip) { out.skip = true; out.reasons.push(key); continue; }
+      const n = Number(value.mult);
+      if (Number.isFinite(n) && n > 0) out.mult *= n;
+      const a = Number(value.add);
+      if (Number.isFinite(a)) out.add += a;
+    } else {
+      const n = Number(value);
+      if (Number.isFinite(n) && n > 0) out.mult *= n;
+    }
   }
-  return mult;
+  return out;
 }
 
 function rankList(tiers, cfg) {
@@ -489,14 +504,23 @@ function parseMultiBrawlerDescriptions(text) {
     if (to >= 1 && to <= 3) to = PHASE_TARGET[to] || to;
     targets.push({ brawler: normalizeBrawlerName(m[1]), to, idx: m.index });
   }
-  if (targets.length < 2) return [];
+  const ranges = [];
+  const dashRe = new RegExp(`\\b(${BW_RE})\\s+(?:from\\s+)?(\\d{3,4})\\s*[-–]\\s*(\\d{1,4})\\b`, 'gi');
+  while ((m = dashRe.exec(t))) {
+    const from = Number(m[2]);
+    let to = Number(m[3]);
+    if (to >= 1 && to <= 3) to = PHASE_TARGET[to] || to;
+    if (to > from) {
+      ranges.push({ from, to, brawler: normalizeBrawlerName(m[1]), idx: m.index });
+    }
+  }
+  if (targets.length + ranges.length < 2) return [];
   const currents = [];
   const currentRe = new RegExp(`\\b(${BW_RE})\\s+(?:from\\s+)?(\\d{3,4})\\b`, 'gi');
   while ((m = currentRe.exec(t))) {
     const from = Number(m[2]);
     if (from >= 100 && from <= 4000) currents.push({ brawler: normalizeBrawlerName(m[1]), from, idx: m.index });
   }
-  const ranges = [];
   for (const tgt of targets) {
     const match = currents.find((c) => c.brawler === tgt.brawler && c.from < tgt.to);
     if (match) ranges.push({ from: match.from, to: tgt.to });
@@ -618,10 +642,15 @@ function explicitTarget(text) {
     if (to) out.desired = parseNumber(to[1]);
   }
   if (out.desired == null) {
-    const prest = t.match(/\b(?:p|prestig(?:e|io))\s*([1-3])\b/i);
-    if (prest) {
-      const PHASE = { 1: 1000, 2: 2000, 3: 3000 };
-      out.desired = PHASE[Number(prest[1])] || null;
+    const PHASE = { 1: 1000, 2: 2000, 3: 3000 };
+    const prests = [];
+    const prestRe = /\b(?:p|prestig(?:e|io))\s*([1-3])\b/gi;
+    let pm;
+    while ((pm = prestRe.exec(t))) prests.push(Number(pm[1]));
+    if (prests.length >= 2 && /\b(?:p|prestig(?:e|io))\s*[1-3]\b[^;()]{0,12}\b(?:to|hasta|al|goal|target)\b/i.test(t)) {
+      out.desired = PHASE[Math.max(...prests)] || null;
+    } else if (prests.length) {
+      out.desired = PHASE[Math.max(...prests)] || null;
     }
   }
   if (out.current == null) {
@@ -649,6 +678,14 @@ function explicitTarget(text) {
   if (range) {
     if (out.current == null) out.current = parseNumber(range[1]);
     if (out.desired == null) out.desired = parseNumber(range[2]);
+  }
+  if (out.current == null) {
+    const PHASE = { 1: 1000, 2: 2000, 3: 3000 };
+    const prests = [];
+    const prestRe = /\b(?:p|prestig(?:e|io))\s*([1-3])\b/gi;
+    let pm;
+    while ((pm = prestRe.exec(t))) prests.push(Number(pm[1]));
+    if (prests.length >= 2) out.current = PHASE[Math.min(...prests)] || null;
   }
   return out;
 }
@@ -826,8 +863,10 @@ export function computePrice({ game, category, description, config } = {}) {
     return null;
   }
 
-  const mult = multipliersFromText(text, catCfg.multipliers);
-  let price = out.price * mult;
+  const mods = modifiersFromText(text, catCfg.multipliers);
+  if (mods.skip) return { ok: false, reason: `multiplicador ${mods.reasons.join(', ')} (se salta)` };
+  const mult = mods.mult;
+  let price = out.price * mult + mods.add;
   let hours = out.hours * mult;
 
   let region = null;
@@ -979,7 +1018,10 @@ export function interpretDescription({ game, category, description, config } = {
   if (current != null && !derank && current >= target) return { ok: false, reason: 'ya alcanzado el objetivo' };
   if (target > segMax) return { ok: false, reason: 'rango por encima del máximo configurado (se salta)' };
 
-  const mult = multipliersFromText(text, catCfg.multipliers);
+  const mods = modifiersFromText(text, catCfg.multipliers);
+  if (mods.skip) return { ok: false, reason: `multiplicador ${mods.reasons.join(', ')} (se salta)` };
+  const mult = mods.mult;
+  const add = mods.add;
   let ranges = trophyRanges(text);
   const isMulti = ranges.length >= 2 || parseMultiBrawlerDescriptions(text).length >= 2 || /\b\d+\s+brawlers?\b/i.test(text);
   if (ranges.length < 2) ranges = parseMultiBrawlerDescriptions(text);
@@ -999,7 +1041,7 @@ export function interpretDescription({ game, category, description, config } = {
       hours += p.hours;
       parts.push(`${fmtNum(r.from)} -> ${fmtNum(r.to)}`);
     }
-    price *= mult;
+    price = price * mult + add;
     hours *= mult;
     const pace = Number(catCfg.pacePerDay);
     if (pace > 0) {
@@ -1050,7 +1092,7 @@ export function interpretDescription({ game, category, description, config } = {
     budgetMatch = true;
   }
 
-  price *= mult;
+  price = price * mult + add;
   hours *= mult;
 
   const floor = current != null ? configFloor(segs) : 0;

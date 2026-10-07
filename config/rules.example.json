@@ -40,7 +40,6 @@
         "fc26": {
           "skipDuo": true,
           "skipSquad": true,
-          "skipConsole": true,
           "Division Rivals": {
             "mode": "tiers",
             "enabled": true,
@@ -224,12 +223,18 @@
               "Stream": 1
             },
             "pacePerDay": 4
+          },
+          "platforms": {
+            "pc": true,
+            "playstation": true,
+            "xbox": true,
+            "switch": false,
+            "mobile": false
           }
         },
         "clash_royale": {
           "skipDuo": true,
           "skipSquad": true,
-          "skipConsole": true,
           "Trophy Boost": {
             "mode": "segments",
             "enabled": true,
@@ -318,12 +323,18 @@
               "Stream": 1
             }
           },
-          "hoursOnly": true
+          "hoursOnly": true,
+          "platforms": {
+            "pc": false,
+            "playstation": false,
+            "xbox": false,
+            "switch": false,
+            "mobile": true
+          }
         },
         "brawl_stars": {
           "skipDuo": true,
           "skipSquad": true,
-          "skipConsole": true,
           "Trophy Boost": {
             "mode": "segments",
             "enabled": true,
@@ -468,12 +479,18 @@
               "Stream": 1.2
             },
             "pacePerDay": 18
+          },
+          "platforms": {
+            "pc": false,
+            "playstation": false,
+            "xbox": false,
+            "switch": false,
+            "mobile": true
           }
         },
         "valorant": {
           "skipDuo": true,
           "skipSquad": true,
-          "skipConsole": true,
           "Rank Boost": {
             "mode": "tiers",
             "enabled": true,
@@ -614,12 +631,18 @@
               "enabled": true
             }
           },
-          "regionLocked": true
+          "regionLocked": true,
+          "platforms": {
+            "pc": true,
+            "playstation": false,
+            "xbox": false,
+            "switch": false,
+            "mobile": false
+          }
         },
         "league_of_legends": {
           "skipDuo": true,
           "skipSquad": true,
-          "skipConsole": true,
           "Rank Boost": {
             "mode": "tiers",
             "enabled": true,
@@ -734,12 +757,18 @@
               "enabled": true
             }
           },
-          "regionLocked": true
+          "regionLocked": true,
+          "platforms": {
+            "pc": true,
+            "playstation": false,
+            "xbox": false,
+            "switch": false,
+            "mobile": false
+          }
         },
         "rocket_league": {
           "skipDuo": true,
           "skipSquad": true,
-          "skipConsole": true,
           "Rank Boost": {
             "mode": "tiers",
             "enabled": true,
@@ -844,12 +873,18 @@
               "grand champion": 12,
               "supersonic legend": 15
             }
+          },
+          "platforms": {
+            "pc": true,
+            "playstation": true,
+            "xbox": true,
+            "switch": true,
+            "mobile": false
           }
         },
         "fortnite": {
           "skipDuo": true,
           "skipSquad": true,
-          "skipConsole": true,
           "Battle Royale Rank Boost": {
             "mode": "tiers",
             "enabled": true,
@@ -981,12 +1016,18 @@
               "Stream": 1
             },
             "pacePerDay": 16
+          },
+          "platforms": {
+            "pc": true,
+            "playstation": true,
+            "xbox": true,
+            "switch": true,
+            "mobile": true
           }
         },
         "r6_siege": {
           "skipDuo": true,
           "skipSquad": true,
-          "skipConsole": true,
           "Rank Boost": {
             "mode": "tiers",
             "enabled": true,
@@ -1083,12 +1124,18 @@
               "diamond": 10,
               "champion": 15
             }
+          },
+          "platforms": {
+            "pc": true,
+            "playstation": true,
+            "xbox": true,
+            "switch": false,
+            "mobile": false
           }
         },
         "marvel_rivals": {
           "skipDuo": true,
           "skipSquad": true,
-          "skipConsole": true,
           "Rank Boost": {
             "mode": "tiers",
             "enabled": true,
@@ -1174,12 +1221,18 @@
               "eternity": 40,
               "one above all": 50
             }
+          },
+          "platforms": {
+            "pc": true,
+            "playstation": true,
+            "xbox": true,
+            "switch": false,
+            "mobile": false
           }
         },
         "apex_legends": {
           "skipDuo": true,
           "skipSquad": true,
-          "skipConsole": true,
           "Rank Boost": {
             "mode": "tiers",
             "enabled": true,
@@ -1247,12 +1300,18 @@
             "unitLabel": "win",
             "multipliers": {},
             "pricePerUnit": 5
+          },
+          "platforms": {
+            "pc": true,
+            "playstation": true,
+            "xbox": true,
+            "switch": true,
+            "mobile": false
           }
         },
         "call_of_duty": {
           "skipDuo": true,
           "skipSquad": true,
-          "skipConsole": true,
           "Ranked Play": {
             "mode": "tiers",
             "enabled": true,
@@ -1383,6 +1442,13 @@
               "Stream": 1
             },
             "pacePerDay": 14
+          },
+          "platforms": {
+            "pc": true,
+            "playstation": true,
+            "xbox": true,
+            "switch": false,
+            "mobile": false
           }
         }
       }
@@ -1568,7 +1634,7 @@
     "followUpDelayMs": 5000
   },
   "hotkeys": {
-    "hide": "Ctrl+Z"
+    "hide": "F8"
   },
   "games": {
     "fc26": {
@@ -1711,7 +1777,7 @@
     }
   },
   "store": {
-    "enabled": false,
+    "enabled": true,
     "port": 8080,
     "plans": {
       "tresdias": {
@@ -1742,7 +1808,8 @@
         }
       ],
       "note": "EnvÃ­alo SOLO por red TRC20 (otra red = fondos perdidos). DespuÃ©s del pago, pega tu TXID + captura en el ticket de Discord y el staff te entrega tu key en minutos. Los pagos son solo en criptomonedas y no hay reembolsos una vez emitida la llave."
-    }
+    },
+    "siteEnabled": true
   },
   "license": {
     "blacklistUrl": "",

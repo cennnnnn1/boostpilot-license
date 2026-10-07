@@ -12,5 +12,7 @@ contextBridge.exposeInMainWorld('launcher', {
   loginEldorado: () => ipcRenderer.invoke('login-eldorado'),
   checkUpdate: () => ipcRenderer.invoke('check-update'),
   applyUpdate: () => ipcRenderer.invoke('apply-update'),
+  onUpdateProgress: (cb) => ipcRenderer.on('update-progress', (_e, d) => cb(d)),
+  copyText: (text) => ipcRenderer.invoke('clipboard-write', String(text == null ? '' : text)),
   quit: () => ipcRenderer.invoke('quit-app'),
 });

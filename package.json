@@ -1,6 +1,6 @@
 {
   "name": "eldorado-bot",
-  "version": "1.7.22",
+  "version": "1.7.28",
   "description": "Bot semi-auto para boosters de Eldorado.gg - detecta requests y pre-rellena ofertas",
   "type": "module",
   "scripts": {

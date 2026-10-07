@@ -556,6 +556,8 @@
   }
   .pr-add:hover { color: var(--gold2); border-color: var(--gold); }
   .pr-mult-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin: 6px 0 8px; }
+.pr-mult-inputs { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.pr-mult-skip { display: inline-flex; gap: 4px; align-items: center; font-size: 11px; color: var(--muted); white-space: nowrap; }
   .pr-mult { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 10px; }
   .pr-field.pr-x .money { width: 100%; }
   .money.pr-money input { width: 100%; border: none; background: transparent; outline: none; padding: 9px 12px 9px 4px; font-size: 14px; font-weight: 700; color: var(--text); }
@@ -838,7 +840,7 @@
     <div class="set-box">
       <h3 data-i18n="st_keys"></h3>
       <div class="hint" data-i18n="st_keys_hint"></div>
-      <div class="set-row"><label class="col" data-i18n="st_keys_hide"></label><input type="text" id="k-hide" placeholder="Ctrl+Z" spellcheck="false" autocomplete="off"></div>
+      <div class="set-row"><label class="col" data-i18n="st_keys_hide"></label><input type="text" id="k-hide" placeholder="F8" spellcheck="false" autocomplete="off"></div>
     </div>
     <div class="savebar-inline">
       <button id="saveSettingsBtn" class="btn btn-primary" data-i18n="st_save"></button>
@@ -1424,7 +1426,7 @@ const I18N_EXT = {
     tab_pricing: 'Precios',
     st_pricing_tab_hint: 'Configura los precios sugeridos en la pesta\u00f1a Precios (juegos, tramos y multiplicadores).',
     pr_hint: 'Ajusta el precio sugerido por juego y categor\u00eda. Semi-autom\u00e1tico: se precarga y queda en Confirmar. Autom\u00e1tico: se env\u00eda directo. Los pedidos sin precio siempre quedan en Confirmar.',
-    pr_pace: 'Trofeos por d\u00eda (ritmo)', pr_pace_hours: 'Trofeos por hora (ritmo)', pr_save: 'Guardar precios', pr_none: 'Todav\u00eda no hay juegos configurados.',     pr_nosupport: 'Tipo de precio no soportado en el editor.', pr_mult: 'Multiplicadores', pr_addrow: '+ A\u00f1adir fila', pr_delrow: 'Eliminar fila', pr_enable: 'Activar ofertas de esta categor\u00eda', pr_notify: 'Notificar esta categor\u00eda', pr_noprice: 'Sin precios configurados.', pr_back: 'Volver a juegos', pr_regions: 'Regiones', pr_region_enable: 'Habilitar esta regi\u00f3n', pr_rank_prices: 'Precio por rango',
+    pr_pace: 'Trofeos por d\u00eda (ritmo)', pr_pace_hours: 'Trofeos por hora (ritmo)', pr_save: 'Guardar precios', pr_none: 'Todav\u00eda no hay juegos configurados.',     pr_nosupport: 'Tipo de precio no soportado en el editor.', pr_mult: 'Multiplicadores', pr_mult_skip: 'Saltar', pr_addrow: '+ A\u00f1adir fila', pr_delrow: 'Eliminar fila', pr_enable: 'Activar ofertas de esta categor\u00eda', pr_notify: 'Notificar esta categor\u00eda', pr_noprice: 'Sin precios configurados.', pr_back: 'Volver a juegos', pr_regions: 'Regiones', pr_region_enable: 'Habilitar esta regi\u00f3n', pr_rank_prices: 'Precio por rango',
     pr_rank: 'Rango', pr_from: 'Desde', pr_to: 'Hasta', pr_per: 'Cada', pr_price: 'Precio', pr_hours: 'Horas', pr_divs: 'Divisiones',
     st_webhook_save: 'Guardar webhook',
     w_step1: 'Abre el canal de Discord y ve a <b>Ajustes del canal &rarr; Integraciones &rarr; Webhooks</b>.',
@@ -1452,7 +1454,7 @@ const I18N_EXT = {
     tab_pricing: 'Pricing',
     st_pricing_tab_hint: 'Configure suggested prices in the Pricing tab (games, brackets and multipliers).',
     pr_hint: 'Set the suggested price per game and category. Semi-automatic: pre-filled and left in Confirm. Automatic: placed directly. Orders without a price always stay in Confirm.',
-    pr_pace: 'Trophies per day (pace)', pr_pace_hours: 'Trophies per hour (pace)', pr_save: 'Save prices', pr_none: 'No games configured yet.',     pr_nosupport: 'Pricing type not supported by the editor.', pr_mult: 'Multipliers', pr_addrow: '+ Add row', pr_delrow: 'Delete row', pr_enable: 'Enable offers for this category', pr_notify: 'Notify for this category', pr_noprice: 'No prices configured.', pr_back: 'Back to games', pr_regions: 'Regions', pr_region_enable: 'Enable this region', pr_rank_prices: 'Price per rank',
+    pr_pace: 'Trophies per day (pace)', pr_pace_hours: 'Trophies per hour (pace)', pr_save: 'Save prices', pr_none: 'No games configured yet.',     pr_nosupport: 'Pricing type not supported by the editor.', pr_mult: 'Multipliers', pr_mult_skip: 'Skip', pr_addrow: '+ Add row', pr_delrow: 'Delete row', pr_enable: 'Enable offers for this category', pr_notify: 'Notify for this category', pr_noprice: 'No prices configured.', pr_back: 'Back to games', pr_regions: 'Regions', pr_region_enable: 'Enable this region', pr_rank_prices: 'Price per rank',
     pr_rank: 'Rank', pr_from: 'From', pr_to: 'To', pr_per: 'Every', pr_price: 'Price', pr_hours: 'Hours', pr_divs: 'Divisions',
     st_webhook_save: 'Save webhook',
     w_step1: 'Open your Discord channel and go to <b>Channel settings &rarr; Integrations &rarr; Webhooks</b>.',
@@ -1480,7 +1482,7 @@ const I18N_EXT = {
     tab_pricing: 'Tarifs',
     st_pricing_tab_hint: 'Configurez les prix sugg\u00e9r\u00e9s dans l\u2019onglet Tarifs (jeux, paliers et multiplicateurs).',
     pr_hint: 'R\u00e9glez le prix sugg\u00e9r\u00e9 par jeu et cat\u00e9gorie. Semi-automatique : pr\u00e9-rempli et laiss\u00e9 \u00e0 confirmer. Automatique : plac\u00e9 directement. Sans prix, la demande reste \u00e0 confirmer.',
-    pr_pace: 'Troph\u00e9es par jour (rythme)', pr_pace_hours: 'Troph\u00e9es par heure (rythme)', pr_save: 'Enregistrer les prix', pr_none: 'Aucun jeu configur\u00e9 pour l\u2019instant.',     pr_nosupport: 'Type de prix non pris en charge par l\u2019\u00e9diteur.', pr_mult: 'Multiplicateurs', pr_addrow: '+ Ajouter une ligne', pr_delrow: 'Supprimer la ligne', pr_enable: 'Activer les offres pour cette cat\u00e9gorie', pr_notify: 'Notifier pour cette cat\u00e9gorie', pr_noprice: 'Aucun prix configur\u00e9.', pr_back: 'Retour aux jeux', pr_regions: 'R\u00e9gions',     pr_region_enable: 'Activer cette r\u00e9gion', pr_rank_prices: 'Prix par rang',
+    pr_pace: 'Troph\u00e9es par jour (rythme)', pr_pace_hours: 'Troph\u00e9es par heure (rythme)', pr_save: 'Enregistrer les prix', pr_none: 'Aucun jeu configur\u00e9 pour l\u2019instant.',     pr_nosupport: 'Type de prix non pris en charge par l\u2019\u00e9diteur.', pr_mult: 'Multiplicateurs', pr_mult_skip: 'Ignorer', pr_addrow: '+ Ajouter une ligne', pr_delrow: 'Supprimer la ligne', pr_enable: 'Activer les offres pour cette cat\u00e9gorie', pr_notify: 'Notifier pour cette cat\u00e9gorie', pr_noprice: 'Aucun prix configur\u00e9.', pr_back: 'Retour aux jeux', pr_regions: 'R\u00e9gions',     pr_region_enable: 'Activer cette r\u00e9gion', pr_rank_prices: 'Prix par rang',
     pr_rank: 'Rang', pr_from: 'De', pr_to: '\u00c0', pr_per: 'Chaque', pr_price: 'Prix', pr_hours: 'Heures', pr_divs: 'Divisions',
     st_webhook_save: 'Enregistrer le webhook',
     w_step1: 'Ouvrez votre canal Discord et allez dans <b>Param\u00e8tres du canal &rarr; Int\u00e9grations &rarr; Webhooks</b>.',
@@ -1504,7 +1506,7 @@ const I18N_EXT = {
     tab_pricing: 'Pre\u00e7os',
     st_pricing_tab_hint: 'Configure os pre\u00e7os sugeridos na aba Pre\u00e7os (jogos, faixas e multiplicadores).',
     pr_hint: 'Ajuste o pre\u00e7o sugerido por jogo e categoria. Semi-autom\u00e1tico: pr\u00e9-preenchido e fica em Confirmar. Autom\u00e1tico: enviado direto. Pedidos sem pre\u00e7o ficam sempre em Confirmar.',
-    pr_pace: 'Trof\u00e9us por dia (ritmo)', pr_pace_hours: 'Trof\u00e9us por hora (ritmo)', pr_save: 'Salvar pre\u00e7os', pr_none: 'Nenhum jogo configurado ainda.',     pr_nosupport: 'Tipo de pre\u00e7o n\u00e3o suportado no editor.', pr_mult: 'Multiplicadores', pr_addrow: '+ Adicionar linha', pr_delrow: 'Remover linha', pr_enable: 'Ativar ofertas desta categoria', pr_notify: 'Notificar esta categoria', pr_noprice: 'Nenhum pre\u00e7o configurado.', pr_back: 'Voltar aos jogos', pr_regions: 'Regi\u00f5es',     pr_region_enable: 'Habilitar esta regi\u00e3o', pr_rank_prices: 'Pre\u00e7o por rank',
+    pr_pace: 'Trof\u00e9us por dia (ritmo)', pr_pace_hours: 'Trof\u00e9us por hora (ritmo)', pr_save: 'Salvar pre\u00e7os', pr_none: 'Nenhum jogo configurado ainda.',     pr_nosupport: 'Tipo de pre\u00e7o n\u00e3o suportado no editor.', pr_mult: 'Multiplicadores', pr_mult_skip: 'Ignorar', pr_addrow: '+ Adicionar linha', pr_delrow: 'Remover linha', pr_enable: 'Ativar ofertas desta categoria', pr_notify: 'Notificar esta categoria', pr_noprice: 'Nenhum pre\u00e7o configurado.', pr_back: 'Voltar aos jogos', pr_regions: 'Regi\u00f5es',     pr_region_enable: 'Habilitar esta regi\u00e3o', pr_rank_prices: 'Pre\u00e7o por rank',
     pr_rank: 'Rank', pr_from: 'De', pr_to: 'At\u00e9', pr_per: 'Cada', pr_price: 'Pre\u00e7o', pr_hours: 'Horas', pr_divs: 'Divis\u00f5es',
     st_webhook_save: 'Salvar webhook',
     w_step1: 'Abra seu canal do Discord e v\u00e1 em <b>Configura\u00e7\u00f5es do canal &rarr; Integra\u00e7\u00f5es &rarr; Webhooks</b>.',
@@ -1528,7 +1530,7 @@ const I18N_EXT = {
     tab_pricing: 'Preise',
     st_pricing_tab_hint: 'Konfigurieren Sie die vorgeschlagenen Preise im Tab Preise (Spiele, Bereiche und Multiplikatoren).',
     pr_hint: 'Legen Sie den vorgeschlagenen Preis pro Spiel und Kategorie fest. Halbautomatisch: vorausgef\u00fcllt und bleibt in Best\u00e4tigen. Automatisch: direkt platzieren. Ohne Preis bleibt der Auftrag immer in Best\u00e4tigen.',
-    pr_pace: 'Troph\u00e4en pro Tag (Tempo)', pr_pace_hours: 'Troph\u00e4en pro Stunde (Tempo)', pr_save: 'Preise speichern', pr_none: 'Noch keine Spiele konfiguriert.',     pr_nosupport: 'Preistyp vom Editor nicht unterst\u00fctzt.', pr_mult: 'Multiplikatoren', pr_addrow: '+ Zeile hinzuf\u00fcgen', pr_delrow: 'Zeile l\u00f6schen', pr_enable: 'Angebote f\u00fcr diese Kategorie aktivieren', pr_notify: 'F\u00fcr diese Kategorie benachrichtigen', pr_noprice: 'Keine Preise konfiguriert.', pr_back: 'Zur\u00fcck zu Spielen', pr_regions: 'Regionen',     pr_region_enable: 'Diese Region aktivieren', pr_rank_prices: 'Preis pro Rang',
+    pr_pace: 'Troph\u00e4en pro Tag (Tempo)', pr_pace_hours: 'Troph\u00e4en pro Stunde (Tempo)', pr_save: 'Preise speichern', pr_none: 'Noch keine Spiele konfiguriert.',     pr_nosupport: 'Preistyp vom Editor nicht unterst\u00fctzt.', pr_mult: 'Multiplikatoren', pr_mult_skip: '\u00dcberspringen', pr_addrow: '+ Zeile hinzuf\u00fcgen', pr_delrow: 'Zeile l\u00f6schen', pr_enable: 'Angebote f\u00fcr diese Kategorie aktivieren', pr_notify: 'F\u00fcr diese Kategorie benachrichtigen', pr_noprice: 'Keine Preise konfiguriert.', pr_back: 'Zur\u00fcck zu Spielen', pr_regions: 'Regionen',     pr_region_enable: 'Diese Region aktivieren', pr_rank_prices: 'Preis pro Rang',
     pr_rank: 'Rang', pr_from: 'Von', pr_to: 'Bis', pr_per: 'Alle', pr_price: 'Preis', pr_hours: 'Stunden', pr_divs: 'Divisionen',
     st_webhook_save: 'Webhook speichern',
     w_step1: '\u00d6ffnen Sie Ihren Discord-Kanal und gehen Sie zu <b>Kanaleinstellungen &rarr; Integrationen &rarr; Webhooks</b>.',
@@ -1552,7 +1554,7 @@ const I18N_EXT = {
     tab_pricing: 'Prezzi',
     st_pricing_tab_hint: 'Configura i prezzi suggeriti nella scheda Prezzi (giochi, fasce e moltiplicatori).',
     pr_hint: 'Imposta il prezzo suggerito per gioco e categoria. Semi-automatico: precompilato e resta in Conferma. Automatico: inviato subito. Senza prezzo la richiesta resta sempre in Conferma.',
-    pr_pace: 'Trofei al giorno (ritmo)', pr_pace_hours: 'Trofei per ora (ritmo)', pr_save: 'Salva prezzi', pr_none: 'Nessun gioco configurato.',     pr_nosupport: 'Tipo di prezzo non supportato dall\u2019editor.', pr_mult: 'Moltiplicatori', pr_addrow: '+ Aggiungi riga', pr_delrow: 'Elimina riga', pr_enable: 'Attiva offerte per questa categoria', pr_notify: 'Notifica per questa categoria', pr_noprice: 'Nessun prezzo configurato.', pr_back: 'Torna ai giochi', pr_regions: 'Regioni',     pr_region_enable: 'Abilita questa regione', pr_rank_prices: 'Prezzo per rango',
+    pr_pace: 'Trofei al giorno (ritmo)', pr_pace_hours: 'Trofei per ora (ritmo)', pr_save: 'Salva prezzi', pr_none: 'Nessun gioco configurato.',     pr_nosupport: 'Tipo di prezzo non supportato dall\u2019editor.', pr_mult: 'Moltiplicatori', pr_mult_skip: 'Salta', pr_addrow: '+ Aggiungi riga', pr_delrow: 'Elimina riga', pr_enable: 'Attiva offerte per questa categoria', pr_notify: 'Notifica per questa categoria', pr_noprice: 'Nessun prezzo configurato.', pr_back: 'Torna ai giochi', pr_regions: 'Regioni',     pr_region_enable: 'Abilita questa regione', pr_rank_prices: 'Prezzo per rango',
     pr_rank: 'Rango', pr_from: 'Da', pr_to: 'A', pr_per: 'Ogni', pr_price: 'Prezzo', pr_hours: 'Ore', pr_divs: 'Divisioni',
     st_webhook_save: 'Salva webhook',
     w_step1: 'Apri il tuo canale Discord e vai su <b>Impostazioni canale &rarr; Integrazioni &rarr; Webhooks</b>.',
@@ -1593,6 +1595,11 @@ function catLabel(cat) {
   if (m[cat] !== undefined) return m[cat];
   if (CAT_I18N.es[cat] !== undefined) return CAT_I18N.es[cat];
   return cat;
+}
+function platLabel(pk) {
+  if (!pk) return pk;
+  var P = { pc: 'PC', playstation: 'PlayStation', xbox: 'Xbox', switch: 'Switch', mobile: 'Mobile' };
+  return P[pk] || pk;
 }
 function fmtDate(ts) {
   if (!ts) return '';
@@ -1866,9 +1873,9 @@ function fillSettings(cfg) {
   document.getElementById('c-followImg').value = c.followUpImage || '';
   document.getElementById('c-followDelay').value = Math.round((c.followUpDelayMs != null ? c.followUpDelayMs : (c.messageDelayMs || 5000)) / 1000);
   var hotkeys = cfg.hotkeys || {};
-  document.getElementById('k-hide').value = hotkeys.hide || 'Ctrl+Z';
+  document.getElementById('k-hide').value = hotkeys.hide || 'F8';
   if (window.panelBridge && window.panelBridge.setHotkey) {
-    window.panelBridge.setHotkey(hotkeys.hide || 'Ctrl+Z');
+    window.panelBridge.setHotkey(hotkeys.hide || 'F8');
   }
   var wl = document.getElementById('w-enabled');
   wl.checked = !!w.enabled;
@@ -1917,7 +1924,7 @@ function readSettings() {
       followUpDelayMs: Math.max(0, Math.round(parseFloat(document.getElementById('c-followDelay').value) || 0) * 1000),
     },
     hotkeys: {
-      hide: document.getElementById('k-hide').value.trim() || 'Ctrl+Z',
+      hide: document.getElementById('k-hide').value.trim() || 'F8',
     },
     notify: {
       soundEnabled: chk('n-sound'),
@@ -1978,7 +1985,7 @@ document.getElementById('saveSettingsBtn').onclick = function () {
         msg.className = 'msg';
         refreshConfig();
         if (window.panelBridge && window.panelBridge.setHotkey && payload.hotkeys) {
-          window.panelBridge.setHotkey(payload.hotkeys.hide || 'Ctrl+Z');
+          window.panelBridge.setHotkey(payload.hotkeys.hide || 'F8');
         }
       }
       else { msg.textContent = t('st_error') + ' ' + (out.error || t('st_unknown')); msg.className = 'msg err'; }
@@ -2030,7 +2037,14 @@ document.getElementById('w-save').onclick = function () {
     .catch(function (e) { msg.textContent = t('st_errconn'); msg.className = 'msg err'; btn.disabled = false; });
 };
 
-var PR_MULT_KEYS = ['Duo', 'Solo queue', 'Offline mode', 'Stream'];
+var PR_MULT_KEYS = ['Duo', 'Solo queue', 'Offline mode', 'Stream', 'VPN'];
+function prMultKeys(mult) {
+  var keys = PR_MULT_KEYS.slice();
+  if (mult && typeof mult === 'object') {
+    Object.keys(mult).forEach(function (k) { if (keys.indexOf(k) < 0) keys.push(k); });
+  }
+  return keys;
+}
 
 function prBase() {
   return (baseConfig && baseConfig.bot && baseConfig.bot.pricing) || { enabled: true, games: {} };
@@ -2054,9 +2068,19 @@ function prMoneyField(gk, cat, kind, idx, key, val, labelKey) {
 }
 function prMultFields(gk, cat, mult) {
   var html = '<div class="pr-mult-title">' + esc(t('pr_mult')) + '</div><div class="pr-mult">';
-  PR_MULT_KEYS.forEach(function (k) {
-    var v = mult && mult[k] != null ? mult[k] : 1;
-    html += '<div class="pr-field pr-x" data-kind="mult"><label>' + esc(k) + '</label><div class="money"><span>&times;</span><input class="pr-money" type="number" step="0.01" min="0" inputmode="decimal"' + prAttr(gk, cat, 'mult', null, k) + ' value="' + esc(v) + '"></div></div>';
+  prMultKeys(mult).forEach(function (k) {
+    var raw = mult && mult[k] != null ? mult[k] : 1;
+    var obj = raw && typeof raw === 'object' ? raw : { mult: raw };
+    var m = obj.mult != null ? obj.mult : 1;
+    var a = obj.add != null ? obj.add : 0;
+    var sk = !!obj.skip;
+    html += '<div class="pr-field pr-x pr-mult-item" data-kind="mult" data-mkey="' + esc(k) + '">' +
+      '<label>' + esc(k) + '</label>' +
+      '<div class="pr-mult-inputs">' +
+      '<div class="money" title="' + esc(t('pr_mult')) + '"><span>&times;</span><input class="pr-money pr-mult-mult" type="number" step="0.01" min="0" inputmode="decimal"' + prAttr(gk, cat, 'mult', null, k) + ' value="' + esc(m) + '"></div>' +
+      '<div class="money" title="$"><span>$</span><input class="pr-money pr-mult-add" type="number" step="0.01" min="0" inputmode="decimal"' + prAttr(gk, cat, 'mult', null, k + '_add') + ' value="' + esc(a) + '"></div>' +
+      '<label class="pr-mult-skip"><input type="checkbox" class="pr-mult-skip-cb"' + (sk ? ' checked' : '') + '>' + esc(t('pr_mult_skip')) + '</label>' +
+      '</div></div>';
   });
   return html + '</div>';
 }
@@ -2195,6 +2219,18 @@ function prRenderGamePanel(gk) {
   html += '<label class="pr-game-filter"><input type="checkbox" class="pr-game-filter-en" data-gk="' + esc(gk) + '" data-filter="skipDuo"' + (gData.skipDuo !== false ? ' checked' : '') + '><span>Skip Duo</span></label>';
   html += '<label class="pr-game-filter"><input type="checkbox" class="pr-game-filter-en" data-gk="' + esc(gk) + '" data-filter="skipSquad"' + (gData.skipSquad !== false ? ' checked' : '') + '><span>Skip Squad</span></label>';
   html += '<label class="pr-game-filter"><input type="checkbox" class="pr-game-filter-en" data-gk="' + esc(gk) + '" data-filter="skipConsole"' + (gData.skipConsole !== false ? ' checked' : '') + '><span>Skip Console</span></label>';
+  var PLATS = ['pc', 'playstation', 'xbox', 'switch', 'mobile'];
+  html += '<span class="pr-game-plats-label">Plataformas</span>';
+  for (var pi = 0; pi < PLATS.length; pi++) {
+    var pk = PLATS[pi];
+    var on = (gData.platforms && gData.platforms[pk] !== false) || (!gData.platforms && pk === 'pc');
+    html += '<label class="pr-game-filter"><input type="checkbox" class="pr-game-platform-en" data-gk="' + esc(gk) + '" data-platform="' + pk + '"' + (on ? ' checked' : '') + '><span>' + esc(platLabel(pk)) + '</span></label>';
+  }
+  html += '<span class="pr-game-plats-label">Plataformas</span>';
+  html += ['pc', 'playstation', 'xbox', 'switch', 'mobile'].map(function (pk) {
+    var en = !gData.platforms || gData.platforms[pk] !== false;
+    return '<label class="pr-game-filter"><input type="checkbox" class="pr-game-platform-en" data-gk="' + esc(gk) + '" data-platform="' + pk + '"' + (en ? ' checked' : '') + '><span>' + esc(platLabel(pk)) + '</span></label>';
+  }).join('');
   html += '</div>';
   if (gData.regionLocked && gData.regions) {
     html += '<div class="pr-game-regions">';
@@ -2271,6 +2307,15 @@ function prCollectCards() {
         g[fk] = el.checked;
       }
     });
+    var pf = {};
+    Array.prototype.forEach.call(panel.querySelectorAll('.pr-game-platform-en'), function (pl) {
+      var pj = pl.getAttribute('data-platform');
+      if (pj) pf[pj] = pl.checked;
+    });
+    if (Object.keys(pf).length) {
+      var g2 = games[gk] || (games[gk] = {});
+      g2.platforms = pf;
+    }
   });
   Array.prototype.forEach.call(document.querySelectorAll('#pr-panels .pr-cat-card'), function (card) {
     var gk = card.getAttribute('data-gk');
@@ -2314,11 +2359,18 @@ function prCollectCards() {
       if (hasRP) out.rankPrices = rankPrices;
     }
     out.multipliers = {};
-    Array.prototype.forEach.call(card.querySelectorAll('.pr-field[data-kind="mult"]'), function (cell) {
-      var inp = cell.querySelector('input[data-key]');
-      if (!inp) return;
-      var n = parseFloat(inp.value);
-      out.multipliers[inp.getAttribute('data-key')] = isNaN(n) ? 1 : n;
+    Array.prototype.forEach.call(card.querySelectorAll('.pr-mult-item'), function (item) {
+      var mk = item.getAttribute('data-mkey');
+      if (!mk) return;
+      var sEl = item.querySelector('.pr-mult-skip-cb');
+      if (sEl && sEl.checked) { out.multipliers[mk] = { skip: true }; return; }
+      var mEl = item.querySelector('.pr-mult-mult');
+      var aEl = item.querySelector('.pr-mult-add');
+      var m = mEl ? parseFloat(mEl.value) : NaN;
+      var a = aEl ? parseFloat(aEl.value) : NaN;
+      var mv = isNaN(m) ? 1 : m;
+      if (!isNaN(a) && a !== 0) out.multipliers[mk] = { mult: mv, add: a };
+      else out.multipliers[mk] = mv;
     });
     var g = games[gk] || (games[gk] = {});
     g[cat] = out;

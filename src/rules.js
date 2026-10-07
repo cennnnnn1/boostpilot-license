@@ -69,6 +69,26 @@ export function hasCustomRange(text) {
   return false;
 }
 
+export function detectPlatform(text) {
+  const t = String(text || '').toLowerCase();
+  const hits = [
+    ['pc', /\bpc\b|\bdesktop\b|\bwindows\b|\bcomputer\b|\bmac\b|\bsteam\b/i],
+    ['playstation', /\bplaystation\b|\bplay ?station\b|\bps[45]\b|\bpsn\b/i],
+    ['xbox', /\bxbox\b|\bxb1\b|\bxbx\b/i],
+    ['switch', /\bswitch\b|\bnintendo\b|\bwii\b|\bgame ?boy\b|\b3ds\b/i],
+    ['mobile', /\bios\b|\bandroid\b|\bmobile\b|\bsmartphone\b|\bcelular\b|\biphone\b/i],
+  ];
+  let plat = null;
+  for (const [key, re] of hits) {
+    if (re.test(t)) {
+      if (!plat) plat = key;
+      else if (key === 'pc') { /* pc + otra plataforma -> cuenta la otra */ }
+      else return key;
+    }
+  }
+  return plat; // 'pc' | 'playstation' | 'xbox' | 'switch' | 'mobile' | null
+}
+
 export function applyFilters({ text, category, game } = {}, config) {
   const f = config.filters || {};
   if (!f.enabled) return { skip: false };
@@ -84,7 +104,12 @@ export function applyFilters({ text, category, game } = {}, config) {
   if (gameCfg.skipSquad !== false && /\bsquad\b|\bstack\b|5[- ]?stack\b|\btrio\b|\bparty\b|\bteams?\b|\bteammates?\b|\bequipos?\b|\bclub\b/i.test(t)) {
     return { skip: true, reason: 'squad' };
   }
-  if (gameCfg.skipConsole !== false && /playstation|\bxbox\b|\bswitch\b|\bwii\b|\bnintendo\b|\bconsole\b/i.test(t)) {
+  if (gameCfg.platforms && Object.keys(gameCfg.platforms).length > 0) {
+    const plat = detectPlatform(t);
+    if (plat && gameCfg.platforms[plat] === false) {
+      return { skip: true, reason: `plataforma ${plat}` };
+    }
+  } else if (gameCfg.skipConsole !== false && /playstation|\bxbox\b|\bswitch\b|\bwii\b|\bnintendo\b|\bconsole\b/i.test(t)) {
     return { skip: true, reason: 'console' };
   }
   if (Array.isArray(f.skipKeywords)) {

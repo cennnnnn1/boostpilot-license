@@ -311,7 +311,7 @@ async function handleConfirm(it) {
   let rec = null;
   try {
     rec = generateKeys({
-      owner: `${st.username} (${st.clientId})`,
+      owner: st.username,
       days: st.plan.days,
       plan: st.plan.label,
       price: st.price,
@@ -416,7 +416,7 @@ async function handleInteraction(it) {
     await replyInteraction(it, '⏳ Opening ticket...', { ephemeral: true });
     const kind = id === 'bp_buy' ? 'buy' : 'support';
     const chan = await createTicketChannel(it, kind);
-    const username = String(it.member.user.username || 'user').slice(0, 32) || 'user';
+    const username = String(it.member.user.global_name || it.member.user.username || 'user').slice(0, 32) || 'user';
     sales.set(chan.id, { kind, clientId: uid, username, plan: null, price: 0, status: kind === 'buy' ? 'selecting' : 'support', txid: null, verified: null, key: null, logged: false });
     if (kind === 'buy') await openSalesTicket(it, chan);
     else await openSupportTicket(it, chan);

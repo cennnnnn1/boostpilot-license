@@ -34,7 +34,7 @@
   main{max-width:1180px;margin:0 auto;padding:24px 20px 80px}
   .grid{display:grid;grid-template-columns:1fr 1.7fr;gap:20px;align-items:start}
   @media(max-width:980px){.grid{grid-template-columns:1fr}}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
   .card h2{font-size:15px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
   .card h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--pink);box-shadow:0 0 10px var(--pink)}
   label{display:block;font-size:12.5px;color:var(--muted);font-weight:600;margin:12px 0 6px}
@@ -54,7 +54,7 @@
     font-family:inherit;transition:transform .15s,filter .15s;white-space:nowrap;
   }
   .btn:active{transform:scale(.98)}
-  .btn-grad{background:var(--grad);color:#1a0710;width:100%;margin-top:16px;box-shadow:0 6px 20px rgba(255,106,138,.25)}
+  .btn-grad{background:var(--grad);color:#1a0710;width:100%;margin-top:16px;box-shadow:0 4px 14px rgba(255,106,138,.18)}
   .btn-grad:hover{filter:brightness(1.07)}
   .btn-ghost{background:rgba(255,255,255,.04);border-color:var(--line2);color:var(--text)}
   .btn-ghost:hover{border-color:var(--pink);color:var(--pink3)}
@@ -80,7 +80,7 @@
   th{text-align:left;color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;
      padding:8px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
   td{padding:8px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
-  tr:hover td{background:rgba(255,255,255,.02)}
+  tr:hover td{background:rgba(255,255,255,.025)}
   .mono{font-family:Consolas,monospace;font-size:12px}
   .muted{color:var(--muted)}
   .small{font-size:11px}
@@ -123,6 +123,18 @@
   .modal-card .x{cursor:pointer;color:var(--muted);font-size:18px;line-height:1}
   .modal-card .x:hover{color:var(--pink3)}
   .dev{padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;font-size:12.5px}
+  th.sortable{cursor:pointer;user-select:none;transition:color .15s}
+  th.sortable:hover{color:var(--text)}
+  th .ar{color:var(--pink3);font-size:9px;margin-left:3px}
+  .btn:disabled{opacity:.45;cursor:default}
+  .tableFoot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+  .tableFoot .hint{margin-top:0}
+  .pager{display:flex;gap:6px;align-items:center}
+  .pager .btn{padding:5px 10px}
+  .presence{display:inline-flex;align-items:center;gap:5px}
+  .presence .pd{width:7px;height:7px;border-radius:50%;flex:none;background:#555}
+  .presence.online .pd{background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 1.8s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 </style>
 </head>
 <body>
@@ -211,11 +223,23 @@
       </div>
       <div style="overflow-x:auto">
         <table>
-          <thead><tr><th>Llave</th><th>Cliente</th><th>Plan</th><th>Estado</th><th>Restante</th><th>Vence</th><th>Dispositivo</th><th>Acciones</th></tr></thead>
+          <thead><tr>
+            <th class="sortable" data-sort="key">Llave<span class="ar"></span></th>
+            <th class="sortable" data-sort="owner">Cliente<span class="ar"></span></th>
+            <th class="sortable" data-sort="plan">Plan<span class="ar"></span></th>
+            <th class="sortable" data-sort="state">Estado<span class="ar"></span></th>
+            <th class="sortable" data-sort="remaining">Restante<span class="ar"></span></th>
+            <th class="sortable" data-sort="expiresAt">Vence<span class="ar"></span></th>
+            <th class="sortable" data-sort="device">Dispositivo<span class="ar"></span></th>
+            <th>Acciones</th>
+          </tr></thead>
           <tbody id="rows"><tr><td colspan="8"><div class="empty">Cargando…</div></td></tr></tbody>
         </table>
       </div>
-      <div class="hint" id="rowCount"></div>
+      <div class="tableFoot">
+        <div class="hint" id="rowCount"></div>
+        <div class="pager" id="pager"></div>
+      </div>
     </div>
   </div>
 
@@ -246,6 +270,10 @@ let allKeys = [];
 let devicesByKey = {};
 let filter = 'all';
 let search = '';
+let sortKey = 'createdAt';
+let sortDir = -1;
+let page = 1;
+const PER_PAGE = 25;
 
 async function sha256Hex(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(str || '').trim().toUpperCase()));
@@ -280,7 +308,8 @@ function keyState(k) {
   if (!k.active) return 'revoked';
   if (!k.paid) return 'unpaid';
   if (k.expired) return 'expired';
-  if (k.activatedAt) return 'active';
+  const de = devicesByKey[k.key.toUpperCase()];
+  if (k.activatedAt || (de && !de.released)) return 'active';
   return 'unused';
 }
 
@@ -306,6 +335,64 @@ function timeLeft(k) {
   return k.hours ? k.hoursLeft + ' h' : (k.daysLeft + ' días');
 }
 
+function agoLabel(iso) {
+  if (!iso) return '';
+  const ms = Date.now() - Date.parse(iso);
+  if (isNaN(ms)) return '';
+  const m = Math.max(0, Math.round(ms / 60000));
+  if (m < 1) return 'ahora';
+  if (m < 60) return 'hace ' + m + 'm';
+  const h = Math.round(m / 60);
+  if (h < 24) return 'hace ' + h + 'h';
+  return 'hace ' + Math.round(h / 24) + 'd';
+}
+
+function presence(k) {
+  const st = keyState(k);
+  if (st === 'revoked') return { key: 'revoked', label: 'revocada', cls: 'b-revoked' };
+  if (st === 'unpaid') return { key: 'unpaid', label: 'sin pago', cls: 'b-unpaid' };
+  if (st === 'expired') return { key: 'expired', label: 'vencida', cls: 'b-expired' };
+  const de = devicesByKey[k.key.toUpperCase()];
+  if (!de) return { key: 'none', label: 'sin conexión', cls: '' };
+  if (de.released) return { key: 'released', label: 'liberado', cls: '' };
+  const mins = de.at ? Math.round((Date.now() - Date.parse(de.at)) / 60000) : null;
+  const online = mins != null && mins <= 5;
+  return { key: online ? 'online' : 'recent', label: online ? 'en línea' : 'en uso', cls: online ? 'b-active' : '', mins, device: de.device || '' };
+}
+
+const PRESENCE_RANK = { online: 6, recent: 5, released: 4, none: 3, unpaid: 2, expired: 1, revoked: 0 };
+function presenceRank(k) { return PRESENCE_RANK[presence(k).key] || 0; }
+
+function sortVal(k, key) {
+  switch (key) {
+    case 'key': return String(k.key || '');
+    case 'owner': return String(k.owner || '').toLowerCase();
+    case 'plan': return String(k.plan || '').toLowerCase();
+    case 'state': return keyState(k);
+    case 'remaining': return k.expired ? -1 : (k.hours ? (k.hoursLeft || 0) : (k.daysLeft || 0));
+    case 'expiresAt': return k.expiresAt ? Date.parse(k.expiresAt) || 0 : 0;
+    case 'device': return presenceRank(k);
+    case 'createdAt': return k.createdAt ? Date.parse(k.createdAt) || 0 : 0;
+    default: return 0;
+  }
+}
+
+function filteredSorted() {
+  const q = search.toLowerCase();
+  const rows = allKeys.filter((k) => {
+    if (filter !== 'all' && keyState(k) !== filter) return false;
+    if (!q) return true;
+    return [k.key, k.owner, k.plan, k.seller, k.note, k.game].join(' ').toLowerCase().includes(q);
+  });
+  rows.sort((a, b) => {
+    const av = sortVal(a, sortKey), bv = sortVal(b, sortKey);
+    if (av < bv) return -sortDir;
+    if (av > bv) return sortDir;
+    return 0;
+  });
+  return rows;
+}
+
 function iconBtn(icon, title, cls, onclick) {
   return '<button class="icon-btn ' + (cls || '') + '" title="' + title + '" onclick="' + onclick + '">' + icon + '</button>';
 }
@@ -315,6 +402,7 @@ function actionsCell(k) {
   const de = devicesByKey[k.key.toUpperCase()];
   let b = '';
   b += iconBtn('📋', 'Copiar llave', '', `copyKey('${k.key}')`);
+  b += iconBtn('✏️', 'Cambiar nombre del cliente (Discord)', '', `setOwner('${k.key}')`);
   if (k.active && !k.trial) b += iconBtn('⏫', 'Sumar días', '', `extendKey('${k.key}')`);
   if (st === 'unpaid') b += iconBtn('💵', 'Marcar como pagada', 'ok', `markPaid('${k.key}')`);
   b += iconBtn('🔓', 'Restablecer HWID (expulsar dispositivo)', de ? 'warn' : '', `resetDevice('${k.key}')`);
@@ -325,15 +413,46 @@ function actionsCell(k) {
   return '<div class="actions">' + b + '</div>';
 }
 
-function render() {
-  const q = search.toLowerCase();
-  const rows = allKeys.filter((k) => {
-    if (filter !== 'all' && keyState(k) !== filter) return false;
-    if (!q) return true;
-    return [k.key, k.owner, k.plan, k.seller, k.note, k.game].join(' ').toLowerCase().includes(q);
+function setSort(key) {
+  if (sortKey === key) sortDir = -sortDir;
+  else { sortKey = key; sortDir = (key === 'owner' || key === 'key' || key === 'plan') ? 1 : -1; }
+  page = 1;
+  render();
+}
+
+function updateSortIndicators() {
+  document.querySelectorAll('th[data-sort]').forEach((th) => {
+    const ar = th.querySelector('.ar');
+    if (!ar) return;
+    ar.textContent = th.dataset.sort === sortKey ? (sortDir > 0 ? '▲' : '▼') : '';
   });
+}
+
+function renderPager(total, pages) {
+  const el = $('#pager');
+  if (!el) return;
+  if (total <= PER_PAGE) { el.innerHTML = ''; return; }
+  el.innerHTML =
+    '<button class="btn btn-ghost pg" data-pg="prev"' + (page <= 1 ? ' disabled' : '') + '>←</button>' +
+    '<span class="small muted">Página ' + page + ' / ' + pages + '</span>' +
+    '<button class="btn btn-ghost pg" data-pg="next"' + (page >= pages ? ' disabled' : '') + '>→</button>';
+  el.querySelectorAll('.pg').forEach((b) => {
+    b.onclick = () => { page += b.dataset.pg === 'next' ? 1 : -1; render(); };
+  });
+}
+
+function render() {
+  const all = filteredSorted();
+  const pages = Math.max(1, Math.ceil(all.length / PER_PAGE));
+  if (page > pages) page = pages;
+  if (page < 1) page = 1;
+  const rows = all.slice((page - 1) * PER_PAGE, (page - 1) * PER_PAGE + PER_PAGE);
   const tb = $('#rows');
-  $('#rowCount').textContent = rows.length + ' de ' + allKeys.length + ' key(s)';
+  updateSortIndicators();
+  renderPager(all.length, pages);
+  $('#rowCount').textContent = all.length === allKeys.length
+    ? all.length + ' key(s)'
+    : all.length + ' de ' + allKeys.length + ' key(s)';
   if (!rows.length) {
     tb.innerHTML = '<tr><td colspan="8"><div class="empty">' + (allKeys.length ? 'Sin resultados.' : 'No hay keys todavía.') + '</div></td></tr>';
     return;
@@ -352,13 +471,31 @@ function render() {
 }
 
 function deviceCell(k) {
+  const p = presence(k);
   const de = devicesByKey[k.key.toUpperCase()];
-  if (!de) return '<span class="muted small">libre</span>';
-  if (de.released) return '<span class="badge" title="HWID liberado (Restablecer HWID) · ' + (de.at ? fmtDate(de.at) : '') + '">liberado</span>';
-  const id = String(de.device || '').slice(0, 10);
-  const at = de.at ? 'Reclamado: ' + fmtDate(de.at) : '';
-  return '<span class="badge b-active" title="' + escapeHtml((de.device || '') + (at ? ' · ' + at : '')) + '">en uso · ' + escapeHtml(id) + '…</span>';
+  if (p.key === 'revoked' || p.key === 'unpaid' || p.key === 'expired') return '<span class="muted small">—</span>';
+  if (p.key === 'none') return '<span class="muted small">sin conexión</span>';
+  if (p.key === 'released') return '<span class="badge" title="HWID liberado · ' + (de && de.at ? fmtDate(de.at) : '') + '">liberado</span>';
+  const id = String(de.device || '').slice(0, 8);
+  const tip = (de.device || '') + (de.at ? ' · Conectado: ' + fmtDate(de.at) : '');
+  const badge = '<span class="presence' + (p.key === 'online' ? ' online' : '') + '" title="' + escapeHtml(tip) + '"><span class="pd"></span>' +
+    (p.key === 'online' ? 'en línea' : 'en uso') + ' · ' + escapeHtml(id) + '…' + (p.mins != null ? ' · ' + agoLabel(de.at) : '') + '</span>';
+  const kick = '<button class="icon-btn warn" title="Expulsar dispositivo (reset HWID)" onclick="resetDevice(\'' + k.key + '\')">👢</button>';
+  return '<div class="actions">' + badge + kick + '</div>';
 }
+
+function downloadCsv(filename, csv) {
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+function csvEsc(v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }
 
 async function loadStats() {
   try {
@@ -567,6 +704,24 @@ async function extendKey(key) {
   } catch (e) { toast(e.message, true); }
 }
 
+async function setOwner(key) {
+  const row = allKeys.find((k) => k.key === key);
+  const cur = row ? row.owner : '';
+  const name = prompt('Nombre del cliente (aparecerá junto a "Welcome" en la app).\nKey: ' + key, cur);
+  if (name == null) return;
+  const v = name.trim();
+  if (!v) { toast('Nombre vacío.', true); return; }
+  try {
+    await api('/api/keys/set-owner', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, owner: v }),
+    });
+    toast('Nombre del cliente actualizado.');
+    loadKeys(); loadStats();
+  } catch (e) { toast(e.message, true); }
+}
+
 async function markPaid(key) {
   try {
     await api('/api/keys/paid', {
@@ -646,14 +801,36 @@ async function showHistory(key) {
     $('#modalBody').innerHTML = log.length
       ? log.slice().reverse().map((e) => '<div class="dev"><b>' + fmtDate(e.t) + '</b> &nbsp;' + escapeHtml(e.msg) + '</div>').join('')
       : '<div class="empty">Sin eventos registrados.</div>';
+    if (log.length) {
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-ghost';
+      btn.style.marginTop = '12px';
+      btn.textContent = '⬇ CSV';
+      btn.onclick = () => {
+        const csv = ['fecha,evento'].concat(log.slice().reverse().map((e) => [e.t, e.msg].map(csvEsc).join(','))).join('\r\n');
+        downloadCsv('hist-' + key + '.csv', csv);
+      };
+      $('#modalBody').appendChild(btn);
+    }
     openModal();
   } catch (e) { toast(e.message, true); }
 }
 
-$('#search').oninput = () => { search = $('#search').value.trim(); render(); };
-$('#statusFilter').onchange = () => { filter = $('#statusFilter').value; render(); };
+$('#search').oninput = () => { search = $('#search').value.trim(); page = 1; render(); };
+$('#statusFilter').onchange = () => { filter = $('#statusFilter').value; page = 1; render(); };
 $('#refreshBtn').onclick = () => { loadKeys(); loadStats(); };
-$('#exportBtn').onclick = () => { window.location.href = '/api/admin/export'; };
+$('#exportBtn').onclick = () => {
+  const rows = filteredSorted();
+  const head = ['key', 'owner', 'plan', 'estado', 'restante', 'vence', 'dispositivo', 'precio_usd', 'creada', 'vendedor'];
+  const csv = [head.join(',')].concat(rows.map((k) => {
+    const de = devicesByKey[k.key.toUpperCase()];
+    return [k.key, k.owner, k.plan, keyState(k), timeLeft(k), k.expiresAt || '', (de && !de.released ? de.device : ''), k.price || 0, k.createdAt || '', k.seller || ''].map(csvEsc).join(',');
+  })).join('\r\n');
+  downloadCsv('boostpilot-keys-' + new Date().toISOString().slice(0, 10) + '.csv', csv);
+  toast('CSV exportado (' + rows.length + ' key(s)).');
+};
+document.querySelectorAll('th[data-sort]').forEach((th) => { th.onclick = () => setSort(th.dataset.sort); });
+setInterval(() => { if ($('#panelMain').style.display !== 'none') loadKeys(); }, 30000);
 
 function licLine(lic) {
   if (!lic || !lic.onlineCheck) return 'Chequeo online NO configurado. Editá config/license.json (blacklistUrl) o usá tools/setup-license.mjs.';

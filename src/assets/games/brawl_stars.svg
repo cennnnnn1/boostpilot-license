@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+  <defs>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="16" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.6"/>
+    </filter>
+    <pattern id="dots" width="14" height="14" patternUnits="userSpaceOnUse">
+      <circle cx="7" cy="7" r="3" fill="#ffffff" opacity="0.05"/>
+    </pattern>
+    <radialGradient id="bg" cx="0.5" cy="0.45" r="0.9">
+      <stop offset="0" stop-color="#0a5fd0"/>
+      <stop offset="1" stop-color="#01245c"/>
+    </radialGradient>
+  </defs>
+  
+  <rect width="400" height="300" fill="url(#bg)"/>
+  <rect width="400" height="300" fill="url(#dots)"/>
+  <g transform="translate(200 142) rotate(-18) scale(1)">
+    <path d="M0 -132 L31 -41 L126 -41 L50 18 L77 109 L0 56 L-77 109 L-50 18 L-126 -41 L-31 -41 Z" fill="#ffe14d" opacity="0.85" filter="url(#glow)"/>
+    <path d="M0 -132 L31 -41 L126 -41 L50 18 L77 109 L0 56 L-77 109 L-50 18 L-126 -41 L-31 -41 Z" fill="#fff7b0"/>
+  </g>
+  <text x="200" y="192" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-size="42" font-weight="900" letter-spacing="2" fill="#ffffff" filter="url(#sh)" >BRAWL</text>
+  <text x="200" y="226" text-anchor="middle" font-family="Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="8" fill="#ffe14d">STARS</text>
+</svg>

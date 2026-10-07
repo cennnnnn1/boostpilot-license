@@ -27,7 +27,7 @@ npm install
 npm run dist       # genera el instalador en release/ (BoostPilot Setup x.y.z.exe)
 ```
 
-Funciones: autostart, sesión persistente (keep-session), login con llave ligada a dispositivo, hotkey para ocultar/mostrar el panel (por defecto `Ctrl+Z`), reinicio automático si el bot crashea y botón para abrir la tienda.
+Funciones: autostart, sesión persistente (keep-session), login con llave ligada a dispositivo, hotkey para ocultar/mostrar el panel (por defecto `F8`, configurable), reinicio automático si el bot crashea y botón para abrir la tienda.
 
 ## Estructura
 

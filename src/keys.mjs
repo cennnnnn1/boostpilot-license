@@ -255,6 +255,7 @@ export function mergeRemoteKey(raw, entry) {
   r.trial = !!entry.trial;
   r.game = entry.game || r.game || null;
   r.plan = entry.plan || r.plan;
+  r.owner = String(entry.owner || '').trim() || r.owner;
   r.maxDevices = 1;
   if (r.hours > 0 || (entry.hours && entry.hours > 0)) r.hours = Math.max(0, parseInt(entry.hours, 10) || 0);
   r.days = Math.max(0, parseInt(entry.days, 10) || 0);
@@ -394,6 +395,18 @@ export function setKeyVip(raw, vip) {
   save(data);
   logKeyEvent(r.id, vip ? 'Marcada como VIP.' : 'Quitada de VIP.');
   return { ok: true, key: rec.key, vip: !!vip };
+}
+
+export function setKeyOwner(raw, owner) {
+  const rec = findKey(raw);
+  if (!rec) return { ok: false, error: 'not_found' };
+  const name = String(owner || '').trim() || 'Cliente';
+  const data = load();
+  const r = data.keys.find((x) => x.id === rec.id);
+  r.owner = name;
+  save(data);
+  logKeyEvent(r.id, 'Nombre/Discord del cliente actualizado a "' + name + '".');
+  return { ok: true, key: rec.key, owner: name };
 }
 
 export function trialUsed(owner) {

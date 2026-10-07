@@ -1,6 +1,6 @@
 {
   "name": "eldorado-bot-launcher",
-  "version": "1.7.22",
+  "version": "1.7.28",
   "description": "BoostPilot - Launcher de escritorio",
   "main": "main.js",
   "scripts": {

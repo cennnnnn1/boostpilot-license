@@ -1,6 +1,6 @@
-const { app, BrowserWindow, ipcMain, session, shell, globalShortcut } = require('electron');
+const { app, BrowserWindow, ipcMain, session, shell, globalShortcut, Menu, clipboard, screen, Notification } = require('electron');
 const { spawn, execSync } = require('child_process');
-const { randomBytes } = require('crypto');
+const { createHash, randomBytes } = require('crypto');
 const http = require('http');
 const https = require('https');
 const path = require('path');
@@ -16,7 +16,7 @@ const PANEL_HOST = '127.0.0.1';
 const START_PORT = 3000;
 const MAX_PORT = 3005;
 const CONFIG_FILE = path.join(app.getPath('userData'), 'launcher.json');
-const VERSION = '1.7.22';
+const VERSION = '1.7.28';
 const UPDATE_REPO = 'cennnnnn1/boostpilot-license';
 const UPDATE_API = 'https://api.github.com/repos/' + UPDATE_REPO + '/releases/latest';
 
@@ -32,12 +32,44 @@ function readConfig() {
   try { return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8')); } catch (e) { return {}; }
 }
 function writeConfig(c) {
-  try { fs.writeFileSync(CONFIG_FILE, JSON.stringify(c, null, 2)); } catch (e) {}
+  try {
+    fs.mkdirSync(path.dirname(CONFIG_FILE), { recursive: true });
+    const tmp = CONFIG_FILE + '.tmp';
+    fs.writeFileSync(tmp, JSON.stringify(c, null, 2));
+    fs.renameSync(tmp, CONFIG_FILE);
+  } catch (e) {}
+}
+function stableMachineId() {
+  const keys = [
+    'HKLM\\SOFTWARE\\Microsoft\\Cryptography',
+    'HKLM\\SYSTEM\\CurrentControlSet\\Control\\SystemInformation',
+  ];
+  const names = ['MachineGuid', 'BIOSVersion'];
+  try {
+    for (const k of keys) {
+      for (const n of names) {
+        try {
+          const out = execSync('reg query "' + k + '" /v ' + n, { windowsHide: true, timeout: 5000, encoding: 'utf8' });
+          const m = /REG_(SZ|EXPA([^ ]*))\s+([^\s]{4,})/i.exec(out);
+          if (m && m[3]) return m[3].toLowerCase();
+        } catch (e) {}
+      }
+    }
+  } catch (e) {}
+  try {
+    const out = execSync('wmic csproduct get uuid', { windowsHide: true, timeout: 5000, encoding: 'utf8' });
+    const m = /[0-9a-fA-F-]{16,}/.exec(out.replace(/^[^\n]*\n/, ''));
+    if (m && m[0]) return m[0].toLowerCase();
+  } catch (e) {}
+  return null;
 }
 function getDeviceId() {
   const cfg = readConfig();
-  if (cfg.deviceId) return cfg.deviceId;
-  const deviceId = randomBytes(12).toString('hex');
+  if (cfg.deviceId && /^[0-9a-f]{24}$/.test(cfg.deviceId)) return cfg.deviceId;
+  const mid = stableMachineId();
+  const deviceId = mid
+    ? createHash('sha256').update('boostpilot:' + mid).digest('hex').slice(0, 24)
+    : randomBytes(12).toString('hex');
   writeConfig({ ...cfg, deviceId });
   return deviceId;
 }
@@ -46,8 +78,9 @@ function getAdminKey() {
   return process.env.ELBOT_MASTER_KEY || '';
 }
 
-function httpJson(url, opts) {
+function httpJson(url, opts, timeoutMs) {
   return new Promise((resolve, reject) => {
+    const t = (opts && opts.timeoutMs) || timeoutMs || 1500;
     const req = http.request(url, { method: (opts && opts.method) || 'GET', headers: { 'Content-Type': 'application/json' } }, (res) => {
       let body = '';
       res.on('data', (c) => { body += c; });
@@ -58,7 +91,7 @@ function httpJson(url, opts) {
       });
     });
     req.on('error', reject);
-    req.setTimeout(1500, () => { req.destroy(new Error('timeout')); });
+    req.setTimeout(t, () => { req.destroy(new Error('timeout')); });
     if (opts && opts.body) req.write(JSON.stringify(opts.body));
     req.end();
   });
@@ -210,30 +243,47 @@ function versionGt(a, b) {
   return false;
 }
 
+function shaFromNotes(body) {
+  const m = String(body || '').match(/sha256[\s:=]+([a-f0-9]{64})/i);
+  return m ? m[1].toLowerCase() : null;
+}
+
+let notifiedVersion = null;
 async function checkUpdate() {
   try {
     const { status, data } = await httpsJsonGet(UPDATE_API);
     if (status !== 200 || !data.tag_name) return { ok: false, error: 'fetch_failed' };
     const latest = data.tag_name.replace(/^v/, '');
     const asset = (data.assets || []).find((a) => /\.exe$/i.test(a.name)) || null;
+    const available = versionGt(latest, VERSION);
+    if (available && notifiedVersion !== latest) {
+      notifiedVersion = latest;
+      try {
+        if (!Notification.isSupported || Notification.isSupported()) {
+          new Notification({ title: 'BoostPilot', body: 'Update v' + latest + ' is available' }).show();
+        }
+      } catch (e) {}
+    }
     return {
       ok: true,
-      available: versionGt(latest, VERSION),
+      available,
       current: VERSION,
       latest,
       notes: data.body || '',
       url: asset ? asset.browser_download_url : (data.html_url || ''),
       size: asset ? asset.size : 0,
+      sha: shaFromNotes(data.body),
     };
   } catch (e) {
     return { ok: false, error: 'network' };
   }
 }
 
-function downloadFile(url, dest) {
+function downloadFile(url, dest, onProgress) {
   return new Promise((resolve, reject) => {
     const ac = new AbortController();
     const timer = setTimeout(() => ac.abort(), 600000);
+    const hash = createHash('sha256');
     fetch(url, { headers: { 'User-Agent': 'BoostPilot/' + VERSION }, redirect: 'follow', signal: ac.signal })
       .then(async (res) => {
         if (!res.ok) throw new Error('http_' + res.status);
@@ -246,12 +296,14 @@ function downloadFile(url, dest) {
             const { done, value } = await reader.read();
             if (done) break;
             bytes += value.length;
+            hash.update(value);
+            if (onProgress) onProgress(bytes, total);
             if (!file.write(value)) await new Promise((r) => file.once('drain', r));
           }
           file.end();
           await new Promise((r) => file.once('close', r));
           if (total > 0 && bytes !== total) throw new Error('size_mismatch ' + bytes + '/' + total);
-          resolve(dest);
+          resolve({ dest, sha256: hash.digest('hex') });
         } catch (e) {
           file.destroy();
           reject(e);
@@ -262,23 +314,61 @@ function downloadFile(url, dest) {
   });
 }
 
-async function doUpdate() {
+async function doUpdate(event) {
+  const send = (d) => { try { if (event && event.sender) event.sender.send('update-progress', d); } catch (e) {} };
+  let info = null;
   try {
-    const info = await checkUpdate();
+    info = await checkUpdate();
     if (!info.ok || !info.available || !info.url) return { ok: false, error: info.error || 'no_update' };
     const dest = path.join(os.tmpdir(), 'BoostPilot.Setup.' + info.latest + '.exe');
-    await downloadFile(info.url, dest);
-    const child = spawn(dest, ['/S', '/currentuser'], { detached: true, stdio: 'ignore', windowsHide: true });
+    const attempts = 3;
+    let lastErr = null;
+    for (let i = 1; i <= attempts; i++) {
+      try {
+        send({ phase: 'download', pct: 0, received: 0, total: info.size || 0, speed: 0, latest: info.latest, attempt: i });
+        let lastSend = 0, lastAt = Date.now(), lastBytes = 0, speed = 0;
+        const out = await downloadFile(info.url, dest, (received, total) => {
+          const now = Date.now();
+          const dt = (now - lastAt) / 1000;
+          if (dt >= 0.2) { speed = Math.max(0, (received - lastBytes) / dt); lastAt = now; lastBytes = received; }
+          if (now - lastSend < 200 && received !== total) return;
+          lastSend = now;
+          send({ phase: 'download', pct: total > 0 ? Math.min(100, Math.round(received / total * 100)) : 0, received, total, speed: Math.round(speed), latest: info.latest, attempt: i });
+        });
+        if (info.sha && out && out.sha256 && out.sha256.toLowerCase() !== info.sha.toLowerCase()) {
+          throw new Error('hash_mismatch');
+        }
+        lastErr = null;
+        break;
+      } catch (e) {
+        lastErr = e;
+        try { fs.unlinkSync(dest); } catch (err) {}
+        if (i < attempts) {
+          send({ phase: 'download', pct: 0, received: 0, total: info.size || 0, speed: 0, latest: info.latest, attempt: i + 1, retrying: true });
+          await new Promise((r) => setTimeout(r, 4000));
+        }
+      }
+    }
+    if (lastErr) throw lastErr;
+    send({ phase: 'install', pct: 100, latest: info.latest });
+    const exePath = app.getPath('exe');
+    const cmdline = 'start "" /wait "' + dest + '" /S /currentuser & timeout /t 2 /nobreak >nul & start "" "' + exePath + '"';
+    const child = spawn(process.env.ComSpec || 'cmd.exe', ['/c', cmdline], { detached: true, stdio: 'ignore', windowsHide: true });
     child.unref();
     setTimeout(() => { quitting = true; try { if (botChild) botChild.kill(); } catch (e) {} app.exit(0); }, 1200);
     return { ok: true, path: dest };
   } catch (e) {
+    send({ phase: 'error', latest: info ? info.latest : null });
     return { ok: false, error: String(e.message || e) };
   }
 }
 
 ipcMain.handle('check-update', checkUpdate);
 ipcMain.handle('apply-update', doUpdate);
+ipcMain.handle('clipboard-write', (e, text) => {
+  try { clipboard.writeText(String(text == null ? '' : text)); return { ok: true }; }
+  catch (err) { return { ok: false, error: String(err.message || err) }; }
+});
 
 
 let loginRunning = false;
@@ -367,21 +457,25 @@ async function injectSession(port, token) {
 }
 
 async function doLogin(key, keepSession) {
-  const port = await ensureBot();
-  if (port == null) return { ok: false, error: 'bot_down' };
-  const r = await httpJson('http://' + PANEL_HOST + ':' + port + '/api/login', { method: 'POST', body: { key: key, device: getDeviceId() } });
-  if (r.data && r.data.ok && r.data.subscription) {
-    const token = extractSession(r.setCookie);
-    if (token) await injectSession(port, token);
-    const cfg = readConfig();
-    cfg.port = port;
-    cfg.kickEpoch = (r.data.subscription && r.data.subscription.kickEpoch) || 0;
-    if (keepSession) { cfg.key = key.toUpperCase(); cfg.keepSession = true; }
-    else { delete cfg.key; cfg.keepSession = false; }
-    writeConfig(cfg);
-    return { ok: true, subscription: r.data.subscription };
+  try {
+    const port = await ensureBot();
+    if (port == null) return { ok: false, error: 'bot_down' };
+    const r = await httpJson('http://' + PANEL_HOST + ':' + port + '/api/login', { method: 'POST', body: { key: key, device: getDeviceId() } }, 30000);
+    if (r.data && r.data.ok && r.data.subscription) {
+      const token = extractSession(r.setCookie);
+      if (token) await injectSession(port, token);
+      const cfg = readConfig();
+      cfg.port = port;
+      cfg.kickEpoch = (r.data.subscription && r.data.subscription.kickEpoch) || 0;
+      if (keepSession) { cfg.key = key.toUpperCase(); cfg.keepSession = true; }
+      else { delete cfg.key; cfg.keepSession = false; }
+      writeConfig(cfg);
+      return { ok: true, subscription: r.data.subscription };
+    }
+    return { ok: false, error: (r.data && r.data.error) || 'invalid', maxDevices: r.data && r.data.maxDevices };
+  } catch (e) {
+    return { ok: false, error: 'conn' };
   }
-  return { ok: false, error: (r.data && r.data.error) || 'invalid', maxDevices: r.data && r.data.maxDevices };
 }
 
 ipcMain.handle('login', (e, key, keepSession) => doLogin(String(key || '').trim(), !!keepSession));
@@ -534,6 +628,30 @@ function registerHotkey(accel) {
   }
 }
 
+function defaultHotkey() {
+  try {
+    const cfg = JSON.parse(fs.readFileSync(path.join(BOT_DIR, 'config', 'rules.json'), 'utf8'));
+    const h = cfg && cfg.hotkeys && cfg.hotkeys.hide;
+    if (h && typeof h === 'string' && h.trim()) return h.trim();
+  } catch (e) {}
+  return 'F8';
+}
+
+function attachContextMenu(win) {
+  win.webContents.on('context-menu', (e, params) => {
+    const template = [];
+    if (params.isEditable) {
+      template.push({ role: 'cut' }, { role: 'copy' }, { role: 'paste' }, { type: 'separator' }, { role: 'selectAll' });
+    } else if (params.selectionText) {
+      template.push({ role: 'copy' });
+    }
+    if (params.linkURL && /^https?:\/\//.test(params.linkURL)) {
+      template.push({ label: 'Copy link', click: () => clipboard.writeText(params.linkURL) });
+    }
+    if (template.length) Menu.buildFromTemplate(template).popup({ window: win });
+  });
+}
+
 ipcMain.handle('set-hotkey', (e, accel) => {
   registerHotkey(accel);
   return { ok: true, registered: registeredHotkey };
@@ -551,6 +669,7 @@ function openPanelWindow(port) {
     },
   });
   panelWin.setMenuBarVisibility(false);
+  attachContextMenu(panelWin);
   panelWin.loadURL('http://' + PANEL_HOST + ':' + port + '/');
   panelWin.on('closed', () => {
     panelWin = null;
@@ -569,8 +688,21 @@ function closePanelWindow() {
   }
 }
 
+function savedWindowPos() {
+  try {
+    const cfg = readConfig();
+    if (typeof cfg.winX !== 'number' || typeof cfg.winY !== 'number') return {};
+    const W = 420, H = 560;
+    const visible = screen.getAllDisplays().some((d) => {
+      const a = d.workArea;
+      return cfg.winX + W > a.x && cfg.winX < a.x + a.width && cfg.winY + H > a.y && cfg.winY < a.y + a.height;
+    });
+    return visible ? { x: cfg.winX, y: cfg.winY } : {};
+  } catch (e) { return {}; }
+}
+
 function createLauncherWindow() {
-  launcherWin = new BrowserWindow({
+  launcherWin = new BrowserWindow(Object.assign({
     width: 420, height: 560, resizable: false, frame: false, backgroundColor: '#000',
     title: 'BoostPilot',
     webPreferences: {
@@ -578,9 +710,21 @@ function createLauncherWindow() {
       contextIsolation: true,
       nodeIntegration: false,
     },
-  });
+  }, savedWindowPos()));
   launcherWin.setMenuBarVisibility(false);
+  attachContextMenu(launcherWin);
   launcherWin.loadFile(path.join(__dirname, 'index.html'));
+  let posTimer = null;
+  launcherWin.on('moved', () => {
+    clearTimeout(posTimer);
+    posTimer = setTimeout(() => {
+      if (!launcherWin || launcherWin.isDestroyed()) return;
+      const b = launcherWin.getBounds();
+      const cfg = readConfig();
+      cfg.winX = b.x; cfg.winY = b.y;
+      writeConfig(cfg);
+    }, 400);
+  });
   launcherWin.on('closed', () => { launcherWin = null; });
 }
 
@@ -599,7 +743,7 @@ if (!gotLock) {
 
   app.whenReady().then(() => {
     setPanelActive(false);
-    registerHotkey('Ctrl+Z');
+    registerHotkey(defaultHotkey());
     createLauncherWindow();
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) createLauncherWindow();

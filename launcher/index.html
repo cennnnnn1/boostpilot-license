@@ -96,6 +96,7 @@ input:focus {
 .status.err { color: #f87171; }
 .status.ok { color: #34d399; }
 .welcome { color: #34d399; font-size: 15px; font-weight: 700; margin-top: 12px; letter-spacing: .3px; text-align: center; animation: fadeIn .4s ease; }
+.status, .welcome, .lead, .ver, .foot-left { user-select: text; -webkit-app-region: no-drag; }
 .footer {
   padding: 10px 16px; border-top: 1px solid #141827; display: flex; align-items: center; justify-content: space-between; gap: 10px;
   font-size: 11.5px; color: #8a8f9c; -webkit-app-region: no-drag; position: relative; z-index: 2;
@@ -104,7 +105,12 @@ input:focus {
 .dot { width: 8px; height: 8px; border-radius: 50%; background: #555; flex: none; }
 .dot.on { background: #34d399; animation: pulse 1.6s infinite; box-shadow: 0 0 10px rgba(52,211,153,.8); }
 .dot.off { background: #f87171; box-shadow: 0 0 10px rgba(248,113,113,.6); }
-.foot-actions { display: flex; gap: 6px; }
+.ver {
+  color: #c9a7ff; font-weight: 700; letter-spacing: .2px; font-size: 11px;
+  background: rgba(168,85,247,.12); border: 1px solid rgba(168,85,247,.3); border-radius: 6px;
+  padding: 1px 7px; flex: none;
+}
+.foot-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
 .foot-actions button {
   background: linear-gradient(180deg, rgba(32,38,60,.7), rgba(17,21,39,.6));
   border: 1px solid #20263c; color: #cfd6e6; border-radius: 8px;
@@ -165,9 +171,10 @@ input:focus {
     </div>
   </div>
   <div class="footer">
-    <div class="foot-left"><span class="dot" id="botDot"></span><span id="botStatusText">Starting...</span></div>
+    <div class="foot-left"><span class="dot" id="botDot"></span><span id="botStatusText">Starting...</span><span class="ver" id="verChip"></span></div>
     <div class="foot-actions">
       <button id="updateBtn" title="A new version is available" style="display:none;color:#ffd166;border-color:#7a5a12">Update</button>
+      <button id="copyKeyBtn" title="Copy your access key">Copy key</button>
       <button id="restartBtn" title="Restart the bot">Restart</button>
       <button id="autoBtn" title="Start with Windows">Autostart</button>
       <button id="quitBtn" class="quit">Quit</button>
@@ -178,6 +185,7 @@ var input = document.getElementById('keyInput');
 var statusEl = document.getElementById('status');
 var loggedIn = false;
 var expiredNow = false;
+var latestVer = '';
 
 function showStatus(msg, cls) { statusEl.textContent = msg || ''; statusEl.className = 'status' + (cls ? ' ' + cls : ''); }
 function errText(code) {
@@ -216,6 +224,18 @@ function formatKey(k) {
   var parts = v.match(/.{1,4}/g) || [];
   return parts.join('-');
 }
+function fmtBytes(b) {
+  var n = Number(b) || 0;
+  if (n >= 1073741824) return (n / 1073741824).toFixed(2) + ' GB';
+  if (n >= 1048576) return (n / 1048576).toFixed(1) + ' MB';
+  if (n >= 1024) return Math.round(n / 1024) + ' KB';
+  return n + ' B';
+}
+function fmtSpeed(bps) {
+  var n = Number(bps) || 0;
+  if (n < 1024) return '';
+  return (n / 1048576).toFixed(1) + ' MB/s';
+}
 function refreshPrefill() {
   window.launcher.getStatus().then(function (s) {
     if (s && s.key) input.value = formatKey(s.key);
@@ -249,20 +269,62 @@ document.getElementById('restartBtn').addEventListener('click', function () {
   });
 });
 document.getElementById('quitBtn').addEventListener('click', function () { window.launcher.quit(); });
+document.getElementById('copyKeyBtn').addEventListener('click', function () {
+  window.launcher.getStatus().then(function (s) {
+    var key = (s && s.key) || input.value.replace(/[^A-F0-9]/gi, '');
+    if (!key) { showStatus('No key to copy yet.', 'err'); return; }
+    window.launcher.copyText(formatKey(key)).then(function (r) {
+      showStatus(r && r.ok ? 'Access key copied to clipboard.' : 'Could not copy the key.', r && r.ok ? 'ok' : 'err');
+    });
+  }).catch(function () { showStatus('Could not copy the key.', 'err'); });
+});
 var updateBtn = document.getElementById('updateBtn');
+var latestSize = 0;
+function idleUpdateLabel() {
+  return 'Update v' + latestVer + (latestSize ? ' · ' + fmtBytes(latestSize) : '');
+}
 updateBtn.addEventListener('click', function () {
   updateBtn.disabled = true;
-  updateBtn.textContent = 'Downloading...';
+  updateBtn.textContent = 'Downloading… 0%';
   window.launcher.applyUpdate().then(function (r) {
-    if (!r.ok) {
+    if (!r || !r.ok) {
       updateBtn.disabled = false;
-      updateBtn.textContent = 'Update';
-      showStatus(r.error === 'no_update' ? '' : 'Update failed. Open the #downloads channel for the installer.', 'err');
+      updateBtn.textContent = idleUpdateLabel();
+      showStatus(r && r.error === 'no_update' ? '' : 'Update failed. Open the #downloads channel for the installer.', 'err');
     }
   }).catch(function () {
     updateBtn.disabled = false;
-    updateBtn.textContent = 'Update';
+    updateBtn.textContent = idleUpdateLabel();
+    showStatus('Update failed. Open the #downloads channel for the installer.', 'err');
   });
+});
+window.launcher.onUpdateProgress(function (d) {
+  if (!d) return;
+  if (d.phase === 'download') {
+    var pct = Math.max(0, Math.min(100, Math.round(Number(d.pct) || 0)));
+    var sp = fmtSpeed(d.speed);
+    if (d.retrying) {
+      updateBtn.disabled = true;
+      updateBtn.textContent = 'Retry ' + d.attempt + '…';
+      updateBtn.title = 'Download interrupted — retrying (' + d.attempt + '/3)…';
+      showStatus('Download interrupted. Retrying (' + d.attempt + '/3)…');
+      return;
+    }
+    updateBtn.textContent = pct + '%' + (sp ? ' · ' + sp : '');
+    var detail = 'Downloading v' + (d.latest || latestVer) + ' — ' + pct + '%';
+    if (d.received || d.total) detail += ' (' + fmtBytes(d.received) + ' / ' + fmtBytes(d.total) + ')';
+    if (sp) detail += ' · ' + sp;
+    updateBtn.title = detail;
+    showStatus(detail);
+  } else if (d.phase === 'install') {
+    updateBtn.disabled = true;
+    updateBtn.textContent = 'Updating to v' + (d.latest || latestVer) + '…';
+    updateBtn.title = 'Automatic reinstall in progress. This app will restart.';
+    showStatus('Installing v' + (d.latest || latestVer) + ' — the app will restart.', 'ok');
+  } else if (d.phase === 'error') {
+    updateBtn.disabled = false;
+    updateBtn.textContent = idleUpdateLabel();
+  }
 });
 var updateCheckPending = false;
 function checkUpdates() {
@@ -270,8 +332,11 @@ function checkUpdates() {
   updateCheckPending = true;
   window.launcher.checkUpdate().then(function (r) {
     if (r && r.ok && r.available) {
+      latestVer = r.latest;
+      latestSize = r.size || 0;
       updateBtn.style.display = '';
-      updateBtn.title = 'New version v' + r.latest + ' available';
+      updateBtn.textContent = idleUpdateLabel();
+      updateBtn.title = 'New version v' + r.latest + (latestSize ? ' (' + fmtBytes(latestSize) + ')' : '') + ' available';
     } else {
       updateBtn.style.display = 'none';
     }
@@ -314,6 +379,9 @@ function doLogin() {
       showStatus(errText(r.error), 'err');
       if (r.error === 'expired') { expiredNow = true; showRenew(); }
     }
+  }).catch(function () {
+    btn.disabled = false; btn.textContent = 'Enter';
+    showStatus('Connection to the bot failed. Please try again.', 'err');
   });
 }
 
@@ -323,9 +391,9 @@ function refreshStatus() {
     var dot = document.getElementById('botDot');
     var txt = document.getElementById('botStatusText');
     dot.className = 'dot ' + (s.online ? 'on' : 'off');
-    txt.textContent = s.online
-      ? 'Bot active' + (s.botVersion ? ' v' + s.botVersion : '')
-      : 'Bot is off';
+    txt.textContent = s.online ? 'Bot active' : 'Bot is off';
+    document.getElementById('verChip').textContent = 'v' + (s.launcherVersion || '');
+    document.getElementById('verChip').title = s.online && s.botVersion ? 'bot v' + s.botVersion : '';
     var ab = document.getElementById('autoBtn');
     ab.className = s.autostart ? 'on' : '';
     var kk = document.getElementById('keepChk');
@@ -335,6 +403,7 @@ function refreshStatus() {
 
 setInterval(refreshStatus, 8000);
 setInterval(checkUpdates, 5 * 60 * 1000);
+window.addEventListener('focus', function () { if (!updateCheckPending) checkUpdates(); });
 
 setInterval(function () {
   if (!loggedIn) return;
@@ -353,6 +422,9 @@ showStatus('Starting the bot...');
 refreshStatus();
 refreshPrefill();
 checkUpdates();
+window.launcher.getStatus().then(function (s) {
+  if (s && s.ok && s.key && s.keepSession && !loggedIn && !expiredNow) doLogin();
+}).catch(function () {});
 </script>
 </body>
 </html>

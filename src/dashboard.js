@@ -950,7 +950,7 @@ export function startDashboardServer(opts, port = 3000) {
       } catch (e) {
         console.log('[license] Fallo en chequeo periódico: ' + String(e.message || e));
       }
-    }, Math.max(30000, (license.pollMs ? license.pollMs() : 300000)));
+    }, Math.max(10000, (license.pollMs ? license.pollMs() : 300000)));
     if (kickTimer.unref) kickTimer.unref();
   }
 

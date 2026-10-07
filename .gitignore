@@ -8,6 +8,17 @@ launcher/resources/node/
 # Estado del bot (sesiones de Eldorado, keys de clientes, tokens de Discord, logs)
 state/
 
+# Restore points y backups locales (pueden contener estado/secretos)
+backups/
+
+# Build configs (los genera sanitize-config con datos del entorno local)
+launcher/build/config/
+
+# One-offs de diagnóstico locales (probes de release/discord con lecturas de canales)
+tools/archive/
+.node-inspect-panel.mjs
+.node-panel-check.mjs
+
 # Perfiles de Chrome (datos personales del login)
 .profile/
 .profile2/
@@ -15,6 +26,13 @@ chrome-profile/
 
 # Config local con secretos (webhook de Discord). Usar config/rules.example.json como plantilla.
 config/rules.json
+
+# Secretos locales (nunca al repo)
+.env
+config/license.json
+config/rules.json.bak
+config/rules.json.bkp-*
+config/rules.json.pre-build-*
 
 # Logs
 *.log
