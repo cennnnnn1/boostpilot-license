@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-17T22:49:56.294Z",
+  "updatedAt": "2026-10-09T17:02:02.869Z",
   "entries": {
     "cbebffe638303ac3f69d531bf465c1bf3f6d2302d0981f50ceb8c7750a2c23d8": {
       "plan": "De por vida",
@@ -28,6 +28,20 @@
       "maxDevices": 1,
       "kickEpoch": 0,
       "pausedMs": 1711612
+    },
+    "f4e1f8a0b407a696e35e3cfd55b45beecd93be3f426ace4dc4272454e1735035": {
+      "plan": "Mensual",
+      "owner": "cenn",
+      "days": 30,
+      "hours": 0,
+      "game": null,
+      "trial": false,
+      "active": true,
+      "paid": true,
+      "vip": false,
+      "maxDevices": 1,
+      "kickEpoch": 0,
+      "pausedMs": 0
     }
   }
 }
